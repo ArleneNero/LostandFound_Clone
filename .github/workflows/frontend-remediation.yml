@@ -1,156 +1,58 @@
-name: Frontend remediation verification
+name: Frontend verification
 on:
   push:
     branches: [fix/frontend-fa-fc]
 permissions:
-  contents: write
+  contents: read
 concurrency:
-  group: frontend-remediation-${{ github.ref }}
+  group: frontend-verification-${{ github.ref }}
   cancel-in-progress: true
-env:
-  PUBLISH_REMEDIATION: 'true'
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     defaults:
       run:
         shell: bash
+        working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Apply reviewed frontend remediation
-        if: hashFiles('.github/remediation/part-*.txt') != ''
-        run: python .github/remediation/apply.py
-      - name: Install dependencies and verify reproducible lockfile
-        working-directory: apps/web
-        run: |
-          npm install --no-audit --no-fund
-          npm ci --no-audit --no-fund
-          npx prettier --write src/pages/landing/RoleCard.tsx
-      - name: Apply screenshot review corrections
-        if: hashFiles('.github/remediation/polish.py') != ''
-        run: python .github/remediation/polish.py
-      - name: Final session contract and UI assertions
-        if: hashFiles('.github/remediation/part-*.txt') != ''
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          root = Path('apps/web')
-          p = root / 'src/pages/officer/OfficerAccountPage.tsx'
-          p.write_text(p.read_text().replace('user?.fullName', 'user?.name'))
-          p = root / 'src/features/officer/components/ItemPhotoUploader.tsx'
-          s = p.read_text().replace('Wajib unggah 1 foto barang (JPG/PNG/WebP), maksimal 5 MiB.', 'JPG, PNG, WebP - maksimal 5 MiB.')
-          p.write_text(s)
-          p = root / 'e2e/frontend.spec.ts'
-          s = p.read_text().replace("['guide', '/panduan'],", "['guide', '/panduan'],\n    ['account', '/petugas/akun'],")
-          s += '''\ntest('F/B: account logout clears the simulated session', async ({ page }) => {
-            await page.goto('/petugas/akun');
-            await expect(page.getByRole('heading', { name: 'Akun Petugas', exact: true })).toBeVisible();
-            await page.getByRole('button', { name: 'Keluar Panel' }).click();
-            await expect(page).toHaveURL('/');
-            const cleared = await page.evaluate(async () => {
-              const { mockStore } = await import('/src/data/mockStore.ts');
-              return mockStore.getState().currentUser === null;
-            });
-            expect(cleared).toBe(true);
-          });\n'''
-          p.write_text(s)
-          PY
-          cd apps/web
-          npx prettier --write src/pages/officer/OfficerAccountPage.tsx src/features/officer/components/ItemPhotoUploader.tsx e2e/frontend.spec.ts
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
       - name: Prepare evidence directory
-        run: mkdir -p remediation-evidence
-      - name: Lint
-        id: lint
-        continue-on-error: true
-        working-directory: apps/web
-        run: npm run lint 2>&1 | tee ../../remediation-evidence/lint.log
-      - name: Typecheck
-        id: types
-        continue-on-error: true
-        working-directory: apps/web
-        run: npm run typecheck 2>&1 | tee ../../remediation-evidence/typecheck.log
-      - name: Unit and component regression tests
-        id: unit
-        continue-on-error: true
-        working-directory: apps/web
-        run: npm test 2>&1 | tee ../../remediation-evidence/unit-tests.log
+        run: mkdir -p evidence
+      - name: ESLint
+        run: npm run lint 2>&1 | tee evidence/lint.log
+      - name: TypeScript
+        run: npm run typecheck 2>&1 | tee evidence/typecheck.log
+      - name: Unit and component tests
+        run: npm test 2>&1 | tee evidence/unit-tests.log
       - name: Production build
-        id: build
-        continue-on-error: true
-        working-directory: apps/web
-        run: npm run build 2>&1 | tee ../../remediation-evidence/build.log
+        run: npm run build 2>&1 | tee evidence/build.log
       - name: Install Chromium
-        working-directory: apps/web
         run: npx playwright install --with-deps chromium
-      - name: Browser interaction and viewport verification
-        id: browser
-        continue-on-error: true
-        working-directory: apps/web
-        run: npm run test:e2e 2>&1 | tee ../../remediation-evidence/browser.log
-      - name: Publish verified source only to authorized fix branch
-        if: env.PUBLISH_REMEDIATION == 'true' && steps.lint.outcome == 'success' && steps.types.outcome == 'success' && steps.unit.outcome == 'success' && steps.build.outcome == 'success' && steps.browser.outcome == 'success'
-        run: |
-          test "$GITHUB_REF_NAME" = 'fix/frontend-fa-fc'
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- apps/web/src apps/web/e2e apps/web/package.json apps/web/package-lock.json apps/web/vite.config.ts apps/web/playwright.config.ts apps/web/eslint.config.js apps/web/.prettierrc.json
-          if [ -d .github/remediation ]; then git rm -r -- .github/remediation; fi
-          if ! git diff --cached --quiet; then
-            git commit -m 'fix(frontend): [F/A-F/C] perbaiki fungsi UI dan kesesuaian Figma' -m 'Perubahan: isolasi pos, foto mock asli, pagination 10, state dan aksesibilitas, design tokens, shell Petugas dan Guest. Verifikasi: lint, typecheck, unit/component tests, build, Chromium mobile dan desktop lulus. Backend tetap belum diimplementasikan.'
-            git push origin HEAD:refs/heads/fix/frontend-fa-fc
-          fi
-      - name: Export source and quality gate outcomes
-        if: always()
-        env:
-          LINT: ${{ steps.lint.outcome }}
-          TYPES: ${{ steps.types.outcome }}
-          UNIT: ${{ steps.unit.outcome }}
-          BUILD: ${{ steps.build.outcome }}
-          BROWSER: ${{ steps.browser.outcome }}
-        run: |
-          mkdir -p remediation-evidence /tmp/frontend-export
-          git rev-parse HEAD > remediation-evidence/commit.txt
-          python - <<'PY'
-          import os, json, zipfile
-          from pathlib import Path
-          results = {k: os.environ[k] for k in ['LINT','TYPES','UNIT','BUILD','BROWSER']}
-          Path('remediation-evidence/gates.json').write_text(json.dumps(results, indent=2))
-          excluded = {'.git','node_modules','test-results','evidence','remediation-evidence','dist'}
-          with zipfile.ZipFile('/tmp/frontend-export/source.zip','w',zipfile.ZIP_DEFLATED) as z:
-              for p in Path('.').rglob('*'):
-                  if p.is_file() and not any(part in excluded for part in p.parts) and p.suffix.lower() not in {'.woff','.woff2','.ttf','.otf'}:
-                      z.write(p, p.as_posix())
-          PY
+      - name: Browser interaction and visual geometry tests
+        run: npm run test:e2e 2>&1 | tee evidence/browser.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: frontend-remediated-source
-          path: /tmp/frontend-export/source.zip
-          retention-days: 7
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: frontend-browser-evidence
+          name: frontend-verification-evidence
           path: |
-            remediation-evidence
             apps/web/evidence
             apps/web/test-results
           retention-days: 7
-      - name: Require every quality gate to pass
-        if: always()
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p = Path('remediation-evidence/gates.json')
-          assert p.exists(), 'Verification did not reach the reporting stage'
-          gates = json.loads(p.read_text())
-          print(gates)
-          assert all(v == 'success' for v in gates.values()), 'One or more quality gates failed'
-          PY
+      - name: Export committed source
+        working-directory: .
+        run: git archive --format=zip HEAD -o /tmp/UBL_LostnFound_Source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-source
+          path: /tmp/UBL_LostnFound_Source.zip
+          retention-days: 7
