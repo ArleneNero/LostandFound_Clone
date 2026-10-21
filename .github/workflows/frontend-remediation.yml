@@ -10,7 +10,10 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,28 +21,87 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install locked dependencies
-        working-directory: apps/web
-        run: npm ci --no-audit --no-fund
-      - name: Prepare remediation tooling
-        working-directory: apps/web
-        run: npm install --save-dev --save-exact eslint@9 @eslint/js@9 typescript-eslint@8 eslint-plugin-react-hooks@5 eslint-plugin-jsx-a11y@6 globals@16 @playwright/test@1.56.1 prettier@3 --no-audit --no-fund
-      - name: Run baseline verification
+      - name: Apply reviewed frontend remediation
+        run: python .github/remediation/apply.py
+      - name: Install dependencies and verify reproducible lockfile
         working-directory: apps/web
         run: |
-          npm run typecheck
-          npm run lint --if-present
-          npm test
-          npm run build
-      - name: Export verification toolchain
+          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
+          npx prettier --write src/pages/landing/RoleCard.tsx
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        working-directory: apps/web
+        run: npm run lint 2>&1 | tee ../../remediation-evidence/lint.log
+      - name: Typecheck
+        id: types
+        continue-on-error: true
+        working-directory: apps/web
+        run: npm run typecheck 2>&1 | tee ../../remediation-evidence/typecheck.log
+      - name: Unit and component regression tests
+        id: unit
+        continue-on-error: true
+        working-directory: apps/web
+        run: npm test 2>&1 | tee ../../remediation-evidence/unit-tests.log
+      - name: Production build
+        id: build
+        continue-on-error: true
+        working-directory: apps/web
+        run: npm run build 2>&1 | tee ../../remediation-evidence/build.log
+      - name: Install Chromium
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+      - name: Browser interaction and viewport verification
+        id: browser
+        continue-on-error: true
+        working-directory: apps/web
+        run: npm run test:e2e 2>&1 | tee ../../remediation-evidence/browser.log
+      - name: Export source and quality gate outcomes
         if: always()
+        env:
+          LINT: ${{ steps.lint.outcome }}
+          TYPES: ${{ steps.types.outcome }}
+          UNIT: ${{ steps.unit.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+          BROWSER: ${{ steps.browser.outcome }}
         run: |
-          mkdir -p /tmp/frontend-export
-          tar -czf /tmp/frontend-export/toolchain.tar.gz apps/web/node_modules apps/web/package.json apps/web/package-lock.json
-          git archive --format=zip HEAD -o /tmp/frontend-export/source.zip
+          mkdir -p remediation-evidence /tmp/frontend-export
+          python - <<'PY'
+          import os, json, zipfile
+          from pathlib import Path
+          results = {k: os.environ[k] for k in ['LINT','TYPES','UNIT','BUILD','BROWSER']}
+          Path('remediation-evidence/gates.json').write_text(json.dumps(results, indent=2))
+          excluded = {'.git','node_modules','test-results','evidence','remediation-evidence','dist'}
+          with zipfile.ZipFile('/tmp/frontend-export/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for p in Path('.').rglob('*'):
+                  if p.is_file() and not any(part in excluded for part in p.parts) and p.suffix.lower() not in {'.woff','.woff2','.ttf','.otf'}:
+                      z.write(p, p.as_posix())
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: frontend-toolchain
-          path: /tmp/frontend-export
-          retention-days: 3
+          name: frontend-remediated-source
+          path: /tmp/frontend-export/source.zip
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-browser-evidence
+          path: |
+            remediation-evidence
+            apps/web/evidence
+            apps/web/test-results
+          retention-days: 7
+      - name: Require every quality gate to pass
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('remediation-evidence/gates.json')
+          assert p.exists(), 'Verification did not reach the reporting stage'
+          gates = json.loads(p.read_text())
+          print(gates)
+          assert all(v == 'success' for v in gates.values()), 'One or more quality gates failed'
+          PY
