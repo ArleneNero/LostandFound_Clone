@@ -18,36 +18,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Export source snapshot
-        run: |
-          mkdir -p /tmp/frontend-export
-          git archive --format=zip HEAD -o /tmp/frontend-export/source.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: frontend-source
-          path: /tmp/frontend-export/source.zip
-          retention-days: 7
       - name: Install locked dependencies
         working-directory: apps/web
         run: npm ci --no-audit --no-fund
-      - name: Run verification
+      - name: Prepare remediation tooling
+        working-directory: apps/web
+        run: npm install --save-dev --save-exact eslint@9 @eslint/js@9 typescript-eslint@8 eslint-plugin-react-hooks@5 eslint-plugin-jsx-a11y@6 globals@16 @playwright/test@1.56.1 prettier@3 --no-audit --no-fund
+      - name: Run baseline verification
         working-directory: apps/web
         run: |
           npm run typecheck
           npm run lint --if-present
           npm test
           npm run build
-      - name: Export dependency workspace
+      - name: Export verification toolchain
         if: always()
         run: |
-          if [ -d apps/web/node_modules ]; then
-            tar -czf /tmp/frontend-export/dependencies.tar.gz apps/web/node_modules
-          fi
+          mkdir -p /tmp/frontend-export
+          tar -czf /tmp/frontend-export/toolchain.tar.gz apps/web/node_modules apps/web/package.json apps/web/package-lock.json
+          git archive --format=zip HEAD -o /tmp/frontend-export/source.zip
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: frontend-verification-workspace
-          path: |
-            /tmp/frontend-export/dependencies.tar.gz
-            apps/web/dist
+          name: frontend-toolchain
+          path: /tmp/frontend-export
           retention-days: 3
