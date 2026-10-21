@@ -1,5 +1,6 @@
-@import "./tokens.css";
-@import "tailwindcss";
+@import './tokens.css';
+@import 'tailwindcss';
+@import './layout.css';
 
 @theme {
   --color-lf-blue: var(--lf-blue);
@@ -11,7 +12,7 @@
   --color-lf-muted: var(--lf-muted);
   --color-lf-border: var(--lf-border);
   --color-lf-border-strong: var(--lf-border-strong);
-  
+
   --color-lf-success: var(--lf-success);
   --color-lf-success-soft: var(--lf-success-soft);
   --color-lf-warning: var(--lf-warning);
@@ -21,12 +22,12 @@
 
   --font-sans: var(--font-family-base);
 
-  --radius-primary-btn: var(--radius-primary-btn);
-  --radius-btn: var(--radius-btn);
-  --radius-input: var(--radius-input);
-  --radius-card: var(--radius-card);
-  --radius-modal: var(--radius-modal);
-  --radius-pill: var(--radius-pill);
+  --radius-primary-btn: 14px;
+  --radius-btn: 12px;
+  --radius-input: 12px;
+  --radius-card: 20px;
+  --radius-modal: 20px;
+  --radius-pill: 9999px;
 }
 
 /* Custom Utilities for Figma Tokens */

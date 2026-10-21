@@ -1,43 +1,43 @@
 :root {
   /* Colors from Figma Style Guide (Node 34:67 & DESIGN_SYSTEM.md) */
-  --lf-blue: #1677FF;
-  --lf-action: #0B5ED7;
-  --lf-soft: #EAF3FF;
-  --lf-canvas: #F7F9FC;
-  --lf-card: #FFFFFF;
+  --lf-blue: #1677ff;
+  --lf-action: #0b5ed7;
+  --lf-soft: #eaf3ff;
+  --lf-canvas: #f7f9fc;
+  --lf-card: #ffffff;
   --lf-ink: #111827;
   --lf-muted: #667085;
-  --lf-border: #E4E7EC;
-  --lf-border-strong: #D0D5DD;
-  
+  --lf-border: #e4e7ec;
+  --lf-border-strong: #d0d5dd;
+
   /* Status Semantic Colors */
-  --lf-success: #0F973D;
-  --lf-success-soft: #EAF8F1;
-  --lf-warning: #B54708;
-  --lf-warning-soft: #FFFAEB;
-  --lf-error: #D92D20;
-  --lf-error-soft: #FEF3F2;
+  --lf-success: #0f7b4e;
+  --lf-success-soft: #eaf8f1;
+  --lf-warning: #b54708;
+  --lf-warning-soft: #fffaeb;
+  --lf-error: #d92d20;
+  --lf-error-soft: #fef3f2;
 
   /* Button Gradient from Figma Button/Primary (Node 16:9) */
-  --lf-gradient-primary: linear-gradient(180deg, #3194FF 0%, #0873F8 100%);
-  --lf-gradient-primary-hover: linear-gradient(180deg, #2488FF 0%, #0566DE 100%);
+  --lf-gradient-primary: linear-gradient(180deg, #3194ff 0%, #0873f8 100%);
+  --lf-gradient-primary-hover: linear-gradient(180deg, #2488ff 0%, #0566de 100%);
 
   /* Typography Scale from Figma (Node 34:91-96) */
   --font-family-base: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  
+
   /* Font Sizes and Line Heights */
   --text-page-title: 26px;
   --leading-page-title: 34px;
-  
+
   --text-section-title: 18px;
   --leading-section-title: 26px;
-  
+
   --text-card-title: 16px;
   --leading-card-title: 24px;
-  
+
   --text-body: 14px;
   --leading-body: 22px;
-  
+
   --text-meta: 12px;
   --leading-meta: 18px;
 
@@ -53,6 +53,16 @@
   --radius-card: 16px;
   --radius-modal: 20px;
   --radius-pill: 9999px;
+
+  /* Compatibility aliases used by existing components. */
+  --lf-white: #ffffff;
+  --lf-surface: var(--lf-card);
+  --lf-radius-sm: 8px;
+  --lf-radius-md: 12px;
+  --lf-radius-lg: 20px;
+  --lf-radius-xl: 20px;
+  --lf-greensoft: var(--lf-success-soft);
+  --lf-green: var(--lf-success);
 
   /* Shadows - Subtle soft campus aesthetic */
   --shadow-subtle: 0px 1px 3px rgba(16, 24, 40, 0.05);

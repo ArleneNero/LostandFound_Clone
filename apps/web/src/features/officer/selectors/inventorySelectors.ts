@@ -1,7 +1,7 @@
 import { FoundItem } from '@/types/domain';
 import { ItemStatus } from '@/types/api';
 
-export const DEFAULT_STORAGE_LIMIT_DAYS = 30;
+export const DEFAULT_STORAGE_LIMIT_DAYS: number | null = null;
 
 export function getDaysStored(receivedAt: string): number {
   const received = new Date(receivedAt).getTime();
@@ -12,9 +12,9 @@ export function getDaysStored(receivedAt: string): number {
 
 export function isItemOverdue(
   receivedAt: string,
-  storageLimitDays = DEFAULT_STORAGE_LIMIT_DAYS
+  storageLimitDays: number | null = DEFAULT_STORAGE_LIMIT_DAYS,
 ): boolean {
-  return getDaysStored(receivedAt) > storageLimitDays;
+  return storageLimitDays != null && getDaysStored(receivedAt) > storageLimitDays;
 }
 
 export interface InventoryFilterOptions {
@@ -25,7 +25,7 @@ export interface InventoryFilterOptions {
 
 export function filterAndSortInventory(
   items: FoundItem[],
-  options: InventoryFilterOptions
+  options: InventoryFilterOptions,
 ): FoundItem[] {
   let result = [...items];
 
@@ -40,7 +40,7 @@ export function filterAndSortInventory(
         i.name.toLowerCase().includes(q) ||
         i.inventoryCode.toLowerCase().includes(q) ||
         i.category.toLowerCase().includes(q) ||
-        (i.foundLocation && i.foundLocation.toLowerCase().includes(q))
+        (i.foundLocation && i.foundLocation.toLowerCase().includes(q)),
     );
   }
 

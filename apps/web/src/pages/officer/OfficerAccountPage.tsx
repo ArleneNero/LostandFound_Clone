@@ -1,50 +1,42 @@
-import React from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, LogOut, Building2 } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
+import { UserRound, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { RoutePaths } from '@/constants/routes';
-
-export const OfficerAccountPage: React.FC = () => {
+import { services } from '@/services/registry';
+import { useAsyncResource } from '@/hooks/useAsyncResource';
+import { useServiceVersion } from '@/hooks/useServiceVersion';
+export function OfficerAccountPage() {
   const navigate = useNavigate();
-
+  const version = useServiceVersion();
+  const load = useCallback(() => services.auth.getCurrentUser(), []);
+  const { data: user, loading, error } = useAsyncResource(load, version);
+  const logout = async () => {
+    await services.auth.logout();
+    navigate('/');
+  };
   return (
-    <div className="max-w-xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl lg:text-2xl font-bold text-[var(--lf-ink)]">
-          Akun Petugas
-        </h1>
-        <p className="text-xs lg:text-sm text-[var(--lf-muted)] mt-1">
-          Informasi profil dan penugasan operasional pos layanan
-        </p>
+    <div className="lf-stack" style={{ maxWidth: 560, margin: 'auto' }}>
+      <div className="lf-page-intro">
+        <h1 className="lf-title">Akun Petugas</h1>
+        <p>Sesi simulasi frontend. Belum terhubung ke Clerk.</p>
       </div>
-
-      <Card className="p-6 flex flex-col gap-5">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-[var(--lf-soft)] text-[var(--lf-action)] flex items-center justify-center font-bold text-lg">
-            <User className="w-7 h-7" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-[var(--lf-ink)]">Petugas Pengajaran</h2>
-            <p className="text-xs text-[var(--lf-muted)]">petugas.pengajaran@budiluhur.ac.id</p>
-            <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-[var(--lf-soft)] text-[var(--lf-action)] rounded-full text-[11px] font-semibold">
-              <Building2 className="w-3 h-3" />
-              <span>Pos Pengajaran — Gedung Induk</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-[var(--lf-border)] flex justify-end">
-          <Button
-            variant="danger"
-            size="sm"
-            leftIcon={<LogOut className="w-4 h-4" />}
-            onClick={() => navigate(RoutePaths.LANDING)}
-          >
-            Keluar Panel
-          </Button>
-        </div>
-      </Card>
+      <section className="lf-surface lf-stack" style={{ padding: 24 }}>
+        <UserRound size={32} aria-hidden="true" />
+        {loading ? (
+          <p role="status">Memuat sesi...</p>
+        ) : error ? (
+          <p role="alert">{error}</p>
+        ) : (
+          <>
+            <h2 className="lf-section-title">{user?.name ?? 'Tidak ada sesi'}</h2>
+            <p>{user?.email}</p>
+            <p>Penugasan pos: {user?.assignedPostId ?? '-'}</p>
+            <Button variant="secondary" leftIcon={<LogOut size={20} />} onClick={logout}>
+              Keluar Panel
+            </Button>
+          </>
+        )}
+      </section>
     </div>
   );
-};
+}

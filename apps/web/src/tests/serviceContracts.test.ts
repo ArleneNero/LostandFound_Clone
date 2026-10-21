@@ -1,3 +1,4 @@
+import { makePhotoToken } from './helpers';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { registry } from '@/services/registry';
 import { mockStore } from '@/data/mockStore';
@@ -20,15 +21,13 @@ describe('Service Contracts & Registry (F/A.3)', () => {
 
   it('throws explicitly when in http mode before backend is configured (no silent fallback)', () => {
     registry.setMode('http');
-    expect(() => registry.getServices()).toThrowError(
-      /HTTP Adapter belum aktif/
-    );
+    expect(() => registry.getServices()).toThrowError(/HTTP Adapter belum aktif/);
   });
 
   it('filters public items strictly to STORED and is_visible', async () => {
     const services = registry.getServices();
     const result = await services.items.getItems();
-    
+
     expect(result.items.length).toBeGreaterThan(0);
     result.items.forEach((item) => {
       expect(item.status).toBe('STORED');
@@ -44,7 +43,7 @@ describe('Service Contracts & Registry (F/A.3)', () => {
       category: 'Lainnya',
       description: 'Ditemukan di lab',
       foundLocation: 'Lab 1',
-      photoToken: 'mock-token-123',
+      photoToken: await makePhotoToken(),
     });
 
     expect(created.id).toBeDefined();
@@ -59,6 +58,7 @@ describe('Service Contracts & Registry (F/A.3)', () => {
 
   it('handles submission lifecycle: create, receive, and reject', async () => {
     const services = registry.getServices();
+    await services.auth.loginAsStudent();
     const sub = await services.submissions.createSubmission({
       targetPostId: 1,
       itemName: 'Buku Catatan Algoritma',
@@ -66,18 +66,23 @@ describe('Service Contracts & Registry (F/A.3)', () => {
       description: 'Buku spiral sampul biru',
       foundLocation: 'Gedung 4 Lt. 2',
       foundDate: '2026-10-21',
-      photoToken: 'mock-sub-token',
+      photoToken: await makePhotoToken('REPORT_PHOTO'),
     });
 
     expect(sub.status).toBe('PENDING_RECEIPT');
     expect(sub.reportCode).toMatch(/^REP-2026-\d{4}$/);
 
     // Test rejection with reason
+    await services.auth.loginAsOfficer();
     const rejected = await services.submissions.rejectSubmission(
       sub.id,
-      'Barang tidak diserahkan ke pos dalam batas waktu'
+      'Barang tidak diserahkan ke pos dalam batas waktu',
     );
     expect(rejected.status).toBe('REJECTED');
-    expect(rejected.description).toContain('[DITOLAK]');
+    expect(rejected.description).toBe('Buku spiral sampul biru');
+    expect(rejected.history?.at(-1)?.to).toBe('REJECTED');
+    expect(rejected.history?.at(-1)?.reason).toBe(
+      'Barang tidak diserahkan ke pos dalam batas waktu',
+    );
   });
 });

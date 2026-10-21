@@ -11,13 +11,11 @@ export interface DashboardMetrics {
  */
 export function selectDashboardMetrics(
   items: FoundItem[],
-  submissions: Submission[]
+  submissions: Submission[],
 ): DashboardMetrics {
   const totalStored = items.filter((i) => i.status === 'STORED').length;
   const totalReturned = items.filter((i) => i.status === 'RETURNED_TO_OWNER').length;
-  const totalPendingReports = submissions.filter(
-    (s) => s.status === 'PENDING_RECEIPT'
-  ).length;
+  const totalPendingReports = submissions.filter((s) => s.status === 'PENDING_RECEIPT').length;
 
   return {
     totalStored,
@@ -31,9 +29,6 @@ export function selectDashboardMetrics(
  */
 export function selectRecentItems(items: FoundItem[], limit = 5): FoundItem[] {
   return [...items]
-    .sort(
-      (a, b) =>
-        new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
-    )
+    .sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime())
     .slice(0, limit);
 }

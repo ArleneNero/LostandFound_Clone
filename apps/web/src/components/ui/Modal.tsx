@@ -1,74 +1,98 @@
-import React, { useEffect } from 'react';
-import { clsx } from 'clsx';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
-
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  busy?: boolean;
 }
-
-const maxWidthStyles = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-};
-
-export const Modal: React.FC<ModalProps> = ({
+export function Modal({
   isOpen,
   onClose,
   title,
   children,
   footer,
   maxWidth = 'md',
-}) => {
+  busy = false,
+}: ModalProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const callback = useRef(onClose);
+  callback.current = onClose;
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+    if (!isOpen) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const panel = ref.current;
+    panel?.focus();
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !busy) {
+        e.preventDefault();
+        callback.current();
+      }
+      if (e.key !== 'Tab' || !panel) return;
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),a[href],[tabindex="0"]',
+        ),
+      ).filter((el) => !el.hidden);
+      if (!focusable.length) {
+        e.preventDefault();
+        panel.focus();
+        return;
+      }
+      const first = focusable[0],
+        last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
+        e.preventDefault();
+        last.focus();
+      } else if (
+        !e.shiftKey &&
+        (document.activeElement === last || document.activeElement === panel)
+      ) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-  }, [isOpen, onClose]);
-
+    document.addEventListener('keydown', key);
+    return () => {
+      document.removeEventListener('keydown', key);
+      document.body.style.overflow = overflow;
+      previous?.focus();
+    };
+  }, [isOpen, busy]);
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} aria-hidden="true" />
+    <div className="lf-modal-overlay">
       <div
+        className="lf-modal-backdrop"
+        aria-hidden="true"
+        onClick={() => {
+          if (!busy) onClose();
+        }}
+      />
+      <div
+        ref={ref}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        className={clsx(
-          'relative w-full bg-white rounded-[20px] shadow-[0_16px_36px_rgba(16,24,40,0.14)]',
-          'border border-[var(--lf-border)] flex flex-col max-h-[90vh] overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150',
-          maxWidthStyles[maxWidth]
-        )}
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : 'Konfirmasi'}
+        className={`lf-modal lf-modal-${maxWidth}`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--lf-border)]">
-          <h3 className="text-base font-semibold text-[var(--lf-ink)]">{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full text-[var(--lf-muted)] hover:bg-[#F2F4F7] hover:text-[var(--lf-ink)] cursor-pointer"
-            aria-label="Tutup modal"
-          >
-            <X className="w-5 h-5" />
+        <header>
+          <h2 id={titleId}>{title}</h2>
+          <button type="button" onClick={onClose} disabled={busy} aria-label="Tutup modal">
+            <X size={20} />
           </button>
-        </div>
-        <div className="px-6 py-4 overflow-y-auto text-sm text-[var(--lf-ink)]">{children}</div>
-        {footer && (
-          <div className="px-6 py-3.5 bg-[#F9FAFB] border-t border-[var(--lf-border)] flex items-center justify-end gap-3">
-            {footer}
-          </div>
-        )}
+        </header>
+        <div className="lf-modal-body">{children}</div>
+        {footer && <footer>{footer}</footer>}
       </div>
     </div>
   );
-};
+}

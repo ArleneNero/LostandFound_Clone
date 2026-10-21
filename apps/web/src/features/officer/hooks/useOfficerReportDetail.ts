@@ -1,3 +1,4 @@
+import { useServiceVersion } from '@/hooks/useServiceVersion';
 import { useState, useEffect, useCallback } from 'react';
 import { Submission, FoundItem } from '@/types/domain';
 import { services } from '@/services/registry';
@@ -15,6 +16,7 @@ export interface UseOfficerReportDetailReturn {
 }
 
 export function useOfficerReportDetail(id: string | undefined): UseOfficerReportDetailReturn {
+  const version = useServiceVersion();
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [createdItem, setCreatedItem] = useState<FoundItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +47,7 @@ export function useOfficerReportDetail(id: string | undefined): UseOfficerReport
 
   useEffect(() => {
     fetchDetail();
-  }, [fetchDetail]);
+  }, [fetchDetail, version]);
 
   const receive = async (input: ReceiveSubmissionInput): Promise<FoundItem | null> => {
     if (!submission) return null;

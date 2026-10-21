@@ -1,58 +1,47 @@
-import React from 'react';
 import { Search } from 'lucide-react';
-import { ItemStatus } from '@/types/api';
-
-export interface InventoryFiltersProps {
+import type { ItemStatus } from '@/types/api';
+interface Props {
   searchQuery: string;
-  onSearchChange: (value: string) => void;
+  onSearchChange: (s: string) => void;
   statusFilter: ItemStatus | 'ALL';
-  onStatusChange: (status: ItemStatus | 'ALL') => void;
+  onStatusChange: (s: ItemStatus | 'ALL') => void;
   sortBy: 'newest' | 'oldest';
-  onSortChange: (sort: 'newest' | 'oldest') => void;
+  onSortChange: (s: 'newest' | 'oldest') => void;
 }
-
-export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
-  searchQuery,
-  onSearchChange,
-  statusFilter,
-  onStatusChange,
-  sortBy,
-  onSortChange,
-}) => {
+export function InventoryFilters(p: Props) {
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-      <div className="relative flex-1">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--lf-muted)]" />
+    <div className="lf-inventory-filters">
+      <label className="lf-search">
+        <Search size={20} />
+        <span className="sr-only">Cari barang inventaris</span>
         <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Cari barang atau kode inventaris..."
-          className="w-full pl-10 pr-4 py-2.5 text-sm bg-[var(--lf-canvas)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)] text-[var(--lf-ink)] placeholder-[var(--lf-muted)] focus:outline-none focus:border-[var(--lf-blue)] focus:ring-1 focus:ring-[var(--lf-blue)] transition-colors"
+          value={p.searchQuery}
+          onChange={(e) => p.onSearchChange(e.target.value)}
         />
-      </div>
-
-      <div className="flex items-center gap-2">
+      </label>
+      <label className="lf-select-control">
+        <span className="sr-only">Filter status</span>
         <select
-          value={statusFilter}
-          onChange={(e) => onStatusChange(e.target.value as ItemStatus | 'ALL')}
-          className="px-3 py-2.5 text-xs font-medium bg-[var(--lf-canvas)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)] text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-blue)]"
+          value={p.statusFilter}
+          onChange={(e) => p.onStatusChange(e.target.value as ItemStatus | 'ALL')}
         >
-          <option value="ALL">Semua status</option>
+          <option value="ALL">Semua Status</option>
           <option value="STORED">Tersedia di pos</option>
           <option value="RETURNED_TO_OWNER">Sudah diserahkan</option>
           <option value="DISTRIBUTED">Disalurkan</option>
         </select>
-
+      </label>
+      <label className="lf-select-control">
+        <span className="sr-only">Urutan inventaris</span>
         <select
-          value={sortBy}
-          onChange={(e) => onSortChange(e.target.value as 'newest' | 'oldest')}
-          className="px-3 py-2.5 text-xs font-medium bg-[var(--lf-canvas)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)] text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-blue)]"
+          value={p.sortBy}
+          onChange={(e) => p.onSortChange(e.target.value as 'newest' | 'oldest')}
         >
           <option value="newest">Terbaru</option>
           <option value="oldest">Terlama</option>
         </select>
-      </div>
+      </label>
     </div>
   );
-};
+}

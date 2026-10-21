@@ -7,9 +7,7 @@ import {
 } from '../api';
 import { FoundItem, Submission, ServicePost, UserSession } from './index';
 
-export function mapItemDtoToDomain(
-  dto: FoundItemPublicDto | InventoryOfficerDto
-): FoundItem {
+export function mapItemDtoToDomain(dto: FoundItemPublicDto | InventoryOfficerDto): FoundItem {
   const isOfficer = 'status' in dto;
 
   return {
@@ -26,9 +24,7 @@ export function mapItemDtoToDomain(
     photoUrl: dto.photos[0]?.url || '',
     status: isOfficer ? (dto as InventoryOfficerDto).status : 'STORED',
     isVisible: isOfficer ? (dto as InventoryOfficerDto).is_visible : true,
-    privateNotes: isOfficer
-      ? (dto as InventoryOfficerDto).private_verification_notes
-      : null,
+    privateNotes: isOfficer ? (dto as InventoryOfficerDto).private_verification_notes : null,
   };
 }
 
@@ -52,10 +48,13 @@ export function mapServicePostDtoToDomain(dto: ServicePostPublicDto): ServicePos
   return {
     id: dto.post_id,
     name: dto.name,
-    location: dto.location_description || 'Gedung Induk',
-    openingHours: dto.opening_hours || '08.00 - 16.00 WIB',
-    directions: dto.directions || 'Gedung Induk Lt. 1',
-    photos: dto.photos.map((p) => p.url),
+    location: dto.location_description || 'Lokasi belum dilengkapi',
+    openingHours: dto.opening_hours || 'Jam layanan belum dilengkapi',
+    directions: dto.directions || 'Petunjuk arah belum dilengkapi',
+    photos: [...dto.photos]
+      .sort((a, b) => a.position - b.position)
+      .slice(0, 3)
+      .map((p) => p.url),
   };
 }
 

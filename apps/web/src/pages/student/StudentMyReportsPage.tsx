@@ -35,7 +35,8 @@ export const StudentMyReportsPage: React.FC = () => {
         </div>
         <h2 className="text-base font-semibold text-[var(--lf-ink)]">Belum Ada Laporan Aktif</h2>
         <p className="text-xs text-[var(--lf-muted)] max-w-sm mt-1">
-          Barang yang Anda laporkan akan berstatus PENDING_RECEIPT sampai diserahkan ke Pos Pengajaran.
+          Barang yang Anda laporkan akan berstatus PENDING_RECEIPT sampai diserahkan ke Pos
+          Pengajaran.
         </p>
       </Card>
     </div>

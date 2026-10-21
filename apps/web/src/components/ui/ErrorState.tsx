@@ -20,7 +20,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
     <div
       className={clsx(
         'flex flex-col items-center justify-center p-8 text-center bg-white rounded-[16px] border border-[var(--lf-border)]',
-        className
+        className,
       )}
     >
       <div className="w-12 h-12 rounded-full bg-[var(--lf-error-soft)] text-[var(--lf-error)] flex items-center justify-center mb-4">

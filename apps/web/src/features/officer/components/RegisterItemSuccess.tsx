@@ -30,6 +30,13 @@ export const RegisterItemSuccess: React.FC<RegisterItemSuccessProps> = ({
         </p>
       </div>
 
+      <img
+        src={item.photoUrl}
+        alt={item.name}
+        width={120}
+        height={100}
+        className="rounded-xl object-cover"
+      />
       <div className="w-full p-4 bg-[var(--lf-canvas)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)] flex items-center justify-between text-left">
         <div>
           <h3 className="text-sm font-bold text-[var(--lf-ink)]">{item.name}</h3>
@@ -41,13 +48,25 @@ export const RegisterItemSuccess: React.FC<RegisterItemSuccessProps> = ({
       </div>
 
       <div className="flex flex-col w-full gap-2.5 pt-2">
-        <Button variant="primary" onClick={onViewCatalog} rightIcon={<ArrowRight className="w-4 h-4" />}>
+        <Button
+          variant="primary"
+          onClick={onViewCatalog}
+          rightIcon={<ArrowRight className="w-4 h-4" />}
+        >
           Lihat di Katalog
         </Button>
-        <Button variant="secondary" onClick={onRecordAnother} leftIcon={<RotateCcw className="w-4 h-4" />}>
+        <Button
+          variant="secondary"
+          onClick={onRecordAnother}
+          leftIcon={<RotateCcw className="w-4 h-4" />}
+        >
           Catat Barang Lagi
         </Button>
-        <Button variant="ghost" onClick={onViewInventory} leftIcon={<Package className="w-4 h-4" />}>
+        <Button
+          variant="ghost"
+          onClick={onViewInventory}
+          leftIcon={<Package className="w-4 h-4" />}
+        >
           Lihat Inventaris
         </Button>
       </div>

@@ -1,0 +1,10 @@
+/* Page 05 styles, grouped by responsibility. */
+@import './layout/foundation.css';
+@import './layout/officer-shell.css';
+@import './layout/inventory.css';
+@import './layout/forms.css';
+@import './layout/details.css';
+@import './layout/public-shell.css';
+@import './layout/catalog.css';
+@import './layout/dialogs.css';
+@import './layout/landing.css';

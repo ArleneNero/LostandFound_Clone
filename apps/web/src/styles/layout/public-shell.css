@@ -1,0 +1,167 @@
+.lf-public-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--lf-canvas);
+}
+.lf-public-header {
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  height: 76px;
+  flex-shrink: 0;
+}
+.lf-public-header > div {
+  max-width: 1200px;
+  margin: auto;
+  height: 100%;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+}
+.lf-public-header .lf-brand {
+  gap: 8px;
+}
+.lf-public-desktop-nav {
+  display: none;
+}
+.lf-login-link {
+  height: 40px;
+  min-width: 108px;
+  flex-shrink: 0;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  border-radius: 13px;
+  color: white;
+  background: linear-gradient(90deg, #4b9fff, #167bfd 55%, #0064f7);
+  box-shadow: 0 4px 10px rgba(18, 97, 250, 0.24);
+}
+.lf-public-main {
+  flex: 1;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+}
+.lf-public-content,
+.lf-public-page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.lf-public-bottom-nav {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  height: calc(72px + env(safe-area-inset-bottom));
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  z-index: 40;
+  box-shadow: 0 -5px 16px rgba(71, 123, 171, 0.08);
+}
+.lf-public-bottom-nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  position: relative;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--lf-muted);
+}
+.lf-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 30px;
+  border-radius: 12px;
+}
+.lf-public-bottom-nav a.active {
+  color: var(--lf-action);
+}
+.lf-public-bottom-nav a.active .lf-nav-icon {
+  background: var(--lf-soft);
+}
+.lf-public-bottom-nav .lf-report-nav {
+  padding-top: 34px;
+  height: 50px;
+}
+.lf-report-nav .lf-nav-icon {
+  position: absolute;
+  top: -31px;
+  width: 66px;
+  height: 66px;
+  border: 4px solid white;
+  border-radius: 50%;
+  color: white;
+  background: linear-gradient(180deg, #3194ff, #0873f8);
+  box-shadow: 0 6px 16px rgba(22, 119, 255, 0.27);
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lf-public-content,
+  .lf-public-page {
+    padding: 28px;
+  }
+}
+@media (min-width: 1024px) {
+  .lf-public-header {
+    height: 88px;
+  }
+  .lf-public-header > div {
+    padding: 16px 0;
+  }
+  .lf-public-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    margin-left: auto;
+    margin-right: 100px;
+  }
+  .lf-public-desktop-nav a {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--lf-muted);
+  }
+  .lf-public-desktop-nav a.active {
+    color: var(--lf-action);
+  }
+  .lf-public-bottom-nav {
+    display: none;
+  }
+  .lf-public-main {
+    padding-bottom: 32px;
+  }
+  .lf-public-content,
+  .lf-public-page {
+    padding: 32px 20px;
+  }
+}
+@media (max-width: 374px) {
+  .lf-public-header .lf-brand-copy strong {
+    font-size: 14px;
+  }
+  .lf-public-header .lf-brand-copy small {
+    font-size: 8px;
+  }
+  .lf-public-header .lf-login-link {
+    min-width: 76px;
+    padding: 10px 8px;
+  }
+}
+
+.lf-public-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

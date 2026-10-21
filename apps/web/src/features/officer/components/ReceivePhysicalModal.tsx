@@ -1,76 +1,101 @@
-import React, { useState } from 'react';
-import { CheckSquare } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-
-export interface ReceivePhysicalModalProps {
+import { ItemPhotoUploader } from './ItemPhotoUploader';
+import { services } from '@/services/registry';
+interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (notes: string) => Promise<void>;
+  onConfirm: (notes: string, photoToken: string) => Promise<void>;
   isSubmitting: boolean;
   itemName: string;
   reportCode: string;
 }
-
-export const ReceivePhysicalModal: React.FC<ReceivePhysicalModalProps> = ({
+export function ReceivePhysicalModal({
   isOpen,
   onClose,
   onConfirm,
   isSubmitting,
   itemName,
   reportCode,
-}) => {
-  const [confirmed, setConfirmed] = useState(false);
+}: Props) {
   const [notes, setNotes] = useState('');
-
-  const handleConfirm = async () => {
-    if (!confirmed) return;
-    await onConfirm(notes);
+  const [confirmed, setConfirmed] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const lock = useRef(false);
+  useEffect(
+    () => () => {
+      if (preview) URL.revokeObjectURL(preview);
+    },
+    [preview],
+  );
+  const busy = isSubmitting || saving;
+  const submit = async () => {
+    if (!file || !confirmed || lock.current) return;
+    lock.current = true;
+    setSaving(true);
+    setError('');
+    let token: string | undefined;
+    try {
+      const upload = await services.upload.uploadPhoto(file, 'ITEM_PHOTO');
+      token = upload.uploadToken;
+      await onConfirm(notes.trim(), token);
+    } catch (e) {
+      if (token) services.upload.releaseUpload(token);
+      setError(e instanceof Error ? e.message : 'Penerimaan gagal.');
+    } finally {
+      lock.current = false;
+      setSaving(false);
+    }
   };
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Konfirmasi Terima Fisik">
-      <div className="flex flex-col gap-4 text-xs">
-        <p className="text-[var(--lf-muted)]">
-          Pastikan mahasiswa sudah menyerahkan barang fisik sebelum konfirmasi. Barang akan otomatis tercatat ke inventaris pos.
+    <Modal isOpen={isOpen} onClose={onClose} title="Konfirmasi Terima Fisik" busy={busy}>
+      <div className="lf-stack">
+        <p>
+          {itemName} · {reportCode}
         </p>
-        <div className="p-3 bg-[var(--lf-surface)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)]">
-          <span className="font-bold text-[var(--lf-ink)]">{itemName}</span>
-          <span className="text-[var(--lf-muted)] block font-mono">Kode Laporan: {reportCode}</span>
-        </div>
-        <textarea
-          rows={2}
-          placeholder="Catatan verifikasi internal (opsional, hanya untuk petugas)..."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full px-3 py-2 bg-[var(--lf-canvas)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)] text-[var(--lf-ink)]"
+        <p>Pastikan barang fisik sudah diterima dari mahasiswa sebelum masuk inventaris.</p>
+        <ItemPhotoUploader
+          previewUrl={preview}
+          onPhotoSelect={(f) => {
+            setFile(f);
+            setPreview(URL.createObjectURL(f));
+          }}
+          onPhotoRemove={() => {
+            setFile(null);
+            setPreview(null);
+          }}
         />
-        <div className="flex items-start gap-2 pt-2 border-t border-[var(--lf-border)]">
+        <div className="lf-field">
+          <label htmlFor="receipt-notes">Catatan verifikasi internal (opsional)</label>
+          <textarea id="receipt-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+        <label className="lf-inline-actions">
           <input
-            type="checkbox"
             id="receiveCheck"
+            type="checkbox"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-[var(--lf-border)] text-[var(--lf-action)]"
           />
-          <label htmlFor="receiveCheck" className="cursor-pointer font-semibold text-[var(--lf-ink)] select-none">
-            Saya memastikan barang fisik sudah diterima dan sesuai dengan laporan.
-          </label>
-        </div>
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={isSubmitting}>Batal</Button>
-          <Button
-            variant="primary"
-            size="sm"
-            disabled={!confirmed}
-            isLoading={isSubmitting}
-            leftIcon={<CheckSquare className="w-4 h-4" />}
-            onClick={handleConfirm}
-          >
+          <span>Barang fisik sudah berada di pos Pengajaran.</span>
+        </label>
+        {error && (
+          <p role="alert" className="lf-field-error">
+            {error}
+          </p>
+        )}
+        <div className="lf-inline-actions">
+          <Button variant="secondary" disabled={busy} onClick={onClose}>
+            Batal
+          </Button>
+          <Button disabled={!file || !confirmed || busy} isLoading={busy} onClick={submit}>
             Konfirmasi Penerimaan
           </Button>
         </div>
       </div>
     </Modal>
   );
-};
+}

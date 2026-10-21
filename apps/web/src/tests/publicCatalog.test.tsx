@@ -26,18 +26,16 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter>
           <LandingPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByText('Barangmu hilang?')).toBeDefined();
-      expect(
-        screen.getByText(/Tenang, barangmu mungkin sudah ditemukan/i)
-      ).toBeDefined();
+      expect(screen.getByText(/Tenang, barangmu mungkin sudah ditemukan/i)).toBeDefined();
 
-      const heroImg = screen.getByAltText('Ilustrasi Kotak Barang Temuan') as HTMLImageElement;
+      const heroImg = screen.getByAltText(/Ilustrasi kotak barang temuan/i) as HTMLImageElement;
       expect(heroImg).toBeDefined();
       expect(heroImg.src).toContain(
-        encodeURI('/assets/illustrations/landing/Kotak Barang Hilang dan Ditemukan.png')
+        encodeURI('/assets/illustrations/landing/Kotak Barang Hilang dan Ditemukan.png'),
       );
     });
 
@@ -45,17 +43,21 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter>
           <LandingPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // Petugas Card
       expect(screen.getByText('Petugas')).toBeDefined();
-      const petugasImg = screen.getByAltText('Petugas') as HTMLImageElement;
+      const petugasImg = screen
+        .getByRole('button', { name: /Petugas Login untuk mengelola/ })
+        .querySelector('img') as HTMLImageElement;
       expect(petugasImg.src).toContain('/assets/illustrations/roles/Icon_Petugas.png');
 
       // Mahasiswa Card
       expect(screen.getByText('Mahasiswa')).toBeDefined();
-      const mhsImg = screen.getByAltText('Mahasiswa') as HTMLImageElement;
+      const mhsImg = screen
+        .getByRole('button', { name: /Mahasiswa Login \/ Register/ })
+        .querySelector('img') as HTMLImageElement;
       expect(mhsImg.src).toContain('/assets/illustrations/roles/Icon_Mahasiswa.png');
 
       // Guest Card
@@ -63,10 +65,10 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
 
       // Test navigation on clicking cards
       fireEvent.click(screen.getByText('Petugas'));
-      expect(mockNavigate).toHaveBeenCalledWith('/petugas/dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/masuk?role=officer');
 
       fireEvent.click(screen.getByText('Mahasiswa'));
-      expect(mockNavigate).toHaveBeenCalledWith('/mahasiswa/beranda');
+      expect(mockNavigate).toHaveBeenCalledWith('/masuk?role=student');
 
       fireEvent.click(screen.getByText('Mode Tamu'));
       expect(mockNavigate).toHaveBeenCalledWith('/beranda');
@@ -78,7 +80,7 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter>
           <GuestHomePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByText('Sedang mencari barangmu?')).toBeDefined();
@@ -104,7 +106,7 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter>
           <GuestHomePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const searchInput = screen.getByPlaceholderText(/Cari barang atau deskripsi/i);
@@ -120,7 +122,7 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter initialEntries={['/beranda']}>
           <PublicLayout />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getAllByText('Beranda').length).toBeGreaterThan(0);
@@ -136,7 +138,7 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter initialEntries={['/barang']}>
           <CatalogPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByText('Katalog Barang')).toBeDefined();
@@ -162,7 +164,7 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       render(
         <MemoryRouter initialEntries={['/barang']}>
           <CatalogPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {

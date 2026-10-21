@@ -1,3 +1,4 @@
+import { makePhotoToken } from './helpers';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -27,31 +28,37 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
           <Routes>
             <Route path="/petugas/inventaris/:id" element={<OfficerItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
         expect(screen.getByText('Kunci Motor Honda Vario')).toBeDefined();
-        expect(screen.getByRole('button', { name: /Serah Terima Pemilik/i })).toBeDefined();
+        expect(screen.getByRole('button', { name: /Proses Serah Terima/i })).toBeDefined();
       });
 
       // 1. Open Return Modal
-      fireEvent.click(screen.getByRole('button', { name: /Serah Terima Pemilik/i }));
+      fireEvent.click(screen.getByRole('button', { name: /Proses Serah Terima/i }));
       expect(screen.getByRole('heading', { name: /Proses Pengembalian Barang/i })).toBeDefined();
 
       // 2. Verify Privacy Notice exists and no identity upload fields are present
-      expect(screen.getByText(/Jangan meminta atau menyimpan salinan foto KTP\/NIK\/KTM/i)).toBeDefined();
+      expect(
+        screen.getByText(/Jangan meminta atau menyimpan salinan foto KTP\/NIK\/KTM/i),
+      ).toBeDefined();
       expect(screen.queryByLabelText(/Foto KTP/i)).toBeNull();
 
       // 3. Confirm button is disabled initially
-      const confirmBtn = screen.getByRole('button', { name: /Konfirmasi Serah Terima/i }) as HTMLButtonElement;
+      const confirmBtn = screen.getByRole('button', {
+        name: /Konfirmasi Serah Terima/i,
+      }) as HTMLButtonElement;
       expect(confirmBtn.disabled).toBe(true);
 
       // 4. Fill recipient name and verification summary
       const nameInput = screen.getByPlaceholderText(/Nama lengkap penerima/i);
       const summaryInput = screen.getByPlaceholderText(/Ciri khusus yang dicocokkan/i);
       fireEvent.change(nameInput, { target: { value: 'Budi Santoso' } });
-      fireEvent.change(summaryInput, { target: { value: 'Membawa STNK dan kunci cadangan dengan nomor seri cocok' } });
+      fireEvent.change(summaryInput, {
+        target: { value: 'Membawa STNK dan kunci cadangan dengan nomor seri cocok' },
+      });
 
       // Still disabled until checkbox checked
       expect(confirmBtn.disabled).toBe(true);
@@ -87,7 +94,7 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
           <Routes>
             <Route path="/petugas/inventaris/:id" element={<OfficerItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -98,12 +105,16 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
       fireEvent.click(screen.getByRole('button', { name: /Salurkan Barang/i }));
       expect(screen.getByRole('heading', { name: /Penyaluran Barang Temuan/i })).toBeDefined();
 
-      const confirmBtn = screen.getByRole('button', { name: /Konfirmasi Penyaluran/i }) as HTMLButtonElement;
+      const confirmBtn = screen.getByRole('button', {
+        name: /Konfirmasi Penyaluran/i,
+      }) as HTMLButtonElement;
       expect(confirmBtn.disabled).toBe(true);
 
       // 2. Fill distribution notes
       const notesInput = screen.getByPlaceholderText(/Tuliskan pihak penerima penyaluran/i);
-      fireEvent.change(notesInput, { target: { value: 'Diserahkan ke DKM Masjid Baitul Ilmi untuk lelang amal' } });
+      fireEvent.change(notesInput, {
+        target: { value: 'Diserahkan ke DKM Masjid Baitul Ilmi untuk lelang amal' },
+      });
 
       const checkbox = document.getElementById('distributeCheck') as HTMLInputElement;
       fireEvent.click(checkbox);
@@ -132,13 +143,13 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
 
       // Attempt second return must fail
       await expect(
-        services.items.returnItem('item-uuid-001', 'Budi', 'Coba duplikasi')
+        services.items.returnItem('item-uuid-001', 'Budi', 'Coba duplikasi'),
       ).rejects.toThrow(/tidak dalam status tersimpan/i);
 
       // Attempt distribution on returned item must fail
-      await expect(
-        services.items.distributeItem('item-uuid-001', 'Coba salurkan')
-      ).rejects.toThrow(/tidak dalam status tersimpan/i);
+      await expect(services.items.distributeItem('item-uuid-001', 'Coba salurkan')).rejects.toThrow(
+        /tidak dalam status tersimpan/i,
+      );
     });
   });
 
@@ -149,7 +160,7 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
         name: 'Headphone Sony Hitam',
         category: 'Elektronik',
         description: 'Headphone Sony over-ear hitam di perpustakaan',
-        photoToken: 'mock-photo-token',
+        photoToken: await makePhotoToken(),
       });
       expect(created.status).toBe('STORED');
       expect(created.isVisible).toBe(true);
@@ -162,8 +173,8 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
 
       // 3. Receive student report
       const received = await services.submissions.receiveSubmission('sub-uuid-001', {
-        publicDescription: 'Jaket Hoodie Hitam Uniqlo terverifikasi',
-        photoToken: 'mock-report-token',
+        publicDescription: 'Tas Kanvas terverifikasi',
+        photoToken: await makePhotoToken(),
       });
       expect(received.status).toBe('STORED');
 
@@ -172,7 +183,7 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
 
       // Verify inventory has received item
       const inventory = await services.items.getOfficerItems();
-      const hoodie = inventory.items.find((i) => i.name === 'Jaket Hoodie Hitam Uniqlo');
+      const hoodie = inventory.items.find((i) => i.name === 'Tas Kanvas');
       expect(hoodie).toBeDefined();
       expect(hoodie?.status).toBe('STORED');
 
@@ -181,7 +192,7 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
         const returned = await services.items.returnItem(
           hoodie.id,
           'Mahasiswa Pemilik',
-          'Nomor telepon dan nota pembelian Uniqlo cocok'
+          'Nomor telepon dan nota pembelian Uniqlo cocok',
         );
         expect(returned.status).toBe('RETURNED_TO_OWNER');
         expect(returned.isVisible).toBe(false);
@@ -190,7 +201,7 @@ describe('Officer Handover, Distribution & Gate Submilestone (F/B.5)', () => {
       // 5. Distribute first created item
       const distributed = await services.items.distributeItem(
         created.id,
-        'Disalurkan ke lab audio multimedia'
+        'Disalurkan ke lab audio multimedia',
       );
       expect(distributed.status).toBe('DISTRIBUTED');
       expect(distributed.isVisible).toBe(false);

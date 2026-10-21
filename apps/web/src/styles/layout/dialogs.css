@@ -1,0 +1,62 @@
+.lf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lf-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.4);
+}
+.lf-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: white;
+  border: 1px solid var(--lf-border);
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(16, 24, 40, 0.14);
+  max-height: calc(100dvh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+.lf-modal-lg {
+  max-width: 512px;
+}
+.lf-modal-xl {
+  max-width: 600px;
+}
+.lf-modal > header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--lf-border);
+}
+.lf-modal > header h2 {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 700;
+}
+.lf-modal > header button {
+  padding: 8px;
+  color: var(--lf-muted);
+}
+.lf-modal-body {
+  padding: 24px;
+  overflow: auto;
+  min-height: 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+.lf-modal > footer {
+  padding: 16px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--lf-border);
+}

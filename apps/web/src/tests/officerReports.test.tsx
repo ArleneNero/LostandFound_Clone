@@ -1,3 +1,4 @@
+import { makePhotoToken } from './helpers';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -26,12 +27,14 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
       render(
         <MemoryRouter>
           <OfficerReportsPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
-        expect(screen.getByText(/Jangan konfirmasi penerimaan jika mahasiswa belum menyerahkan/i)).toBeDefined();
-        expect(screen.getAllByText('Jaket Hoodie Hitam Uniqlo').length).toBeGreaterThan(0);
+        expect(
+          screen.getByText(/Jangan konfirmasi penerimaan jika mahasiswa belum menyerahkan/i),
+        ).toBeDefined();
+        expect(screen.getAllByText('Tas Kanvas').length).toBeGreaterThan(0);
       });
 
       expect(screen.getByPlaceholderText('Cari kode laporan atau nama barang...')).toBeDefined();
@@ -41,23 +44,25 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
       render(
         <MemoryRouter>
           <OfficerReportsPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
-        expect(screen.getAllByText('Jaket Hoodie Hitam Uniqlo').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Tas Kanvas').length).toBeGreaterThan(0);
       });
 
       // Filter Diterima (none initially)
       fireEvent.click(screen.getByRole('button', { name: /^Diterima$/ }));
       await waitFor(() => {
-        expect(screen.getByText('Tidak ada laporan mahasiswa yang sesuai dengan filter.')).toBeDefined();
+        expect(
+          screen.getByText('Tidak ada laporan mahasiswa yang sesuai dengan filter.'),
+        ).toBeDefined();
       });
 
       // Filter Menunggu
       fireEvent.click(screen.getByRole('button', { name: /^Menunggu$/ }));
       await waitFor(() => {
-        expect(screen.getAllByText('Jaket Hoodie Hitam Uniqlo').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Tas Kanvas').length).toBeGreaterThan(0);
       });
     });
   });
@@ -69,11 +74,11 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
           <Routes>
             <Route path="/petugas/laporan/:id" element={<OfficerReportDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Jaket Hoodie Hitam Uniqlo')).toBeDefined();
+        expect(screen.getByText('Tas Kanvas')).toBeDefined();
         expect(screen.getByRole('button', { name: /Lanjut Konfirmasi Fisik/i })).toBeDefined();
       });
 
@@ -82,13 +87,20 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
       expect(screen.getByText('Konfirmasi Terima Fisik')).toBeDefined();
 
       // 2. Submit button is disabled before checking checkbox
-      const confirmBtn = screen.getByRole('button', { name: /Konfirmasi Penerimaan/i }) as HTMLButtonElement;
+      const confirmBtn = screen.getByRole('button', {
+        name: /Konfirmasi Penerimaan/i,
+      }) as HTMLButtonElement;
       expect(confirmBtn.disabled).toBe(true);
 
       // 3. Check checkbox
       const checkbox = document.getElementById('receiveCheck') as HTMLInputElement;
       fireEvent.click(checkbox);
       expect(checkbox.checked).toBe(true);
+      expect(confirmBtn.disabled).toBe(true); // A physical check alone is insufficient: a new photo is required.
+      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      fireEvent.change(input, {
+        target: { files: [new File(['fixture'], 'receipt.png', { type: 'image/png' })] },
+      });
       expect(confirmBtn.disabled).toBe(false);
 
       // 4. Confirm receipt
@@ -105,7 +117,7 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
 
       // 7. Verify exactly 1 new item created in inventory
       const items = await services.items.getOfficerItems();
-      const createdItem = items.items.find((i) => i.name === 'Jaket Hoodie Hitam Uniqlo');
+      const createdItem = items.items.find((i) => i.name === 'Tas Kanvas');
       expect(createdItem).toBeDefined();
       expect(createdItem?.status).toBe('STORED');
       expect(createdItem?.isVisible).toBe(true);
@@ -119,7 +131,7 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
           <Routes>
             <Route path="/petugas/laporan/:id" element={<OfficerReportDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -130,7 +142,9 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
       fireEvent.click(screen.getByRole('button', { name: /Tolak Laporan/i }));
       expect(screen.getByRole('heading', { name: /Tolak Laporan/i })).toBeDefined();
 
-      const rejectBtn = screen.getByRole('button', { name: /Konfirmasi Penolakan/i }) as HTMLButtonElement;
+      const rejectBtn = screen.getByRole('button', {
+        name: /Konfirmasi Penolakan/i,
+      }) as HTMLButtonElement;
       expect(rejectBtn.disabled).toBe(true);
 
       // Fill reason
@@ -155,21 +169,21 @@ describe('Officer Reports & Physical Receipt Submilestone (F/B.4)', () => {
       // First receive
       await services.submissions.receiveSubmission('sub-uuid-001', {
         publicDescription: 'Test',
-        photoToken: 'mock-token',
+        photoToken: await makePhotoToken(),
       });
 
       // Second receive must reject
       await expect(
         services.submissions.receiveSubmission('sub-uuid-001', {
           publicDescription: 'Duplicate',
-          photoToken: 'mock-token',
-        })
-      ).rejects.toThrow(/tidak dapat diterima/i);
+          photoToken: await makePhotoToken(),
+        }),
+      ).rejects.toThrow(/tidak dapat diproses/i);
 
       // Rejection after received must reject
-      await expect(
-        services.submissions.rejectSubmission('sub-uuid-001', 'Reason')
-      ).rejects.toThrow(/tidak dapat ditolak/i);
+      await expect(services.submissions.rejectSubmission('sub-uuid-001', 'Reason')).rejects.toThrow(
+        /tidak dapat diproses/i,
+      );
     });
   });
 });

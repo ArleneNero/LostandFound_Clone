@@ -1,0 +1,174 @@
+.lf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.lf-field label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.lf-field input:not([type='file']),
+.lf-field select,
+.lf-field textarea {
+  width: 100%;
+  border: 1px solid var(--lf-border);
+  border-radius: 12px;
+  background: white;
+  min-height: 48px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--lf-ink);
+}
+.lf-field input[aria-invalid='true'],
+.lf-field textarea[aria-invalid='true'],
+.lf-field select[aria-invalid='true'] {
+  border-color: var(--lf-error);
+}
+.lf-field-error {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lf-error);
+}
+.lf-upload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--lf-canvas);
+  border: 1px solid var(--lf-border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  min-height: 52px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lf-action);
+  box-shadow: var(--lf-shadow-surface);
+}
+.lf-photo-preview {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px;
+  background: var(--lf-canvas);
+  border: 1px solid var(--lf-border);
+  border-radius: 12px;
+}
+.lf-photo-preview img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.lf-photo-preview > div {
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+  line-height: 18px;
+}
+.lf-photo-preview .lf-inline-actions {
+  gap: 4px;
+  margin-top: 8px;
+}
+.lf-two-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.lf-two-columns label {
+  font-size: 12px;
+  line-height: 18px;
+}
+.lf-register-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
+.lf-register-sidebar {
+  display: none;
+}
+.lf-registration-main {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.lf-extra-fields {
+  padding: 16px;
+}
+.lf-extra-fields summary {
+  color: var(--lf-action);
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+.lf-extra-fields .lf-caption {
+  margin-top: 8px;
+}
+.lf-extra-fields .lf-field {
+  margin-top: 16px;
+}
+.lf-receipt-check {
+  padding: 16px;
+}
+.lf-receipt-check label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.lf-receipt-check input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.lf-receipt-check small {
+  display: block;
+  color: var(--lf-muted);
+  font-size: 12px;
+  line-height: 18px;
+  margin-top: 6px;
+}
+@media (min-width: 1024px) {
+  .lf-register-grid {
+    grid-template-columns: minmax(0, 728fr) minmax(280px, 360fr);
+  }
+  .lf-register-sidebar {
+    display: flex;
+  }
+  .lf-register-sidebar section {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .lf-register-sidebar p {
+    color: var(--lf-muted);
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .lf-register-sidebar small {
+    color: var(--lf-muted);
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .lf-register-sidebar .lf-soft h2 {
+    color: var(--lf-action);
+  }
+  .lf-registration-main {
+    gap: 16px;
+  }
+  .lf-registration .lf-caption {
+    font-size: 12px;
+  }
+}
+@media (max-width: 374px) {
+  .lf-two-columns {
+    grid-template-columns: 1fr;
+  }
+}

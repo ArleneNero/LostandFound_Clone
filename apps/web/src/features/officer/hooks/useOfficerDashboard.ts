@@ -1,3 +1,5 @@
+import { loadAllPages } from '@/services/loadAllPages';
+import { useServiceVersion } from '@/hooks/useServiceVersion';
 import { useState, useEffect, useCallback } from 'react';
 import { FoundItem } from '@/types/domain';
 import { services } from '@/services/registry';
@@ -19,6 +21,7 @@ export interface UseOfficerDashboardReturn {
 }
 
 export function useOfficerDashboard(): UseOfficerDashboardReturn {
+  const version = useServiceVersion();
   const [items, setItems] = useState<FoundItem[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalStored: 0,
@@ -34,12 +37,12 @@ export function useOfficerDashboard(): UseOfficerDashboardReturn {
     setError(null);
     try {
       const [itemsRes, subsRes] = await Promise.all([
-        services.items.getOfficerItems({ limit: 50 }),
-        services.submissions.getSubmissions({ limit: 50 }),
+        loadAllPages((page, limit) => services.items.getOfficerItems({ page, limit })),
+        loadAllPages((page, limit) => services.submissions.getSubmissions({ page, limit })),
       ]);
 
-      setItems(itemsRes.items);
-      const computed = selectDashboardMetrics(itemsRes.items, subsRes.items);
+      setItems(itemsRes);
+      const computed = selectDashboardMetrics(itemsRes, subsRes);
       setMetrics(computed);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat data dashboard');
@@ -50,7 +53,7 @@ export function useOfficerDashboard(): UseOfficerDashboardReturn {
 
   useEffect(() => {
     loadDashboardData();
-  }, [loadDashboardData]);
+  }, [loadDashboardData, version]);
 
   const recentItems = selectRecentItems(items, 5);
 
@@ -58,7 +61,7 @@ export function useOfficerDashboard(): UseOfficerDashboardReturn {
     ? recentItems.filter(
         (i) =>
           i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          i.inventoryCode.toLowerCase().includes(searchQuery.toLowerCase())
+          i.inventoryCode.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : recentItems;
 

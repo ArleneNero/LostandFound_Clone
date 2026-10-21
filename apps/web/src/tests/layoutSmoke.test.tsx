@@ -10,10 +10,12 @@ describe('Layout Smoke Tests (F/A.3)', () => {
     const { unmount } = render(
       <MemoryRouter initialEntries={['/beranda']}>
         <PublicLayout />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getAllByText('UBL LostnFound').length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole('link', { name: 'UBL LostnFound, halaman awal' }).length,
+    ).toBeGreaterThan(0);
     expect(screen.getAllByText('Cari Barang').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Pos Pelayanan').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Login').length).toBeGreaterThan(0);
@@ -23,9 +25,11 @@ describe('Layout Smoke Tests (F/A.3)', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <PublicLayout />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    expect(screen.getAllByText('UBL LostnFound').length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole('link', { name: 'UBL LostnFound, halaman awal' }).length,
+    ).toBeGreaterThan(0);
     expect(screen.getAllByText('Temukan barangmu dengan mudah.').length).toBeGreaterThan(0);
   });
 
@@ -33,10 +37,10 @@ describe('Layout Smoke Tests (F/A.3)', () => {
     render(
       <MemoryRouter initialEntries={['/petugas/dashboard']}>
         <OfficerLayout />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getAllByText('Pos Pengajaran').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Pengajaran').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Inventaris').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Laporan').length).toBeGreaterThan(0);
@@ -47,7 +51,7 @@ describe('Layout Smoke Tests (F/A.3)', () => {
     render(
       <MemoryRouter initialEntries={['/mahasiswa/beranda']}>
         <StudentLayout />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getAllByText('Portal Mahasiswa').length).toBeGreaterThan(0);

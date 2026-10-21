@@ -1,102 +1,42 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Info } from 'lucide-react';
 import { RoutePaths } from '@/constants/routes';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useOfficerInventory } from '@/features/officer/hooks/useOfficerInventory';
-import {
-  InventoryFilters,
-  InventoryTable,
-  InventoryCardList,
-} from '@/features/officer/components';
-
-export const OfficerInventoryPage: React.FC = () => {
+import { InventoryFilters, InventoryTable, InventoryCardList } from '@/features/officer/components';
+export function OfficerInventoryPage() {
   const navigate = useNavigate();
-  const {
-    filteredItems,
-    isLoading,
-    error,
-    searchQuery,
-    setSearchQuery,
-    statusFilter,
-    setStatusFilter,
-    sortBy,
-    setSortBy,
-    refetch,
-  } = useOfficerInventory();
-
-  if (error) {
-    return (
-      <div className="py-8">
-        <ErrorState
-          title="Gagal Memuat Inventaris"
-          description={error}
-          onRetry={refetch}
-        />
-      </div>
-    );
-  }
-
+  const p = useOfficerInventory();
+  if (p.error)
+    return <ErrorState title="Gagal Memuat Inventaris" description={p.error} onRetry={p.refetch} />;
+  const open = (id: string) => navigate(`/petugas/inventaris/${id}`);
   return (
-    <div className="flex flex-col gap-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-[var(--lf-ink)]">
-              <span className="sm:hidden">Inventaris Barang</span>
-              <span className="hidden sm:inline">Inventaris Pengajaran</span>
-            </h1>
-            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--lf-soft)] text-[var(--lf-action)]">
-              Petugas Pengajaran
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-[var(--lf-muted)] mt-1">
-            <span className="sm:hidden">Hanya data unit Pengajaran.</span>
-            <span className="hidden sm:inline">
-              Inventaris Barang — Kelola fisik barang temuan dan visibilitas katalog pos aktif.
-            </span>
-          </p>
+    <div className="lf-stack">
+      <div className="lf-heading-row">
+        <div className="lf-page-intro">
+          <h1 className="lf-title">Inventaris Barang</h1>
+          <p className="lf-only-mobile">Hanya data unit Pengajaran.</p>
         </div>
-
         <Button
-          variant="primary"
-          leftIcon={<PlusCircle className="w-4 h-4" />}
+          className="lf-only-desktop"
           onClick={() => navigate(RoutePaths.OFFICER_REGISTER_ITEM)}
-          className="shrink-0"
         >
-          Catat Barang
+          Terima Barang
         </Button>
       </div>
-
-      {/* Scope Disclaimer Banner (Figma Exact) */}
-      <div className="flex items-center gap-2.5 px-4 py-3 bg-[var(--lf-surface)] border border-[var(--lf-border)] rounded-[var(--lf-radius-md)] text-xs text-[var(--lf-muted)]">
-        <Info className="w-4 h-4 text-[var(--lf-action)] shrink-0" />
-        <span>Data hanya dari unit Pengajaran. Tidak ada akses edit inventaris unit lain.</span>
-      </div>
-
-      {/* Filter and Search Controls */}
       <InventoryFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
+        searchQuery={p.searchQuery}
+        onSearchChange={p.setSearchQuery}
+        statusFilter={p.statusFilter}
+        onStatusChange={p.setStatusFilter}
+        sortBy={p.sortBy}
+        onSortChange={p.setSortBy}
       />
-
-      {/* Responsive Item Views */}
-      <InventoryTable
-        items={filteredItems}
-        isLoading={isLoading}
-        onDetailClick={(id) => navigate(`/petugas/inventaris/${id}`)}
-      />
-      <InventoryCardList
-        items={filteredItems}
-        isLoading={isLoading}
-        onDetailClick={(id) => navigate(`/petugas/inventaris/${id}`)}
-      />
+      <InventoryTable items={p.filteredItems} isLoading={p.isLoading} onDetailClick={open} />
+      <InventoryCardList items={p.filteredItems} isLoading={p.isLoading} onDetailClick={open} />
+      <p className="lf-caption">
+        Data hanya dari unit Pengajaran. Tidak ada akses edit inventaris unit lain.
+      </p>
     </div>
   );
-};
+}

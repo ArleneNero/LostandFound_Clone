@@ -28,7 +28,7 @@ describe('Officer Item Registration Submilestone (F/B.3)', () => {
       render(
         <MemoryRouter>
           <OfficerReportsPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByText('Pilih Jenis Laporan')).toBeDefined();
@@ -40,7 +40,7 @@ describe('Officer Item Registration Submilestone (F/B.3)', () => {
       render(
         <MemoryRouter>
           <OfficerReportsPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       fireEvent.click(screen.getByText('Catat Barang oleh Petugas'));
@@ -53,7 +53,7 @@ describe('Officer Item Registration Submilestone (F/B.3)', () => {
       render(
         <MemoryRouter>
           <OfficerRegisterItemPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const submitBtn = screen.getByRole('button', { name: /Konfirmasi & Simpan Barang/i });
@@ -61,7 +61,7 @@ describe('Officer Item Registration Submilestone (F/B.3)', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Wajib unggah 1 foto barang.')).toBeDefined();
-        expect(screen.getByText('Nama barang wajib diisi.')).toBeDefined();
+        expect(screen.getByText('Nama barang wajib diisi (maksimal 150 karakter).')).toBeDefined();
         expect(screen.getByText('Pilih kategori barang.')).toBeDefined();
         expect(screen.getByText('Deskripsi publik wajib diisi.')).toBeDefined();
       });
@@ -71,7 +71,7 @@ describe('Officer Item Registration Submilestone (F/B.3)', () => {
       render(
         <MemoryRouter>
           <OfficerRegisterItemPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // 1. Upload mock photo
@@ -84,13 +84,13 @@ describe('Officer Item Registration Submilestone (F/B.3)', () => {
       });
 
       // 2. Fill required text fields
-      fireEvent.change(screen.getByPlaceholderText(/Contoh: AirPods Pro/i), {
+      fireEvent.change(screen.getByLabelText('Nama barang *'), {
         target: { value: 'Jam Tangan Casio' },
       });
       fireEvent.change(screen.getByRole('combobox'), {
         target: { value: 'Aksesoris' },
       });
-      fireEvent.change(screen.getByPlaceholderText(/Deskripsi umum warna/i), {
+      fireEvent.change(screen.getByLabelText('Deskripsi publik *'), {
         target: { value: 'Jam tangan strap hitam digital' },
       });
 
