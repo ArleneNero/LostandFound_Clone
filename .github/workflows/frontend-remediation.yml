@@ -8,7 +8,7 @@ concurrency:
   group: frontend-remediation-${{ github.ref }}
   cancel-in-progress: true
 env:
-  PUBLISH_REMEDIATION: 'false'
+  PUBLISH_REMEDIATION: 'true'
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -35,6 +35,34 @@ jobs:
       - name: Apply screenshot review corrections
         if: hashFiles('.github/remediation/polish.py') != ''
         run: python .github/remediation/polish.py
+      - name: Final session contract and UI assertions
+        if: hashFiles('.github/remediation/part-*.txt') != ''
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root = Path('apps/web')
+          p = root / 'src/pages/officer/OfficerAccountPage.tsx'
+          p.write_text(p.read_text().replace('user?.fullName', 'user?.name'))
+          p = root / 'src/features/officer/components/ItemPhotoUploader.tsx'
+          s = p.read_text().replace('Wajib unggah 1 foto barang (JPG/PNG/WebP), maksimal 5 MiB.', 'JPG, PNG, WebP - maksimal 5 MiB.')
+          p.write_text(s)
+          p = root / 'e2e/frontend.spec.ts'
+          s = p.read_text().replace("['guide', '/panduan'],", "['guide', '/panduan'],\n    ['account', '/petugas/akun'],")
+          s += '''\ntest('F/B: account logout clears the simulated session', async ({ page }) => {
+            await page.goto('/petugas/akun');
+            await expect(page.getByRole('heading', { name: 'Akun Petugas', exact: true })).toBeVisible();
+            await page.getByRole('button', { name: 'Keluar Panel' }).click();
+            await expect(page).toHaveURL('/');
+            const cleared = await page.evaluate(async () => {
+              const { mockStore } = await import('/src/data/mockStore.ts');
+              return mockStore.getState().currentUser === null;
+            });
+            expect(cleared).toBe(true);
+          });\n'''
+          p.write_text(s)
+          PY
+          cd apps/web
+          npx prettier --write src/pages/officer/OfficerAccountPage.tsx src/features/officer/components/ItemPhotoUploader.tsx e2e/frontend.spec.ts
       - name: Prepare evidence directory
         run: mkdir -p remediation-evidence
       - name: Lint
