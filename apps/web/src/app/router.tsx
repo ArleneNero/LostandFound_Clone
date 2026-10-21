@@ -1,0 +1,76 @@
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { PublicLayout } from '@/components/layouts/PublicLayout';
+import { OfficerLayout } from '@/components/layouts/OfficerLayout';
+import { StudentLayout } from '@/components/layouts/StudentLayout';
+import { LandingPage } from '@/pages/LandingPage';
+import { GuestHomePage } from '@/pages/GuestHomePage';
+import { CatalogPage } from '@/pages/CatalogPage';
+import { ItemDetailPage } from '@/pages/ItemDetailPage';
+import { PostsPage } from '@/pages/PostsPage';
+import { GuidePage } from '@/pages/GuidePage';
+import { LoginPage } from '@/pages/LoginPage';
+import { OfficerDashboardPage } from '@/pages/officer/OfficerDashboardPage';
+import { OfficerInventoryPage } from '@/pages/officer/OfficerInventoryPage';
+import { OfficerRegisterItemPage } from '@/pages/officer/OfficerRegisterItemPage';
+import { OfficerReportsPage } from '@/pages/officer/OfficerReportsPage';
+import { OfficerAccountPage } from '@/pages/officer/OfficerAccountPage';
+import { OfficerItemDetailPage } from '@/pages/officer/OfficerItemDetailPage';
+import { OfficerReportDetailPage } from '@/pages/officer/OfficerReportDetailPage';
+import { StudentHomePage } from '@/pages/student/StudentHomePage';
+import { StudentReportPage } from '@/pages/student/StudentReportPage';
+import { StudentMyReportsPage } from '@/pages/student/StudentMyReportsPage';
+import { StudentProfilePage } from '@/pages/student/StudentProfilePage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
+import { RoutePaths } from '@/constants/routes';
+
+export const router = createBrowserRouter([
+  // Public & Guest Routes
+  {
+    path: RoutePaths.LANDING,
+    element: <PublicLayout />,
+    children: [
+      { index: true, element: <LandingPage /> },
+      { path: RoutePaths.GUEST_HOME, element: <GuestHomePage /> },
+      { path: RoutePaths.CATALOG, element: <CatalogPage /> },
+      { path: RoutePaths.ITEM_DETAIL, element: <ItemDetailPage /> },
+      { path: RoutePaths.POSTS, element: <PostsPage /> },
+      { path: RoutePaths.GUIDE, element: <GuidePage /> },
+      { path: RoutePaths.LOGIN, element: <LoginPage /> },
+    ],
+  },
+
+  // Officer / Petugas Routes
+  {
+    path: '/petugas',
+    element: <OfficerLayout />,
+    children: [
+      { index: true, element: <Navigate to={RoutePaths.OFFICER_DASHBOARD} replace /> },
+      { path: 'dashboard', element: <OfficerDashboardPage /> },
+      { path: 'inventaris', element: <OfficerInventoryPage /> },
+      { path: 'inventaris/:id', element: <OfficerItemDetailPage /> },
+      { path: 'catat-barang', element: <OfficerRegisterItemPage /> },
+      { path: 'laporan', element: <OfficerReportsPage /> },
+      { path: 'laporan/:id', element: <OfficerReportDetailPage /> },
+      { path: 'akun', element: <OfficerAccountPage /> },
+    ],
+  },
+
+  // Student / Mahasiswa Routes
+  {
+    path: '/mahasiswa',
+    element: <StudentLayout />,
+    children: [
+      { index: true, element: <Navigate to={RoutePaths.STUDENT_HOME} replace /> },
+      { path: 'beranda', element: <StudentHomePage /> },
+      { path: 'lapor-temuan', element: <StudentReportPage /> },
+      { path: 'laporan-saya', element: <StudentMyReportsPage /> },
+      { path: 'profil', element: <StudentProfilePage /> },
+    ],
+  },
+
+  // Fallback 404 Route
+  {
+    path: '*',
+    element: <NotFoundPage />,
+  },
+]);

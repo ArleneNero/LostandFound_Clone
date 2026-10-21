@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Production build outputs
+dist/
+**/dist/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Environment / Secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/.dev.vars
+**/.dev.vars.*
+
+# Agent Internal & Local Instructions (per GITIGNORE_TAMBAHAN.md)
+/AGENTS.md
+/.agent-internal/
+/apps/web/AGENTS.md
+/apps/web/.agent-internal/
+/README_PAKET.md
+/GITIGNORE_TAMBAHAN.md
+.agents/
