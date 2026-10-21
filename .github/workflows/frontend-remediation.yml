@@ -1,0 +1,53 @@
+name: Frontend remediation verification
+on:
+  push:
+    branches: [fix/frontend-fa-fc]
+permissions:
+  contents: read
+concurrency:
+  group: frontend-remediation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Export source snapshot
+        run: |
+          mkdir -p /tmp/frontend-export
+          git archive --format=zip HEAD -o /tmp/frontend-export/source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-source
+          path: /tmp/frontend-export/source.zip
+          retention-days: 7
+      - name: Install locked dependencies
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Run verification
+        working-directory: apps/web
+        run: |
+          npm run typecheck
+          npm run lint --if-present
+          npm test
+          npm run build
+      - name: Export dependency workspace
+        if: always()
+        run: |
+          if [ -d apps/web/node_modules ]; then
+            tar -czf /tmp/frontend-export/dependencies.tar.gz apps/web/node_modules
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-verification-workspace
+          path: |
+            /tmp/frontend-export/dependencies.tar.gz
+            apps/web/dist
+          retention-days: 3
