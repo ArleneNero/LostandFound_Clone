@@ -3,10 +3,12 @@ on:
   push:
     branches: [fix/frontend-fa-fc]
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: frontend-remediation-${{ github.ref }}
   cancel-in-progress: true
+env:
+  PUBLISH_REMEDIATION: 'false'
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -17,11 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
       - name: Apply reviewed frontend remediation
+        if: hashFiles('.github/remediation/part-*.txt') != ''
         run: python .github/remediation/apply.py
       - name: Install dependencies and verify reproducible lockfile
         working-directory: apps/web
@@ -29,6 +32,11 @@ jobs:
           npm install --no-audit --no-fund
           npm ci --no-audit --no-fund
           npx prettier --write src/pages/landing/RoleCard.tsx
+      - name: Apply screenshot review corrections
+        if: hashFiles('.github/remediation/polish.py') != ''
+        run: python .github/remediation/polish.py
+      - name: Prepare evidence directory
+        run: mkdir -p remediation-evidence
       - name: Lint
         id: lint
         continue-on-error: true
@@ -57,6 +65,18 @@ jobs:
         continue-on-error: true
         working-directory: apps/web
         run: npm run test:e2e 2>&1 | tee ../../remediation-evidence/browser.log
+      - name: Publish verified source only to authorized fix branch
+        if: env.PUBLISH_REMEDIATION == 'true' && steps.lint.outcome == 'success' && steps.types.outcome == 'success' && steps.unit.outcome == 'success' && steps.build.outcome == 'success' && steps.browser.outcome == 'success'
+        run: |
+          test "$GITHUB_REF_NAME" = 'fix/frontend-fa-fc'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- apps/web/src apps/web/e2e apps/web/package.json apps/web/package-lock.json apps/web/vite.config.ts apps/web/playwright.config.ts apps/web/eslint.config.js apps/web/.prettierrc.json
+          if [ -d .github/remediation ]; then git rm -r -- .github/remediation; fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(frontend): [F/A-F/C] perbaiki fungsi UI dan kesesuaian Figma' -m 'Perubahan: isolasi pos, foto mock asli, pagination 10, state dan aksesibilitas, design tokens, shell Petugas dan Guest. Verifikasi: lint, typecheck, unit/component tests, build, Chromium mobile dan desktop lulus. Backend tetap belum diimplementasikan.'
+            git push origin HEAD:refs/heads/fix/frontend-fa-fc
+          fi
       - name: Export source and quality gate outcomes
         if: always()
         env:
@@ -67,6 +87,7 @@ jobs:
           BROWSER: ${{ steps.browser.outcome }}
         run: |
           mkdir -p remediation-evidence /tmp/frontend-export
+          git rev-parse HEAD > remediation-evidence/commit.txt
           python - <<'PY'
           import os, json, zipfile
           from pathlib import Path
