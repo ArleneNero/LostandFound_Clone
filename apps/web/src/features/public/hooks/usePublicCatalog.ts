@@ -1,100 +1,64 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FoundItem } from '@/types/domain';
+import { useState, useCallback, useEffect } from 'react';
 import { services } from '@/services/registry';
-
-export interface UsePublicCatalogReturn {
-  items: FoundItem[];
-  isLoading: boolean;
-  error: string | null;
-  searchQuery: string;
-  setSearchQuery: (q: string) => void;
-  categoryFilter: string;
-  setCategoryFilter: (cat: string) => void;
-  sortOrder: 'newest' | 'oldest';
-  setSortOrder: (s: 'newest' | 'oldest') => void;
-  postIdFilter: number | undefined;
-  setPostIdFilter: (id: number | undefined) => void;
-  page: number;
-  setPage: (p: number) => void;
-  totalPages: number;
-  totalItems: number;
-  refetch: () => Promise<void>;
-}
-
-export function usePublicCatalog(initialLimit = 10): UsePublicCatalogReturn {
-  const [items, setItems] = useState<FoundItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+import { useServiceVersion } from '@/hooks/useServiceVersion';
+import { useAsyncResource } from '@/hooks/useAsyncResource';
+import { CATALOG_PAGE_SIZE } from '@/constants/pagination';
+export function usePublicCatalog(initialLimit = CATALOG_PAGE_SIZE) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-  const [postIdFilter, setPostIdFilter] = useState<number | undefined>(undefined);
+  const [postIdFilter, setPostIdFilter] = useState<number>();
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-
-  const fetchItems = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await services.items.getItems({
+  const version = useServiceVersion();
+  const limit = Math.max(1, Math.min(CATALOG_PAGE_SIZE, initialLimit));
+  const load = useCallback(
+    () =>
+      services.items.getItems({
         search: searchQuery.trim() || undefined,
-        category: categoryFilter !== 'ALL' ? categoryFilter : undefined,
+        category: categoryFilter === 'ALL' ? undefined : categoryFilter,
         postId: postIdFilter,
         sort: sortOrder,
         page,
-        limit: initialLimit,
-      });
-      setItems(res.items);
-      setTotalPages(Math.max(1, res.totalPages));
-      setTotalItems(res.total);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal memuat katalog barang');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [searchQuery, categoryFilter, postIdFilter, sortOrder, page, initialLimit]);
-
+        limit,
+      }),
+    [searchQuery, categoryFilter, postIdFilter, sortOrder, page, limit],
+  );
+  const { data, loading, error, refetch } = useAsyncResource(load, version);
   useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
-
-  const handleSearchChange = (q: string) => {
-    setSearchQuery(q);
+    if (data && data.page !== page) setPage(data.page);
+  }, [data, page]);
+  const changeSearch = useCallback((value: string) => {
+    setSearchQuery(value);
     setPage(1);
-  };
-
-  const handleCategoryChange = (cat: string) => {
-    setCategoryFilter(cat);
+  }, []);
+  const changeCategory = useCallback((value: string) => {
+    setCategoryFilter(value);
     setPage(1);
-  };
-
-  const handleSortChange = (s: 'newest' | 'oldest') => {
-    setSortOrder(s);
+  }, []);
+  const changeSort = useCallback((value: 'newest' | 'oldest') => {
+    setSortOrder(value);
     setPage(1);
-  };
-
-  const handlePostChange = (id: number | undefined) => {
-    setPostIdFilter(id);
+  }, []);
+  const changePost = useCallback((value: number | undefined) => {
+    setPostIdFilter(value);
     setPage(1);
-  };
-
+  }, []);
   return {
-    items,
-    isLoading,
+    items: data?.items ?? [],
+    isLoading: loading,
     error,
     searchQuery,
-    setSearchQuery: handleSearchChange,
+    setSearchQuery: changeSearch,
     categoryFilter,
-    setCategoryFilter: handleCategoryChange,
+    setCategoryFilter: changeCategory,
     sortOrder,
-    setSortOrder: handleSortChange,
+    setSortOrder: changeSort,
     postIdFilter,
-    setPostIdFilter: handlePostChange,
+    setPostIdFilter: changePost,
     page,
     setPage,
-    totalPages,
-    totalItems,
-    refetch: fetchItems,
+    totalPages: data?.totalPages ?? 1,
+    totalItems: data?.total ?? 0,
+    refetch,
   };
 }

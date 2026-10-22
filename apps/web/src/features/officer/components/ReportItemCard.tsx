@@ -17,7 +17,9 @@ export const ReportItemCard: React.FC<ReportItemCardProps> = ({
   onDetailClick,
 }) => {
   const dateStr = new Date(report.submittedAt).toLocaleDateString('id-ID', {
-    day: '2-digit', month: 'short', year: 'numeric',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 
   return (
@@ -25,11 +27,18 @@ export const ReportItemCard: React.FC<ReportItemCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold text-[var(--lf-ink)]">{report.itemName}</h3>
-          <p className="text-xs text-[var(--lf-muted)] mt-0.5">{report.reportCode} · {dateStr}</p>
+          <p className="text-xs text-[var(--lf-muted)] mt-0.5">
+            {report.reportCode} · {dateStr}
+          </p>
         </div>
         <Badge variant={statusVariant}>{statusLabel}</Badge>
       </div>
-      <Button variant="secondary" size="sm" onClick={() => onDetailClick(report.id)} className="w-full text-xs">
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => onDetailClick(report.id)}
+        className="w-full text-xs"
+      >
         Lihat Detail Laporan
       </Button>
     </div>

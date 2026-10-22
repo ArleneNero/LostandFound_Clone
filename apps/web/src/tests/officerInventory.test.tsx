@@ -98,11 +98,15 @@ describe('Officer Inventory Submilestone (F/B.2)', () => {
       render(
         <MemoryRouter>
           <OfficerInventoryPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Data hanya dari unit Pengajaran. Tidak ada akses edit inventaris unit lain.')).toBeDefined();
+        expect(
+          screen.getByText(
+            'Data hanya dari unit Pengajaran. Tidak ada akses edit inventaris unit lain.',
+          ),
+        ).toBeDefined();
         expect(screen.getAllByText('Kunci Motor Honda Vario').length).toBeGreaterThan(0);
       });
 
@@ -113,14 +117,16 @@ describe('Officer Inventory Submilestone (F/B.2)', () => {
       render(
         <MemoryRouter>
           <OfficerInventoryPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
         expect(screen.getAllByText('Kunci Motor Honda Vario').length).toBeGreaterThan(0);
       });
 
-      const searchInput = screen.getByPlaceholderText('Cari barang atau kode inventaris...') as HTMLInputElement;
+      const searchInput = screen.getByPlaceholderText(
+        'Cari barang atau kode inventaris...',
+      ) as HTMLInputElement;
       fireEvent.change(searchInput, { target: { value: 'Honda' } });
       expect(searchInput.value).toBe('Honda');
     });
@@ -133,7 +139,7 @@ describe('Officer Inventory Submilestone (F/B.2)', () => {
           <Routes>
             <Route path="/petugas/inventaris/:id" element={<OfficerItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -149,7 +155,7 @@ describe('Officer Inventory Submilestone (F/B.2)', () => {
           <Routes>
             <Route path="/petugas/inventaris/:id" element={<OfficerItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {

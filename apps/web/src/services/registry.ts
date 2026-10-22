@@ -1,3 +1,4 @@
+import { mockStore } from '@/data/mockStore';
 import {
   IItemService,
   ISubmissionService,
@@ -20,6 +21,8 @@ export interface ServiceContainer {
   auth: IAuthService;
   upload: IUploadService;
   mode: ServiceMode;
+  subscribe: (listener: () => void) => () => void;
+  getVersion: () => number;
 }
 
 class ServiceRegistry {
@@ -34,6 +37,8 @@ class ServiceRegistry {
       auth: new InMemoryAuthService(),
       upload: new InMemoryUploadService(),
       mode: 'in-memory',
+      subscribe: mockStore.subscribe,
+      getVersion: mockStore.getVersion,
     };
   }
 
@@ -45,7 +50,7 @@ class ServiceRegistry {
     // In HTTP mode: explicitly throw if real HTTP adapters are not configured yet,
     // avoiding silent fallback to fake mock data (rule F/A.3.2)
     throw new Error(
-      'HTTP Adapter belum aktif. Gunakan in-memory mode untuk demonstrasi Frontend MVP.'
+      'HTTP Adapter belum aktif. Gunakan in-memory mode untuk demonstrasi Frontend MVP.',
     );
   }
 
@@ -59,4 +64,8 @@ class ServiceRegistry {
 }
 
 export const registry = new ServiceRegistry();
-export const services = registry.getServices();
+export const services = new Proxy({} as ServiceContainer, {
+  get(_target, property) {
+    return Reflect.get(registry.getServices(), property);
+  },
+});

@@ -1,0 +1,173 @@
+.lf-landing-shell .lf-public-header {
+  background: transparent;
+  position: static;
+  height: auto;
+}
+.lf-landing-shell .lf-public-header > div {
+  max-width: none;
+  height: 76px;
+  padding: 20px 20px 0;
+}
+.lf-landing-shell .lf-public-main {
+  padding-bottom: 20px;
+}
+.lf-landing {
+  padding: 14px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lf-landing-hero {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 20px;
+}
+.lf-landing-hero > img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lf-landing-copy {
+  position: absolute;
+  left: 18px;
+  top: 41px;
+  width: 193px;
+}
+.lf-landing-copy h1 {
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+}
+.lf-landing-copy p {
+  width: 185px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lf-muted);
+  margin: 13px 0 0;
+}
+.lf-role-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lf-role-grid {
+  display: grid;
+  gap: 12px;
+}
+.lf-role-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px 12px 12px;
+  background: white;
+  border-radius: 20px;
+  height: 104px;
+  text-align: left;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+.lf-role-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 72px;
+  height: 80px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.lf-role-art img {
+  width: 72px;
+  height: 80px;
+  object-fit: contain;
+}
+.lf-role-art-guest {
+  height: 72px;
+  background: var(--lf-soft);
+  color: var(--lf-muted);
+  border-radius: 50%;
+}
+.lf-role-copy {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.lf-role-copy strong {
+  font-size: 16px;
+  line-height: 24px;
+}
+.lf-role-copy > span {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--lf-muted);
+}
+.lf-role-card > svg {
+  flex-shrink: 0;
+  color: var(--lf-muted);
+}
+.lf-role-section > p {
+  font-size: 11px;
+  line-height: 17px;
+  color: var(--lf-muted);
+}
+.lf-guest-home form input {
+  min-height: 48px;
+}
+@media (min-width: 1024px) {
+  .lf-landing-shell .lf-public-header > div {
+    max-width: 1440px;
+    margin: auto;
+    height: 104px;
+    padding: 48px 96px 0;
+  }
+  .lf-landing {
+    max-width: 1240px;
+    margin: auto;
+    padding-top: 32px;
+    gap: 18px;
+  }
+  .lf-landing-hero {
+    height: 440px;
+    border-radius: 0;
+  }
+  .lf-landing-copy {
+    left: 64px;
+    top: 128px;
+    width: 565px;
+  }
+  .lf-landing-copy h1 {
+    font-size: 45px;
+    line-height: 58px;
+  }
+  .lf-landing-copy p {
+    width: 545px;
+    font-size: 18px;
+    line-height: 29px;
+    margin-top: 18px;
+  }
+  .lf-role-section {
+    gap: 10px;
+  }
+  .lf-role-section h2 {
+    font-size: 26px;
+    line-height: 36px;
+    font-weight: 700;
+  }
+  .lf-role-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .lf-role-card {
+    height: 112px;
+    gap: 0;
+  }
+  .lf-role-section > p {
+    font-size: 12px;
+  }
+}

@@ -15,6 +15,7 @@ export interface FoundItem {
   status: ItemStatus;
   isVisible: boolean;
   privateNotes?: string | null;
+  storageLimitDays?: number | null;
 }
 
 export interface Submission {
@@ -28,6 +29,7 @@ export interface Submission {
   foundDate: string;
   status: ReportStatus;
   submittedAt: string;
+  history?: ReportHistory[];
   photoUrl: string;
 }
 
@@ -55,4 +57,14 @@ export interface PaginatedResult<T> {
   limit: number;
   total: number;
   totalPages: number;
+}
+
+export interface ReportHistory {
+  id: string;
+  submissionId: string;
+  actorId: string;
+  from: ReportStatus | null;
+  to: ReportStatus;
+  reason: string | null;
+  changedAt: string;
 }

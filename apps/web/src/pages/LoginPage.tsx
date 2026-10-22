@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, GraduationCap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { services } from '@/services/registry';
 import { RoutePaths } from '@/constants/routes';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'student' | 'officer'>('officer');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'student' | 'officer'>(
+    searchParams.get('role') === 'student' ? 'student' : 'officer',
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (activeTab === 'officer') {
+      await services.auth.loginAsOfficer();
       navigate(RoutePaths.OFFICER_DASHBOARD);
     } else {
       navigate(RoutePaths.STUDENT_HOME);
@@ -31,7 +36,7 @@ export const LoginPage: React.FC = () => {
         />
         <h1 className="text-xl font-bold text-[var(--lf-ink)]">Masuk ke UBL LostnFound</h1>
         <p className="text-xs text-[var(--lf-muted)] mt-1">
-          Pilih portal login sesuai peran Anda di kampus
+          Simulasi frontend tanpa Clerk. Jangan gunakan email atau kata sandi asli.
         </p>
       </div>
 
@@ -64,6 +69,11 @@ export const LoginPage: React.FC = () => {
       </div>
 
       <Card className="p-6">
+        {activeTab === 'student' && (
+          <p role="status" className="lf-warning">
+            Login dan alur Mahasiswa belum diaktifkan pada MVP ini.
+          </p>
+        )}
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <Input
             label={activeTab === 'officer' ? 'Email Petugas' : 'Email Mahasiswa'}
@@ -75,23 +85,27 @@ export const LoginPage: React.FC = () => {
             }
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
+            disabled={activeTab === 'student'}
           />
           <Input
             label="Kata Sandi"
             type="password"
-            placeholder="Masukkan kata sandi"
+            placeholder="Kata sandi demo, tidak dikirim"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            disabled={activeTab === 'student'}
           />
           <div className="flex justify-end">
-            <span className="text-xs text-[var(--lf-action)] font-medium cursor-pointer hover:underline">
+            <span
+              className="text-xs text-[var(--lf-muted)]"
+              title="Pemulihan akun tersedia setelah integrasi Clerk"
+            >
               Lupa kata sandi?
             </span>
           </div>
           <Button
             type="submit"
+            disabled={activeTab === 'student'}
             variant="primary"
             rightIcon={<ArrowRight className="w-4 h-4" />}
             className="w-full mt-2"

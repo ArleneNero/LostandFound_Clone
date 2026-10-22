@@ -1,24 +1,18 @@
-import React from 'react';
-import { Building2, HelpCircle } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
-
-export const RegisterItemSidebar: React.FC = () => {
+export function RegisterItemSidebar() {
   return (
-    <div className="flex flex-col gap-4">
-      <Card className="p-5 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs font-bold text-[var(--lf-ink)]">
-          <Building2 className="w-4 h-4 text-[var(--lf-action)]" /> Pos: Pengajaran
-        </div>
-        <p className="text-xs text-[var(--lf-muted)]">Unit ditetapkan dari akun petugas yang sedang masuk.</p>
-      </Card>
-      <Card className="p-5 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs font-bold text-[var(--lf-ink)]">
-          <HelpCircle className="w-4 h-4 text-[var(--lf-action)]" /> Barang sudah diterima?
-        </div>
-        <p className="text-xs text-[var(--lf-muted)]">
-          Terima barang seperti biasa, lalu catat di form. Mahasiswa tidak wajib membuat laporan online terlebih dahulu.
+    <aside className="lf-register-sidebar lf-stack">
+      <section className="lf-surface lf-soft">
+        <h2 className="lf-section-title">Pengajaran</h2>
+        <p>Unit ditetapkan dari akun petugas yang sedang masuk.</p>
+      </section>
+      <section className="lf-surface">
+        <h2 className="lf-section-title">Barang sudah diterima?</h2>
+        <p>
+          Terima barang seperti biasa, lalu catat di form. Mahasiswa tidak wajib membuat laporan
+          online terlebih dahulu.
         </p>
-      </Card>
-    </div>
+        <small>Foto barang wajib 1 foto. Informasi tambahan tetap opsional.</small>
+      </section>
+    </aside>
   );
-};
+}

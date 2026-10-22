@@ -14,7 +14,8 @@ export const NotFoundPage: React.FC = () => {
       </div>
       <h1 className="text-2xl font-bold text-[var(--lf-ink)] mb-2">Halaman Tidak Ditemukan</h1>
       <p className="text-sm text-[var(--lf-muted)] max-w-md mb-6 leading-relaxed">
-        Halaman yang Anda tuju tidak tersedia atau barang yang dicari sudah tidak aktif dalam sistem katalog.
+        Halaman yang Anda tuju tidak tersedia atau barang yang dicari sudah tidak aktif dalam sistem
+        katalog.
       </p>
       <Button
         variant="primary"

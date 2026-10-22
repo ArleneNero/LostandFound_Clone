@@ -1,53 +1,33 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { RoutePaths } from '@/constants/routes';
 import { RoleCard } from './RoleCard';
-
-export const RoleSelectionSection: React.FC = () => {
+export function RoleSelectionSection() {
   const navigate = useNavigate();
-
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-base sm:text-lg font-bold text-[var(--lf-ink)]">
-          Masuk ke UBL LostnFound
-        </h2>
-        <p className="text-xs sm:text-sm text-[var(--lf-muted)]">
-          Pilih akses yang sesuai dengan kebutuhanmu.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Card 1: Mahasiswa */}
+    <section className="lf-role-section" aria-label="Pilihan pengguna">
+      <h2 className="lf-only-desktop">Masuk ke UBL LostnFound</h2>
+      <div className="lf-role-grid">
         <RoleCard
           title="Mahasiswa"
           description="Login / Register untuk melapor dan cek status"
           iconSrc="/assets/illustrations/roles/Icon_Mahasiswa.png"
-          onClick={() => navigate(RoutePaths.STUDENT_HOME)}
+          onClick={() => navigate('/masuk?role=student')}
         />
-
-        {/* Card 2: Petugas */}
         <RoleCard
           title="Petugas"
           description="Login untuk mengelola barang dan penyerahan"
           iconSrc="/assets/illustrations/roles/Icon_Petugas.png"
-          onClick={() => navigate(RoutePaths.OFFICER_DASHBOARD)}
+          onClick={() => navigate('/masuk?role=officer')}
         />
-
-        {/* Card 3: Mode Tamu */}
         <RoleCard
           title="Mode Tamu"
           description="Lihat barang dan lokasi pos tanpa login"
-          iconFallback={<Search className="w-5 h-5 text-[var(--lf-action)]" />}
-          iconBgColor="bg-[#EFF8FF]"
+          iconFallback={<Search size={30} />}
           onClick={() => navigate(RoutePaths.GUEST_HOME)}
         />
       </div>
-
-      <p className="text-xs text-[var(--lf-muted)] pt-1">
-        Katalog dapat diakses tanpa membuat akun.
-      </p>
+      <p>Katalog dapat diakses tanpa membuat akun.</p>
     </section>
   );
-};
+}

@@ -6,6 +6,7 @@ import { LandingPage } from '@/pages/LandingPage';
 import { GuestHomePage } from '@/pages/GuestHomePage';
 import { CatalogPage } from '@/pages/CatalogPage';
 import { ItemDetailPage } from '@/pages/ItemDetailPage';
+import { PostDetailPage } from '@/pages/PostDetailPage';
 import { PostsPage } from '@/pages/PostsPage';
 import { GuidePage } from '@/pages/GuidePage';
 import { LoginPage } from '@/pages/LoginPage';
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       { path: RoutePaths.CATALOG, element: <CatalogPage /> },
       { path: RoutePaths.ITEM_DETAIL, element: <ItemDetailPage /> },
       { path: RoutePaths.POSTS, element: <PostsPage /> },
+      { path: RoutePaths.POST_DETAIL, element: <PostDetailPage /> },
       { path: RoutePaths.GUIDE, element: <GuidePage /> },
       { path: RoutePaths.LOGIN, element: <LoginPage /> },
     ],

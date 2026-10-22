@@ -52,7 +52,7 @@ export const StudentLayout: React.FC = () => {
                     'px-3.5 py-2 rounded-[12px] text-sm font-medium transition-colors',
                     isActive
                       ? 'text-[var(--lf-action)] font-semibold bg-[var(--lf-soft)]'
-                      : 'text-[var(--lf-muted)] hover:text-[var(--lf-ink)] hover:bg-[#F9FAFB]'
+                      : 'text-[var(--lf-muted)] hover:text-[var(--lf-ink)] hover:bg-[#F9FAFB]',
                   )}
                 >
                   {item.name}
@@ -89,10 +89,15 @@ export const StudentLayout: React.FC = () => {
               to={item.path}
               className={clsx(
                 'flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors select-none',
-                isActive ? 'text-[var(--lf-action)] font-semibold' : 'text-[var(--lf-muted)]'
+                isActive ? 'text-[var(--lf-action)] font-semibold' : 'text-[var(--lf-muted)]',
               )}
             >
-              <Icon className={clsx('w-5 h-5', isActive ? 'text-[var(--lf-action)]' : 'text-[var(--lf-muted)]')} />
+              <Icon
+                className={clsx(
+                  'w-5 h-5',
+                  isActive ? 'text-[var(--lf-action)]' : 'text-[var(--lf-muted)]',
+                )}
+              />
               <span className="text-[11px] leading-none">{item.name}</span>
             </NavLink>
           );

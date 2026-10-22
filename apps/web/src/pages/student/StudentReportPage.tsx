@@ -22,29 +22,42 @@ export const StudentReportPage: React.FC = () => {
       </Button>
 
       <div>
-        <h1 className="text-xl lg:text-2xl font-bold text-[var(--lf-ink)]">
-          Lapor Barang Temuan
-        </h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-[var(--lf-ink)]">Lapor Barang Temuan</h1>
         <p className="text-xs lg:text-sm text-[var(--lf-muted)] mt-1">
-          Laporkan barang yang Anda temukan di kampus untuk diserahkan ke Pos Pengajaran (Figma 04.01)
+          Laporkan barang yang Anda temukan di kampus untuk diserahkan ke Pos Pengajaran (Figma
+          04.01)
         </p>
       </div>
 
       <Card className="p-6">
-        <form onSubmit={(e) => { e.preventDefault(); navigate(RoutePaths.STUDENT_MY_REPORTS); }} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigate(RoutePaths.STUDENT_MY_REPORTS);
+          }}
+          className="space-y-4"
+        >
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold text-[var(--lf-ink)]">
               Foto Barang Temuan <span className="text-[var(--lf-error)]">*</span>
             </label>
             <div className="border-2 border-dashed border-[var(--lf-border)] rounded-[14px] p-6 flex flex-col items-center justify-center text-center bg-[#F9FAFB] hover:bg-[#F2F4F7] cursor-pointer">
               <Camera className="w-8 h-8 text-[var(--lf-muted)] mb-2" />
-              <span className="text-xs font-semibold text-[var(--lf-blue)]">Upload Foto Bukti Temuan</span>
-              <span className="text-[11px] text-[var(--lf-muted)] mt-0.5">Maksimal 1 foto sesuai ketentuan MVP</span>
+              <span className="text-xs font-semibold text-[var(--lf-blue)]">
+                Upload Foto Bukti Temuan
+              </span>
+              <span className="text-[11px] text-[var(--lf-muted)] mt-0.5">
+                Maksimal 1 foto sesuai ketentuan MVP
+              </span>
             </div>
           </div>
 
           <Input label="Nama Barang" placeholder="Contoh: Jaket Parasut Biru" required />
-          <Input label="Lokasi Ditemukan" placeholder="Contoh: Koridor Lab Komputer Lt. 3" required />
+          <Input
+            label="Lokasi Ditemukan"
+            placeholder="Contoh: Koridor Lab Komputer Lt. 3"
+            required
+          />
           <Input label="Deskripsi Karakteristik" placeholder="Ciri khusus, kondisi barang..." />
 
           <Button

@@ -11,12 +11,7 @@ export interface ToastProps {
   onDismiss?: (id: string) => void;
 }
 
-export const Toast: React.FC<ToastProps> = ({
-  id,
-  type = 'info',
-  message,
-  onDismiss,
-}) => {
+export const Toast: React.FC<ToastProps> = ({ id, type = 'info', message, onDismiss }) => {
   const icons = {
     success: <CheckCircle2 className="w-5 h-5 text-[var(--lf-success)] shrink-0" />,
     error: <AlertCircle className="w-5 h-5 text-[var(--lf-error)] shrink-0" />,
@@ -34,7 +29,7 @@ export const Toast: React.FC<ToastProps> = ({
       role="status"
       className={clsx(
         'flex items-center justify-between gap-3 px-4 py-3 rounded-[12px] border shadow-[0_4px_12px_rgba(16,24,40,0.08)] min-w-[280px] max-w-md',
-        bgStyles[type]
+        bgStyles[type],
       )}
     >
       <div className="flex items-center gap-2.5">

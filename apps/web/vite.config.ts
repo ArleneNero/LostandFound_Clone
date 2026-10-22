@@ -6,10 +6,7 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    react(),
-  ],
+  plugins: [tailwindcss(), react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,6 +16,7 @@ export default defineConfig({
     port: 3000,
   },
   test: {
+    include: ['src/tests/**/*.test.{ts,tsx}'],
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],

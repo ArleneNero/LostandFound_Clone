@@ -34,9 +34,7 @@ export const GuidePage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 lg:px-12 py-8 flex flex-col gap-8">
       {/* Header (Figma 03.P05) */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--lf-ink)]">
-          Alur Pengambilan
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--lf-ink)]">Alur Pengambilan</h1>
         <p className="text-xs sm:text-sm text-[var(--lf-muted)] mt-1">
           Tidak perlu mengajukan klaim online.
         </p>
@@ -53,12 +51,8 @@ export const GuidePage: React.FC = () => {
               <div className="w-8 h-8 rounded-full bg-[var(--lf-soft)] text-[var(--lf-action)] font-bold text-xs flex items-center justify-center mb-3">
                 {index + 1}
               </div>
-              <h2 className="text-sm font-bold text-[var(--lf-ink)]">
-                {item.step}
-              </h2>
-              <p className="text-xs text-[var(--lf-muted)] mt-1 leading-relaxed">
-                {item.desc}
-              </p>
+              <h2 className="text-sm font-bold text-[var(--lf-ink)]">{item.step}</h2>
+              <p className="text-xs text-[var(--lf-muted)] mt-1 leading-relaxed">{item.desc}</p>
             </div>
           </div>
         ))}
@@ -79,4 +73,3 @@ export const GuidePage: React.FC = () => {
     </div>
   );
 };
-

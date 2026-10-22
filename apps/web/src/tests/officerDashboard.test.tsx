@@ -93,7 +93,7 @@ describe('Officer Dashboard', () => {
       render(
         <MemoryRouter>
           <OfficerDashboardPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // Loading state displays skeleton first
@@ -108,16 +108,14 @@ describe('Officer Dashboard', () => {
 
       // Check actions
       expect(screen.getByText('Catat Barang')).toBeDefined();
-      expect(
-        screen.getByPlaceholderText('Cari nama atau kode inventaris Pengajaran...')
-      ).toBeDefined();
+      expect(screen.getByPlaceholderText('Cari inventaris Pengajaran...')).toBeDefined();
     });
 
     it('filters recent items when typing in search input', async () => {
       render(
         <MemoryRouter>
           <OfficerDashboardPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -125,7 +123,7 @@ describe('Officer Dashboard', () => {
       });
 
       const searchInput = screen.getByPlaceholderText(
-        'Cari nama atau kode inventaris Pengajaran...'
+        'Cari inventaris Pengajaran...',
       ) as HTMLInputElement;
       fireEvent.change(searchInput, { target: { value: 'AirPods' } });
 
@@ -137,7 +135,7 @@ describe('Officer Dashboard', () => {
       render(
         <MemoryRouter>
           <OfficerDashboardPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {

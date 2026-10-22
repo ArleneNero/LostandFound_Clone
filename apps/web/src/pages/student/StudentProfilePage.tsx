@@ -11,9 +11,7 @@ export const StudentProfilePage: React.FC = () => {
   return (
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
       <div>
-        <h1 className="text-xl lg:text-2xl font-bold text-[var(--lf-ink)]">
-          Profil Mahasiswa
-        </h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-[var(--lf-ink)]">Profil Mahasiswa</h1>
         <p className="text-xs lg:text-sm text-[var(--lf-muted)] mt-1">
           Identitas akun mahasiswa Universitas Budi Luhur
         </p>

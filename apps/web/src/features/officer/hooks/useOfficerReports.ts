@@ -1,3 +1,5 @@
+import { loadAllPages } from '@/services/loadAllPages';
+import { useServiceVersion } from '@/hooks/useServiceVersion';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Submission } from '@/types/domain';
 import { ReportStatus } from '@/types/api';
@@ -16,6 +18,7 @@ export interface UseOfficerReportsReturn {
 }
 
 export function useOfficerReports(): UseOfficerReportsReturn {
+  const version = useServiceVersion();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +29,10 @@ export function useOfficerReports(): UseOfficerReportsReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await services.submissions.getSubmissions({ targetPostId: 1, limit: 100 });
-      setSubmissions(res.items);
+      const res = await loadAllPages((page, limit) =>
+        services.submissions.getSubmissions({ page, limit }),
+      );
+      setSubmissions(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat laporan');
     } finally {
@@ -37,7 +42,7 @@ export function useOfficerReports(): UseOfficerReportsReturn {
 
   useEffect(() => {
     fetchReports();
-  }, [fetchReports]);
+  }, [fetchReports, version]);
 
   const filteredSubmissions = useMemo(() => {
     let result = [...submissions];
@@ -51,7 +56,7 @@ export function useOfficerReports(): UseOfficerReportsReturn {
           s.itemName.toLowerCase().includes(q) ||
           s.reportCode.toLowerCase().includes(q) ||
           s.category.toLowerCase().includes(q) ||
-          s.foundLocation.toLowerCase().includes(q)
+          s.foundLocation.toLowerCase().includes(q),
       );
     }
     return result;

@@ -1,11 +1,10 @@
+import { loadAllPages } from '@/services/loadAllPages';
+import { useServiceVersion } from '@/hooks/useServiceVersion';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FoundItem } from '@/types/domain';
 import { ItemStatus } from '@/types/api';
 import { services } from '@/services/registry';
-import {
-  filterAndSortInventory,
-  InventoryFilterOptions,
-} from '../selectors/inventorySelectors';
+import { filterAndSortInventory, InventoryFilterOptions } from '../selectors/inventorySelectors';
 
 export interface UseOfficerInventoryReturn {
   items: FoundItem[];
@@ -22,6 +21,7 @@ export interface UseOfficerInventoryReturn {
 }
 
 export function useOfficerInventory(): UseOfficerInventoryReturn {
+  const version = useServiceVersion();
   const [items, setItems] = useState<FoundItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +33,10 @@ export function useOfficerInventory(): UseOfficerInventoryReturn {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await services.items.getOfficerItems({ limit: 100 });
-      setItems(res.items);
+      const res = await loadAllPages((page, limit) =>
+        services.items.getOfficerItems({ page, limit }),
+      );
+      setItems(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat inventaris');
     } finally {
@@ -44,7 +46,7 @@ export function useOfficerInventory(): UseOfficerInventoryReturn {
 
   useEffect(() => {
     fetchInventory();
-  }, [fetchInventory]);
+  }, [fetchInventory, version]);
 
   const filteredItems = useMemo(() => {
     const opts: InventoryFilterOptions = {

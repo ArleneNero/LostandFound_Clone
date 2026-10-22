@@ -4,8 +4,6 @@ export interface UploadResult {
 }
 
 export interface IUploadService {
-  uploadPhoto(
-    file: File,
-    purpose: 'REPORT_PHOTO' | 'ITEM_PHOTO'
-  ): Promise<UploadResult>;
+  releaseUpload(token: string): void;
+  uploadPhoto(file: File, purpose: 'REPORT_PHOTO' | 'ITEM_PHOTO'): Promise<UploadResult>;
 }

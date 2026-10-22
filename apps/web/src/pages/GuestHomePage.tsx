@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { RoutePaths } from '@/constants/routes';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { usePublicCatalog } from '@/features/public/hooks/usePublicCatalog';
 import { PublicItemCard } from '@/features/public/components/PublicItemCard';
 import { GuestCategoryList } from '@/features/public/components/GuestCategoryList';
@@ -12,7 +13,7 @@ export const GuestHomePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPost, setSelectedPost] = useState('Pengajaran');
-  const { items, isLoading } = usePublicCatalog(4);
+  const { items, isLoading, error, refetch } = usePublicCatalog(4);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +25,12 @@ export const GuestHomePage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 lg:px-8 py-6 md:py-8 flex flex-col gap-7 md:gap-8">
+    <div className="lf-public-page lf-guest-home">
       {/* Search Header Banner (Figma 03.P01 Beranda Guest) */}
       <section className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--lf-ink)] tracking-tight">
+            <h1 className="text-[26px] leading-[34px] font-bold text-[var(--lf-ink)] tracking-tight">
               Sedang mencari barangmu?
             </h1>
             <p className="text-xs sm:text-sm text-[var(--lf-muted)] mt-1">
@@ -68,10 +69,7 @@ export const GuestHomePage: React.FC = () => {
       {/* Middle Row: Kategori & Pos Pelayanan */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <GuestCategoryList />
-        <GuestServicePosts
-          selectedPost={selectedPost}
-          setSelectedPost={setSelectedPost}
-        />
+        <GuestServicePosts selectedPost={selectedPost} setSelectedPost={setSelectedPost} />
       </section>
 
       {/* Bottom Section: Barang Temuan Terbaru */}
@@ -88,10 +86,15 @@ export const GuestHomePage: React.FC = () => {
           </button>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {error ? (
+          <ErrorState title="Gagal memuat barang" description={error} onRetry={refetch} />
+        ) : isLoading ? (
+          <div className="lf-catalog-grid">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="bg-white rounded-2xl border border-[var(--lf-border)] p-4 space-y-3">
+              <div
+                key={n}
+                className="bg-white rounded-2xl border border-[var(--lf-border)] p-4 space-y-3"
+              >
                 <Skeleton height={140} className="w-full rounded-xl" />
                 <Skeleton height={18} width="70%" />
                 <Skeleton height={12} width="40%" />
@@ -103,9 +106,13 @@ export const GuestHomePage: React.FC = () => {
             Belum ada barang temuan aktif yang dipublikasikan di katalog.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="lf-catalog-grid">
             {items.map((item) => (
-              <PublicItemCard key={item.id} item={item} onClick={() => navigate(`/barang/${item.id}`)} />
+              <PublicItemCard
+                key={item.id}
+                item={item}
+                onClick={() => navigate(`/barang/${item.id}`)}
+              />
             ))}
           </div>
         )}

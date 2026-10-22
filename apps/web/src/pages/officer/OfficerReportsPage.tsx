@@ -86,7 +86,8 @@ export const OfficerReportsPage: React.FC = () => {
         <div>
           <span className="font-bold text-[var(--lf-warning)]">Penting untuk Petugas:</span>
           <p className="mt-0.5 text-[var(--lf-muted)]">
-            Jangan konfirmasi penerimaan jika mahasiswa belum menyerahkan barang fisik kepada petugas.
+            Jangan konfirmasi penerimaan jika mahasiswa belum menyerahkan barang fisik kepada
+            petugas.
           </p>
         </div>
       </div>

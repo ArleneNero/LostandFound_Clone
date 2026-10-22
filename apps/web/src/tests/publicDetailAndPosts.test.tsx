@@ -29,7 +29,7 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
           <Routes>
             <Route path="/barang/:id" element={<ItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -48,7 +48,7 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
           <Routes>
             <Route path="/barang/:id" element={<ItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -71,7 +71,7 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
           <Routes>
             <Route path="/barang/:id" element={<ItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -81,19 +81,23 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
 
     it('renders 404 when item status is RETURNED_TO_OWNER', async () => {
       // Officer returns item
-      await services.items.returnItem('item-uuid-002', 'Budi Luhur Student', 'Bawa kartu identitas');
+      await services.items.returnItem(
+        'item-uuid-001',
+        'Budi Luhur Student',
+        'Bawa kartu identitas',
+      );
 
       // Verify public getPublicItemById returns null
-      const publicItem = await services.items.getPublicItemById('item-uuid-002');
+      const publicItem = await services.items.getPublicItemById('item-uuid-001');
       expect(publicItem).toBeNull();
 
       // Verify UI renders 404
       render(
-        <MemoryRouter initialEntries={['/barang/item-uuid-002']}>
+        <MemoryRouter initialEntries={['/barang/item-uuid-001']}>
           <Routes>
             <Route path="/barang/:id" element={<ItemDetailPage />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -103,18 +107,18 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
   });
 
   describe('F/C.4.0 & F/C.4.1: Pos Pelayanan & Galeri Pos', () => {
-    it('renders official Pos details, hours, and direction instructions', async () => {
+    it('renders supplied post names and honest empty location states', async () => {
       render(
         <MemoryRouter>
           <PostsPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
         expect(screen.getByText('Pos Pelayanan')).toBeDefined();
         expect(screen.getByText('Pengajaran')).toBeDefined();
-        expect(screen.getByText(/Gedung Induk Lantai 1/i)).toBeDefined();
-        expect(screen.getByText(/Senin - Jumat, 08.00 - 16.00 WIB/i)).toBeDefined();
+        expect(screen.getAllByText('Lokasi belum dilengkapi')[0]).toBeDefined();
+        expect(screen.getAllByText('Jam layanan belum dilengkapi')[0]).toBeDefined();
         expect(screen.getByText('Satu katalog, tiga pos')).toBeDefined();
       });
     });
@@ -123,7 +127,7 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
       render(
         <MemoryRouter>
           <PostsPage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -140,7 +144,7 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
       render(
         <MemoryRouter>
           <GuidePage />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByText('Alur Pengambilan')).toBeDefined();

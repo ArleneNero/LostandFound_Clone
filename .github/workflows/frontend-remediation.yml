@@ -1,0 +1,58 @@
+name: Frontend verification
+on:
+  push:
+    branches: [fix/frontend-fa-fc]
+permissions:
+  contents: read
+concurrency:
+  group: frontend-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Prepare evidence directory
+        run: mkdir -p evidence
+      - name: ESLint
+        run: npm run lint 2>&1 | tee evidence/lint.log
+      - name: TypeScript
+        run: npm run typecheck 2>&1 | tee evidence/typecheck.log
+      - name: Unit and component tests
+        run: npm test 2>&1 | tee evidence/unit-tests.log
+      - name: Production build
+        run: npm run build 2>&1 | tee evidence/build.log
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser interaction and visual geometry tests
+        run: npm run test:e2e 2>&1 | tee evidence/browser.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-verification-evidence
+          path: |
+            apps/web/evidence
+            apps/web/test-results
+          retention-days: 7
+      - name: Export committed source
+        working-directory: .
+        run: git archive --format=zip HEAD -o /tmp/UBL_LostnFound_Source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-source
+          path: /tmp/UBL_LostnFound_Source.zip
+          retention-days: 7

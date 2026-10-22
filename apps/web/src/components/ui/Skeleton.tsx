@@ -23,11 +23,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div
-      className={clsx(
-        'bg-[#EAECF0] animate-pulse',
-        variantStyles[variant],
-        className
-      )}
+      className={clsx('bg-[#EAECF0] animate-pulse', variantStyles[variant], className)}
       style={{
         width,
         height,

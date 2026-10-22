@@ -34,16 +34,17 @@ export class InMemoryAuthService implements IAuthService {
       studentNumber: null,
     };
 
+    mockStore.publish();
     return user;
   }
 
   async loginAsStudent(email?: string): Promise<UserSession> {
     const user: UserSession = {
       id: 'student-01',
-      name: 'Nero Mahasiswa',
-      email: email || '2411502194@student.budiluhur.ac.id',
+      name: 'Mahasiswa Demo',
+      email: email || 'mahasiswa@example.invalid',
       role: 'STUDENT',
-      studentNumber: '2411502194',
+      studentNumber: '0000000000',
     };
 
     mockStore.getState().currentUser = {
@@ -52,13 +53,15 @@ export class InMemoryAuthService implements IAuthService {
       email: user.email,
       role: user.role,
       assignedPostId: null,
-      studentNumber: user.studentNumber || '2411502194',
+      studentNumber: user.studentNumber || '0000000000',
     };
 
+    mockStore.publish();
     return user;
   }
 
   async logout(): Promise<void> {
     mockStore.getState().currentUser = null;
+    mockStore.publish();
   }
 }

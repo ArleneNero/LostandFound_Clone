@@ -23,6 +23,8 @@ export interface CreateItemInput {
   foundDate?: string;
   privateNotes?: string;
   photoToken: string;
+  /** Demo-only field. Never part of ItemCreateRequestDto or a HTTP payload. */
+  mockReceivedAt?: string;
 }
 
 export interface IItemService {

@@ -22,9 +22,11 @@ export const Button: React.FC<ButtonProps> = ({
   rightIcon,
   className,
   disabled,
+  type = 'button',
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
+  const baseStyles =
+    'inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
 
   const sizeStyles = {
     sm: 'h-[36px] px-3 text-xs rounded-[10px] gap-1.5',
@@ -33,21 +35,22 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'btn-primary-gradient text-white focus-visible:ring-[var(--lf-blue)] shadow-sm disabled:bg-[#E4E7EC] disabled:text-[#98A2B3] disabled:bg-none',
-    secondary: 'bg-white text-[var(--lf-ink)] border border-[var(--lf-border)] hover:bg-[#F9FAFB] focus-visible:ring-[var(--lf-border-strong)] active:bg-[#F2F4F7]',
+    primary:
+      'btn-primary-gradient text-white focus-visible:ring-[var(--lf-blue)] shadow-sm disabled:bg-[#E4E7EC] disabled:text-[#98A2B3] disabled:bg-none',
+    secondary:
+      'bg-white text-[var(--lf-action)] shadow-[0_4px_10px_-2px_rgba(33,74,128,0.1)] hover:bg-[#F9FAFB] focus-visible:ring-[var(--lf-border-strong)] active:bg-[#F2F4F7]',
     soft: 'bg-[var(--lf-soft)] text-[var(--lf-action)] hover:bg-[#DCEBFF] focus-visible:ring-[var(--lf-action)]',
-    danger: 'bg-[var(--lf-error)] text-white hover:bg-[#B42318] focus-visible:ring-[var(--lf-error)]',
-    ghost: 'bg-transparent text-[var(--lf-muted)] hover:bg-[#F2F4F7] hover:text-[var(--lf-ink)] focus-visible:ring-[var(--lf-muted)]',
+    danger:
+      'bg-[var(--lf-error)] text-white hover:bg-[#B42318] focus-visible:ring-[var(--lf-error)]',
+    ghost:
+      'bg-transparent text-[var(--lf-muted)] hover:bg-[#F2F4F7] hover:text-[var(--lf-ink)] focus-visible:ring-[var(--lf-muted)]',
   };
 
   return (
     <button
-      className={clsx(
-        baseStyles,
-        sizeStyles[size],
-        variantStyles[variant],
-        className
-      )}
+      type={type}
+      aria-busy={isLoading || undefined}
+      className={clsx(baseStyles, sizeStyles[size], variantStyles[variant], className)}
       disabled={disabled || isLoading}
       {...props}
     >
@@ -57,9 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
         leftIcon && <span className="inline-flex shrink-0">{leftIcon}</span>
       )}
       <span>{children}</span>
-      {!isLoading && rightIcon && (
-        <span className="inline-flex shrink-0">{rightIcon}</span>
-      )}
+      {!isLoading && rightIcon && <span className="inline-flex shrink-0">{rightIcon}</span>}
     </button>
   );
 };

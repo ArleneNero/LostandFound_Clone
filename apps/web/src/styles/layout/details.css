@@ -1,0 +1,70 @@
+.lf-internal-detail-grid,
+.lf-public-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.lf-detail-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.45;
+  object-fit: cover;
+  border-radius: 20px;
+}
+.lf-detail-description,
+.lf-detail-controls,
+.lf-private,
+.lf-location-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.lf-detail-description h2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.lf-detail-description p,
+.lf-private p,
+.lf-location-card p {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--lf-muted);
+}
+.lf-detail-description small {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lf-muted);
+}
+.lf-available {
+  background: var(--lf-success-soft);
+  color: var(--lf-success);
+  border-radius: 99px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 18px;
+}
+.lf-post-gallery {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.lf-post-gallery img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+@media (min-width: 1024px) {
+  .lf-internal-detail-grid {
+    grid-template-columns: minmax(0, 480fr) minmax(0, 608fr);
+    gap: 28px;
+  }
+  .lf-public-detail-grid {
+    grid-template-columns: minmax(0, 560fr) minmax(0, 560fr);
+    gap: 32px;
+  }
+}
