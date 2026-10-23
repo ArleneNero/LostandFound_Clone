@@ -13,7 +13,7 @@ export function Brand({
       aria-label="UBL LostnFound, halaman awal"
     >
       <span className="lf-brand-icon">
-        <img src="/favicon.svg" width="52" height="56" alt="" />
+        <img src={`${import.meta.env.BASE_URL}favicon.svg`} width="52" height="56" alt="" />
       </span>
       <span className="lf-brand-copy">
         <strong>
