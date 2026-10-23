@@ -16,9 +16,9 @@ export default defineConfig({
         if (process.env.GITHUB_PAGES !== 'true') return;
         for (const file of Object.values(bundle)) {
           if (file.type === 'chunk') {
-            file.code = file.code.replaceAll('/assets/', '/LostandFound_Clone/assets/');
+            file.code = file.code.replace(/(?<!LostandFound_Clone)\\/assets\\//g, '/LostandFound_Clone/assets/');
           } else if (typeof file.source === 'string' && /\\.(css|html|js)$/.test(file.fileName)) {
-            file.source = file.source.replaceAll('/assets/', '/LostandFound_Clone/assets/');
+            file.source = file.source.replace(/(?<!LostandFound_Clone)\\/assets\\//g, '/LostandFound_Clone/assets/');
           }
         }
       },
