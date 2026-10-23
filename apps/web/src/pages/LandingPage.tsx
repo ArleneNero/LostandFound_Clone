@@ -4,7 +4,7 @@ export function LandingPage() {
     <div className="lf-landing">
       <section className="lf-landing-hero" aria-labelledby="landing-title">
         <img
-          src="/assets/illustrations/landing/Kotak Barang Hilang dan Ditemukan.png"
+          src={`${import.meta.env.BASE_URL}assets/illustrations/landing/Kotak Barang Hilang dan Ditemukan.png`}
           alt="Ilustrasi kotak barang temuan"
         />
         <div className="lf-landing-copy">
