@@ -39,6 +39,10 @@ dist/
 /.agent-internal/
 /apps/web/AGENTS.md
 /apps/web/.agent-internal/
+/apps/frontend/AGENTS.md
+/apps/frontend/.agent-internal/
+/apps/backend/AGENTS.md
+/apps/backend/.agent-internal/
 /README_PAKET.md
 /GITIGNORE_TAMBAHAN.md
 .agents/
