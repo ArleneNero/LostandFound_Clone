@@ -11,13 +11,13 @@ export function RoleSelectionSection() {
         <RoleCard
           title="Mahasiswa"
           description="Login / Register untuk melapor dan cek status"
-          iconSrc="/assets/illustrations/roles/Icon_Mahasiswa.png"
+          iconSrc={`${import.meta.env.BASE_URL}assets/illustrations/roles/Icon_Mahasiswa.png`}
           onClick={() => navigate('/masuk?role=student')}
         />
         <RoleCard
           title="Petugas"
           description="Login untuk mengelola barang dan penyerahan"
-          iconSrc="/assets/illustrations/roles/Icon_Petugas.png"
+          iconSrc={`${import.meta.env.BASE_URL}assets/illustrations/roles/Icon_Petugas.png`}
           onClick={() => navigate('/masuk?role=officer')}
         />
         <RoleCard
