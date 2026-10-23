@@ -6,7 +6,24 @@ import path from 'path';
 
 export default defineConfig({
   base: process.env.GITHUB_PAGES === 'true' ? '/LostandFound_Clone/' : '/',
-  plugins: [tailwindcss(), react()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    {
+      name: 'pages-public-assets',
+      apply: 'build',
+      generateBundle(_options, bundle) {
+        if (process.env.GITHUB_PAGES !== 'true') return;
+        for (const file of Object.values(bundle)) {
+          if (file.type === 'chunk') {
+            file.code = file.code.replaceAll('/assets/', '/LostandFound_Clone/assets/');
+          } else if (typeof file.source === 'string' && /\\.(css|html|js)$/.test(file.fileName)) {
+            file.source = file.source.replaceAll('/assets/', '/LostandFound_Clone/assets/');
+          }
+        }
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
