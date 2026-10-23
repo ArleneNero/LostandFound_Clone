@@ -46,7 +46,7 @@ export const INITIAL_MOCK_STATE: MockState = {
       photos: [
         {
           photo_id: 'p-001',
-          url: '/assets/items/kunci-motor.png',
+          url: `${import.meta.env.BASE_URL}assets/items/kunci-motor.png`,
           expires_at: '2026-12-31T23:59:59Z',
           is_primary: true,
         },
@@ -70,7 +70,7 @@ export const INITIAL_MOCK_STATE: MockState = {
       photos: [
         {
           photo_id: 'p-002',
-          url: '/assets/items/dompet-cokelat.png',
+          url: `${import.meta.env.BASE_URL}assets/items/dompet-cokelat.png`,
           expires_at: '2026-12-31T23:59:59Z',
           is_primary: true,
         },
@@ -94,7 +94,7 @@ export const INITIAL_MOCK_STATE: MockState = {
       photos: [
         {
           photo_id: 'p-003',
-          url: '/assets/items/airpods-pro.png',
+          url: `${import.meta.env.BASE_URL}assets/items/airpods-pro.png`,
           expires_at: '2026-12-31T23:59:59Z',
           is_primary: true,
         },
@@ -118,7 +118,7 @@ export const INITIAL_MOCK_STATE: MockState = {
       photos: [
         {
           photo_id: 'p-004',
-          url: '/assets/items/tas-kanvas.png',
+          url: `${import.meta.env.BASE_URL}assets/items/tas-kanvas.png`,
           expires_at: '2026-12-31T23:59:59Z',
           is_primary: true,
         },
@@ -137,7 +137,7 @@ export const INITIAL_MOCK_STATE: MockState = {
       found_on: '2026-10-20',
       status: 'PENDING_RECEIPT',
       submitted_at: '2026-10-20T14:30:00Z',
-      report_photo_url: '/assets/items/tas-kanvas.png',
+      report_photo_url: `${import.meta.env.BASE_URL}assets/items/tas-kanvas.png`,
       report_photo_expires_at: '2026-12-31T23:59:59Z',
     },
   ],
