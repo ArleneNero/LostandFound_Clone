@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PublicLayout } from '@/components/layouts/PublicLayout';
 import { OfficerLayout } from '@/components/layouts/OfficerLayout';
-import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { LandingPage } from '@/pages/LandingPage';
 import { GuestHomePage } from '@/pages/GuestHomePage';
 import { CatalogPage } from '@/pages/CatalogPage';
@@ -9,6 +8,7 @@ import { ItemDetailPage } from '@/pages/ItemDetailPage';
 import { PostsPage } from '@/pages/PostsPage';
 import { GuidePage } from '@/pages/GuidePage';
 import { LoginPage } from '@/pages/LoginPage';
+import { OfficerLoginPage } from '@/pages/officer/OfficerLoginPage';
 import { OfficerDashboardPage } from '@/pages/officer/OfficerDashboardPage';
 import { OfficerInventoryPage } from '@/pages/officer/OfficerInventoryPage';
 import { OfficerRegisterItemPage } from '@/pages/officer/OfficerRegisterItemPage';
@@ -16,14 +16,16 @@ import { OfficerReportsPage } from '@/pages/officer/OfficerReportsPage';
 import { OfficerAccountPage } from '@/pages/officer/OfficerAccountPage';
 import { OfficerItemDetailPage } from '@/pages/officer/OfficerItemDetailPage';
 import { OfficerReportDetailPage } from '@/pages/officer/OfficerReportDetailPage';
-import { StudentHomePage } from '@/pages/student/StudentHomePage';
-import { StudentReportPage } from '@/pages/student/StudentReportPage';
-import { StudentMyReportsPage } from '@/pages/student/StudentMyReportsPage';
-import { StudentProfilePage } from '@/pages/student/StudentProfilePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { RoutePaths } from '@/constants/routes';
 
 export const router = createBrowserRouter([
+  // Dedicated Officer Login Route
+  {
+    path: RoutePaths.OFFICER_LOGIN,
+    element: <OfficerLoginPage />,
+  },
+
   // Public & Guest Routes
   {
     path: RoutePaths.LANDING,
@@ -55,17 +57,10 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Student / Mahasiswa Routes
+  // Student / Mahasiswa Routes (Belum dibuka pada tahap ini - Dialihkan ke Beranda Tamu)
   {
-    path: '/mahasiswa',
-    element: <StudentLayout />,
-    children: [
-      { index: true, element: <Navigate to={RoutePaths.STUDENT_HOME} replace /> },
-      { path: 'beranda', element: <StudentHomePage /> },
-      { path: 'lapor-temuan', element: <StudentReportPage /> },
-      { path: 'laporan-saya', element: <StudentMyReportsPage /> },
-      { path: 'profil', element: <StudentProfilePage /> },
-    ],
+    path: '/mahasiswa/*',
+    element: <Navigate to={RoutePaths.GUEST_HOME} replace />,
   },
 
   // Fallback 404 Route

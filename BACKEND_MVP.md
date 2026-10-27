@@ -36,7 +36,7 @@ Ketiga operasi ini **sudah ada dalam OpenAPI final v1.0**. Jangan membuat API al
 - Operasional pertama **Pos Pengajaran**; model tetap mendukung tiga pos yang didefinisikan pada ERD. Jangan mengaktifkan pos lain secara operasional tanpa keputusan.
 - Role DB hanya `STUDENT` dan `OFFICER`; Guest adalah akses publik tanpa akun, tidak ada `ADMIN` DB.
 - Endpoint publik hanya menampilkan `status=STORED AND is_visible=true`; detail item tersembunyi/non-STORED menghasilkan **404**, bukan bocor sebagai item privat.
-- Endpoint POST hanya untuk Petugas dengan **Clerk JWT diverifikasi server-side**, role OFFICER dari database, dan **assigned post dari database** (bukan `post_id` yang dikirim bebas oleh client).
+- Endpoint POST hanya untuk Petugas dengan **Neon Auth (Better Auth) diverifikasi server-side**, role OFFICER dari database, dan **assigned post dari database** (bukan `post_id` yang dikirim bebas oleh client).
 - Foto privat di Cloudflare R2, MIME JPEG/PNG/WebP, batas 5 MiB per file, upload intent → presigned PUT → finalize → token. Jangan memakai URL publik permanen atau file base64 dalam JSON sebagai jalan pintas.
 - Validasi Zod, query parameterized/Drizzle, error envelope sesuai kontrak (`error.code`, `error.message`, `error.request_id`), request logging tanpa token/PII, transaksi DB untuk mutasi yang perlu atomik.
 - NIM Mahasiswa bersifat deklarasi mandiri, bukan verifikasi akademik; tidak diperlukan untuk tiga endpoint inti.
@@ -63,7 +63,7 @@ Satu repository Git, tidak perlu Git worktree, tidak perlu dua sesi agent. Janga
 
 - [ ] Pastikan **Frontend MVP Gate sudah disetujui** pengguna; jika belum, berhenti.
 - [ ] Audit Git status, struktur aktual, runtime/package manager, kontrak final, snapshot Frontend, dan ID milestone `B/*`.
-- [ ] Cek kesiapan kredensial **Neon dev/test, Clerk, Cloudflare R2** tanpa menampilkan nilainya. Bila tidak tersedia, laporkan dependency yang `BLOCKED`; jangan mengarang akses atau menyatakan sudah terhubung.
+- [ ] Cek kesiapan kredensial **Neon dev/test, Neon Auth, Cloudflare R2** tanpa menampilkan nilainya. Bila tidak tersedia, laporkan dependency yang `BLOCKED`; jangan mengarang akses atau menyatakan sudah terhubung.
 - [ ] Buat peta operasi → skema → test case → file yang akan diubah, lalu minta izin coding.
 
 ### B1 — Fastify + Neon + Drizzle
@@ -81,14 +81,14 @@ Satu repository Git, tidak perlu Git worktree, tidak perlu dua sesi agent. Janga
 - [ ] Tambahkan unit/integration test untuk kasus sukses, kosong, pagination, filter, invalid query/ID, 404, dan kebocoran data privat.
 - [ ] Buktikan dua GET dengan HTTP request sungguhan dan perubahan data DB yang terbaca; bukan fixture response yang di-hardcode.
 
-### B3 — Clerk, Petugas, R2 dan POST barang
+### B3 — Neon Auth, Petugas, R2 dan POST barang
 
-- [ ] Verifikasi Clerk JWT **di server**; cocokkan identitas ke user DB dengan role OFFICER dan assigned post yang valid. Tidak ada bypass `DEV_AUTH=true`, akun admin palsu, atau `post_id` dari client sebagai sumber otorisasi.
+- [ ] Verifikasi Neon Auth session/JWT **di server**; cocokkan identitas ke user DB dengan role OFFICER dan assigned post yang valid. Tidak ada bypass `DEV_AUTH=true`, akun admin palsu, atau `post_id` dari client sebagai sumber otorisasi.
 - [ ] Implementasikan upload pendukung sesuai OpenAPI: `POST /api/v1/uploads/intents`, PUT R2 presigned, `POST /api/v1/uploads/{upload_id}/finalize`; token harus terikat user/purpose, diverifikasi, dan tidak boleh dipakai ulang jika kontrak melarang.
 - [ ] Implementasikan `POST /api/v1/officer/items` dengan body `ItemCreateRequest` sesuai OpenAPI (`item_name`, `category`, `public_description`, `item_photo_upload_tokens`, serta field opsional yang sah). Validasi dan simpan ke Neon secara atomik sesuai desain.
 - [ ] Status awal dan `is_visible` ditetapkan **berdasarkan kontrak/model/aturan bisnis yang diverifikasi**, jangan mengasumsikan barang otomatis terpublikasi. Bila belum jelas, `BLOCKED` dan minta keputusan.
 - [ ] Uji 201 sukses dengan **akun OFFICER nyata pada lingkungan dev/test** dan foto R2 valid; uji 400/401/403/404/409/422 sesuai kasus yang relevan dan kontrak; pastikan DB berubah dan item dapat dibaca melalui jalur yang diizinkan.
-- [ ] Bila Clerk/R2 belum dapat dikonfigurasi, boleh melanjutkan GET dan DB; **POST belum dianggap lulus** sampai alur otorisasi dan upload benar-benar diuji.
+- [ ] Bila Neon Auth/R2 belum dapat dikonfigurasi, boleh melanjutkan GET dan DB; **POST belum dianggap lulus** sampai alur otorisasi dan upload benar-benar diuji.
 
 ### B4 — Backend MVP Gate (**berhenti untuk persetujuan**)
 
@@ -97,7 +97,7 @@ Satu repository Git, tidak perlu Git worktree, tidak perlu dua sesi agent. Janga
 | Neon tersambung | Migration sukses, query ke DB dev/test nyata, seed dapat diulang tanpa duplikasi tidak disengaja. |
 | GET daftar | HTTP 200 sesuai schema, data dari Neon, hanya item publik, paginasi benar. |
 | GET detail | HTTP 200 untuk item publik; 404 untuk hidden/non-STORED/tidak ada. |
-| POST catat barang | HTTP 201 dengan Clerk OFFICER dan token upload R2 sah; record tersimpan; unauthorized/forbidden ditolak. |
+| POST catat barang | HTTP 201 dengan Neon Auth OFFICER dan token upload R2 sah; record tersimpan; unauthorized/forbidden ditolak. |
 | Validasi/keamanan | Response/error sesuai OpenAPI; tidak ada rahasia di repo/log; test negatif dijalankan. |
 | Build dan tes | Typecheck, lint, build, unit/integration tests dilaporkan `PASS/FAIL/NOT RUN` dengan output nyata. |
 
@@ -109,7 +109,7 @@ Satu repository Git, tidak perlu Git worktree, tidak perlu dua sesi agent. Janga
 2. Jalankan Fastify dan Vite lokal bersamaan; set base URL melalui env, bukan hardcode URL produksi.
 3. Tukar mock service dengan HTTP adapter sesuai OpenAPI; gunakan DTO `snake_case` dan envelope yang sama, serta tangani loading/error/empty state nyata.
 4. Hubungkan **Guest katalog** ke `GET /api/v1/items` dan **Guest detail** ke `GET /api/v1/items/{item_id}`.
-5. Hubungkan **form catat barang Petugas** ke alur Clerk → upload intent → R2 PUT → finalize → `POST /api/v1/officer/items`.
+5. Hubungkan **form catat barang Petugas** ke alur Neon Auth → upload intent → R2 PUT → finalize → `POST /api/v1/officer/items`.
 6. **Perhatikan inventaris dan dashboard Petugas:** tiga endpoint inti **tidak mencakup** GET inventaris Petugas. Jika perlu data Petugas dari Neon, gunakan `GET /api/v1/officer/items` yang sudah ada pada OpenAPI, setelah izin memperluas cakupan. Jangan memakai endpoint katalog publik untuk menampilkan catatan privat Petugas atau menyebut inventaris real-time bila masih mock.
 7. Uji E2E: buat barang melalui UI Petugas dengan akun sah → verifikasi row di Neon → verifikasi detail/inventaris yang berotorisasi → tampil di katalog Guest **hanya jika** status `STORED` dan visibilitas `true` sesuai mekanisme resmi. Jangan memaksa publikasi melalui perubahan DB manual lalu mengklaim alur UI lengkap.
 8. Uji ulang lint, typecheck, build kedua aplikasi, integrasi HTTP, mobile/desktop, dan regresi mock yang dihapus.
@@ -129,4 +129,4 @@ Alur Mahasiswa lengkap, pengelolaan laporan temuan, pengembalian/penyaluran bara
 
 ## 9. Instruksi mulai untuk AntiGravity
 
-> **Jangan jalankan Backend sampai Frontend MVP Gate disetujui.** Setelah disetujui, baca root `AGENTS.md`, dokumentasi Backend, kontrak OpenAPI final v1.0, ERD v6.2, dan `docs/BACKEND_MVP.md`. Mulai dari **B0 preflight**, audit koneksi Neon/Clerk/R2 dan milestone aktual, lalu laporkan rencana dan blocker sebelum coding. Implementasikan Neon + seed + tiga endpoint inti beserta upload pendukung sesuai kontrak. Berhenti di **Backend MVP Gate**; integrasi `apps/web/` hanya setelah izin terpisah. Jangan push, merge, atau deploy tanpa persetujuan eksplisit.
+> **Jangan jalankan Backend sampai Frontend MVP Gate disetujui.** Setelah disetujui, baca root `AGENTS.md`, dokumentasi Backend, kontrak OpenAPI final v1.0, ERD v6.2, dan `docs/BACKEND_MVP.md`. Mulai dari **B0 preflight**, audit koneksi Neon/Neon Auth/R2 dan milestone aktual, lalu laporkan rencana dan blocker sebelum coding. Implementasikan Neon + seed + tiga endpoint inti beserta upload pendukung sesuai kontrak. Berhenti di **Backend MVP Gate**; integrasi `apps/web/` hanya setelah izin terpisah. Jangan push, merge, atau deploy tanpa persetujuan eksplisit.

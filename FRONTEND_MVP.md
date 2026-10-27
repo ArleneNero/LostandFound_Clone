@@ -12,7 +12,7 @@ Bangun **Frontend MVP yang benar-benar dapat didemonstrasikan secara lokal** den
 
 Target akhir keseluruhan proyek (bukan klaim capaian fase ini): React terhubung ke Fastify dan Neon PostgreSQL, memiliki data dummy yang tersimpan, serta sedikitnya tiga endpoint inti yang berfungsi sesuai kontrak.
 
-**Definisi fase ini:** UI dapat dipakai untuk simulasi; **tidak** boleh mengklaim API, autentikasi Clerk, Cloudflare R2, atau database sudah terhubung. Mock hanya sementara dan harus mudah diganti oleh HTTP adapter.
+**Definisi fase ini:** UI dapat dipakai untuk simulasi; **tidak** boleh mengklaim API, autentikasi Neon Auth (Better Auth), Cloudflare R2, atau database sudah terhubung. Mock hanya sementara dan harus mudah diganti oleh HTTP adapter.
 
 ## 2. Sumber kebenaran dan aturan perubahan
 
@@ -60,7 +60,7 @@ Jangan membuat repository Git baru di dalam `apps/web/`. Jangan merombak atau me
 
 **Batas foto penting:** UI MVP hanya meminta **1 foto barang** sesuai keputusan produk. Kontrak OpenAPI yang tersedia mendefinisikan `item_photo_upload_tokens` sebagai **array 1–5 token**. Jangan mengubah OpenAPI; pada integrasi, UI satu foto dipetakan menjadi array **berisi satu token** setelah upload sah. Jika dokumen lain menyatakan tepat satu foto dan memerlukan pembatasan API juga, catat sebagai perbedaan kontrak yang perlu persetujuan; jangan mengubah skema diam-diam.
 
-**Aturan domain:** UBL LostnFound hanya barang ditemukan; operasional awal Pos Pengajaran; tidak ada online lost-report, klaim kepemilikan online, role `ADMIN` atau `GUEST` di database. Guest adalah pengunjung publik tanpa akun. Tidak boleh membuat login Petugas palsu yang disalahartikan sebagai Clerk asli.
+**Aturan domain:** UBL LostnFound hanya barang ditemukan; operasional awal Pos Pengajaran; tidak ada online lost-report, klaim kepemilikan online, role `ADMIN` atau `GUEST` di database. Guest adalah pengunjung publik tanpa akun. Tidak boleh membuat login Petugas palsu yang disalahartikan sebagai Neon Auth asli.
 
 ## 5. Cara implementasi — satu AntiGravity
 
@@ -113,11 +113,11 @@ Jangan membuat repository Git baru di dalam `apps/web/`. Jangan merombak atau me
 |---|---|---|
 | `GET /api/v1/items` | Guest katalog | Public; hanya `STORED` dan visible; paginasi sesuai kontrak. |
 | `GET /api/v1/items/{item_id}` | Guest detail | Public; hidden/non-STORED harus 404. |
-| `POST /api/v1/officer/items` | Petugas catat barang | Perlu Clerk JWT OFFICER, post assignment dari DB, dan upload token yang sah. |
+| `POST /api/v1/officer/items` | Petugas catat barang | Perlu Neon Auth OFFICER, post assignment dari DB, dan upload token yang sah. |
 
 **Jangan menyamakan detail inventaris Petugas dengan detail publik.** Endpoint Petugas berotorisasi berbeda dari `GET /items/{item_id}`; pada MVP mock, detail inventaris tetap disimulasikan melalui service tersendiri. Jika integrasi dashboard/inventaris Petugas membutuhkan endpoint tambahan dari 3 endpoint inti, gunakan endpoint **yang sudah ada** dalam OpenAPI dan minta izin memperluas cakupan integrasi; jangan membuat endpoint baru.
 
-Pembuatan barang nyata membutuhkan upload R2 `POST /api/v1/uploads/intents` → PUT ke URL presigned → `POST /api/v1/uploads/{upload_id}/finalize` → token untuk `POST /api/v1/officer/items`. Ini **dua endpoint pendukung di luar tiga endpoint inti**, bukan penyimpangan target. Jika R2/Clerk belum siap, jangan mengklaim POST berhasil end-to-end.
+Pembuatan barang nyata membutuhkan upload R2 `POST /api/v1/uploads/intents` → PUT ke URL presigned → `POST /api/v1/uploads/{upload_id}/finalize` → token untuk `POST /api/v1/officer/items`. Ini **dua endpoint pendukung di luar tiga endpoint inti**, bukan penyimpangan target. Jika R2/Neon Auth belum siap, jangan mengklaim POST berhasil end-to-end.
 
 ## 7. Aturan kerja, Git, dan laporan akhir
 

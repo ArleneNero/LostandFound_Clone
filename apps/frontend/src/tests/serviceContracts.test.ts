@@ -18,11 +18,13 @@ describe('Service Contracts & Registry (F/A.3)', () => {
     expect(services.upload).toBeDefined();
   });
 
-  it('throws explicitly when in http mode before backend is configured (no silent fallback)', () => {
+  it('provides http services in http mode', () => {
     registry.setMode('http');
-    expect(() => registry.getServices()).toThrowError(
-      /HTTP Adapter belum aktif/
-    );
+    const services = registry.getServices();
+    expect(services.mode).toBe('http');
+    expect(services.items).toBeDefined();
+    expect(services.upload).toBeDefined();
+    expect(services.posts).toBeDefined();
   });
 
   it('filters public items strictly to STORED and is_visible', async () => {

@@ -111,11 +111,10 @@ describe('Public Item Detail, Posts & Guide (F/C.3 - F/C.4)', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Pos Pelayanan')).toBeDefined();
-        expect(screen.getByText('Pengajaran')).toBeDefined();
-        expect(screen.getByText(/Gedung Induk Lantai 1/i)).toBeDefined();
+        expect(screen.getByRole('heading', { name: 'Pos Pelayanan' })).toBeDefined();
+        expect(screen.getByText('Pos Pengajaran')).toBeDefined();
+        expect(screen.getAllByText(/Gedung Unit 4/i).length).toBeGreaterThan(0);
         expect(screen.getByText(/Senin - Jumat, 08.00 - 16.00 WIB/i)).toBeDefined();
-        expect(screen.getByText('Satu katalog, tiga pos')).toBeDefined();
       });
     });
 

@@ -34,10 +34,10 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
         screen.getByText(/Tenang, barangmu mungkin sudah ditemukan/i)
       ).toBeDefined();
 
-      const heroImg = screen.getByAltText('Ilustrasi Kotak Barang Temuan') as HTMLImageElement;
+      const heroImg = screen.getByAltText(/Banner UBL LostnFound/i) as HTMLImageElement;
       expect(heroImg).toBeDefined();
       expect(heroImg.src).toContain(
-        encodeURI('/assets/illustrations/landing/Kotak Barang Hilang dan Ditemukan.png')
+        encodeURI('/assets/illustrations/landing/banner-hero-lostnfound.png')
       );
     });
 
@@ -53,8 +53,9 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       const petugasImg = screen.getByAltText('Petugas') as HTMLImageElement;
       expect(petugasImg.src).toContain('/assets/illustrations/roles/Icon_Petugas.png');
 
-      // Mahasiswa Card
+      // Mahasiswa Card (Segera Hadir)
       expect(screen.getByText('Mahasiswa')).toBeDefined();
+      expect(screen.getByText('Segera Hadir')).toBeDefined();
       const mhsImg = screen.getByAltText('Mahasiswa') as HTMLImageElement;
       expect(mhsImg.src).toContain('/assets/illustrations/roles/Icon_Mahasiswa.png');
 
@@ -63,10 +64,11 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
 
       // Test navigation on clicking cards
       fireEvent.click(screen.getByText('Petugas'));
-      expect(mockNavigate).toHaveBeenCalledWith('/petugas/dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/petugas/login');
 
+      // Mahasiswa is disabled per scope agreement
       fireEvent.click(screen.getByText('Mahasiswa'));
-      expect(mockNavigate).toHaveBeenCalledWith('/mahasiswa/beranda');
+      expect(mockNavigate).not.toHaveBeenCalledWith('/mahasiswa/beranda');
 
       fireEvent.click(screen.getByText('Mode Tamu'));
       expect(mockNavigate).toHaveBeenCalledWith('/beranda');
@@ -180,8 +182,8 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       const newestRes = await services.items.getItems({ sort: 'newest' });
       const oldestRes = await services.items.getItems({ sort: 'oldest' });
 
-      expect(newestRes.items.length).toBe(4);
-      expect(oldestRes.items.length).toBe(4);
+      expect(newestRes.items.length).toBe(8);
+      expect(oldestRes.items.length).toBe(8);
 
       const firstNewestDate = new Date(newestRes.items[0].receivedAt).getTime();
       const firstOldestDate = new Date(oldestRes.items[0].receivedAt).getTime();
