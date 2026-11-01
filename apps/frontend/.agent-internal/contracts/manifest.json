@@ -1,0 +1,21 @@
+{
+  "product": "UBL LostnFound",
+  "source": "UBL_LostnFound_Agent_Docs_Updated.zip / .agent-internal/contracts",
+  "openapi_version": "1.0.0",
+  "expected_endpoints": 22,
+  "files": {
+    "openapi-v1.0.yaml": "52953e53e230c84ad9015771096838d6f3bfa233424b1715fef3504c30d5d084",
+    "api-contract-v1.0.md": "527eeee1f8b0f6aa4d795c9a8005a20a67e662a12fd299291edadfc61930485f",
+    "erd-v6.2.dbml": "892605fa3d8be4ed0631cfddd28bf60bd9e59f353dce44e9dd996d2877375ecf"
+  },
+  "schema_policy": {
+    "item_photo_upload_tokens_min": 1,
+    "item_photo_upload_tokens_max": 1,
+    "photo_mime": [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ],
+    "max_bytes": 5242880
+  }
+}

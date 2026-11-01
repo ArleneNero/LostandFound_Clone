@@ -1,0 +1,2335 @@
+openapi: 3.0.3
+info:
+  title: CampusFind REST API — UBL Lost and Found
+  version: 1.0.0
+  description: 'FINAL API contract for CampusFind (UBL Lost and Found). Domain: found items only. Phase 1: Pos Pengajaran. Authentication: Bcrypt + JWT (HS256) server-side verification against Neon PostgreSQL users table (with Neon Auth roadmap for students). App roles: STUDENT and OFFICER. Tagged with (Active - MVP) for deployed endpoints, and (Roadmap - Fase 2) for upcoming student/return workflows.'
+servers:
+- url: http://localhost:3000/api/v1
+  description: Local Fastify development; override in deployed environments
+tags:
+- name: Public (Active - MVP)
+  description: Endpoint publik tanpa autentikasi (Posko kampus, Katalog barang, dan Streaming foto R2)
+- name: Auth & Profile (Active - MVP)
+  description: Autentikasi petugas posko (Bcrypt verified) dan profil pengguna aktif (JWT HS256)
+- name: Uploads R2 (Active - MVP)
+  description: Two-Phase upload intent dan verifikasi berkas Cloudflare R2
+- name: Officer Operations (Active - MVP)
+  description: Operasi pencatatan fisik barang temuan langsung di posko oleh petugas
+- name: Student (Roadmap - Fase 2 Mahasiswa)
+  description: Endpoint pelaporan mandiri mahasiswa (Direncanakan pada fase pengembangan berikutnya)
+- name: Officer Handover & Returns (Roadmap - Fase 2)
+  description: Endpoint verifikasi fisik, penyerahan, dan pengembalian barang temuan ke pemilik sah
+paths:
+  /health:
+    get:
+      tags:
+      - Public (Active - MVP) (Active - MVP)
+      summary: Health check & server status
+      operationId: GetServerHealth
+      responses:
+        '200':
+          description: Server running ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                  request_id:
+                    type: string
+  /auth/officer-login:
+    post:
+      tags:
+      - Auth & Profile (Active - MVP)
+      summary: Login Petugas Posko (Bcrypt verified)
+      description: Verifikasi kata sandi petugas menggunakan Bcrypt dan menerbitkan JWT bertanda tangan HMAC-SHA256 (2 jam).
+      operationId: OfficerLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: lostandfound.budiluhur@gmail.com
+                password:
+                  type: string
+                  example: admin321
+      responses:
+        '200':
+          description: Login berhasil, mengembalikan token JWT dan profil petugas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                      user:
+                        $ref: '#/components/schemas/Me'
+        '401':
+          description: Email atau kata sandi tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Validasi format gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /posts:
+    get:
+      tags:
+      - Public (Active - MVP) (Active - MVP)
+      summary: List service posts
+      operationId: ListServicePosts
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostsResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /posts/{post_id}:
+    get:
+      tags:
+      - Public (Active - MVP) (Active - MVP)
+      summary: Get service post detail
+      operationId: GetServicePostDetail
+      parameters:
+      - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /items:
+    get:
+      tags:
+      - Public (Active - MVP) (Active - MVP)
+      summary: List public found items
+      operationId: ListPublicFoundItems
+      description: Only status STORED and is_visible true. Filtering precedes sorting and pagination.
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Q'
+      - $ref: '#/components/parameters/Category'
+      - $ref: '#/components/parameters/FilterPostId'
+      - $ref: '#/components/parameters/ItemSort'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemsResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /items/{item_id}:
+    get:
+      tags:
+      - Public (Active - MVP) (Active - MVP)
+      summary: Get public found item detail
+      operationId: GetPublicFoundItemDetail
+      description: Hidden or non-STORED item returns 404.
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /me:
+    get:
+      tags:
+      - Auth & Profile (Active - MVP)
+      summary: Get current CampusFind profile
+      operationId: GetCurrentCampusfindProfile
+      description: 404 PROFILE_NOT_FOUND when JWT session is valid but user not onboarded. No profile is created
+        implicitly.
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /me/bootstrap:
+    post:
+      tags:
+      - Auth & Profile (Active - MVP)
+      summary: Create student profile after student signup
+      operationId: CreateStudentProfileAfterNeon Auth / JWTSignup
+      description: Verified verified email required. Server derives auth_user_id and email from verified session.
+        Always creates STUDENT; never accepts role, user_id, auth_user_id or email from body. Duplicate user identity
+        returns 409 PROFILE_EXISTS. NIM is self-declared and not verified against academic records.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BootstrapRequest'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /submissions:
+    post:
+      tags:
+      - Student (Roadmap - Fase 2 Mahasiswa) (Roadmap - Fase 2 Mahasiswa)
+      summary: Submit found item report
+      operationId: SubmitFoundItemReport
+      description: Student only. One REPORT_PHOTO upload token. Create report and initial history in one transaction.
+        Retry may create a second report; client must not auto-retry POST.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreateRequest'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /submissions/me:
+    get:
+      tags:
+      - Student (Roadmap - Fase 2 Mahasiswa) (Roadmap - Fase 2 Mahasiswa)
+      summary: List own found item reports
+      operationId: ListOwnFoundItemReports
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/SubmissionStatus'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionsResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /submissions/{submission_id}:
+    get:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Get authorized found report detail
+      operationId: GetAuthorizedFoundReportDetail
+      description: Only reporter or assigned officer of target post. Unauthorized resource responds 404 to prevent
+        enumeration.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/SubmissionId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetailResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /submissions/{submission_id}/cancel:
+    post:
+      tags:
+      - Student (Roadmap - Fase 2 Mahasiswa) (Roadmap - Fase 2 Mahasiswa)
+      summary: Cancel own pending report
+      operationId: CancelOwnPendingReport
+      description: Only PENDING_RECEIPT. History reason required; status and history transactionally updated.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/SubmissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/submissions:
+    get:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: List reports for assigned post
+      operationId: ListReportsForAssignedPost
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/SubmissionStatus'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionsResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/submissions/{submission_id}/receive:
+    post:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Receive found report and create inventory
+      operationId: ReceiveFoundReportAndCreateInventory
+      description: Physical receipt required; assigned post only; pending report only. Creates item and photos,
+        updates report and history atomically. First item photo token becomes primary. Concurrent duplicate returns
+        409.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/SubmissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiveRequest'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/submissions/{submission_id}/reject:
+    post:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Reject pending found report
+      operationId: RejectPendingFoundReport
+      description: Assigned post and PENDING_RECEIPT only. Reason nonblank, status and history atomic.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/SubmissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/inventory:
+    get:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: List inventory for assigned post
+      operationId: ListInventoryForAssignedPost
+      description: Includes hidden and non-STORED items; scoped to officer post.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/ItemStatusFilter'
+      - $ref: '#/components/parameters/Q'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryListResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/inventory/overdue:
+    get:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: List overdue stored inventory
+      operationId: ListOverdueStoredInventory
+      description: Compute overdue from received_at and storage_limit_days, only STORED; no automatic mutation.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverdueListResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/items:
+    post:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Operations (Active - MVP) Handover & Returns (Roadmap - Fase 2) Operations (Active - MVP)
+      summary: Record found item directly
+      operationId: RecordFoundItemDirectly
+      description: Assigned post inferred from DB; exactly 1 ITEM_PHOTO token; single primary photo. No client-controlled post
+        ID.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreateRequest'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/items/{item_id}:
+    get:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Get authorized inventory detail
+      operationId: GetAuthorizedInventoryDetail
+      description: Includes private_verification_notes only for assigned post officer.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/items/{item_id}/visibility:
+    patch:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Set stored item catalog visibility
+      operationId: SetStoredItemCatalogVisibility
+      description: Only STORED items; changing visibility does not change physical status.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisibilityRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/items/{item_id}/return:
+    post:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Return item to verified owner
+      operationId: ReturnItemToVerifiedOwner
+      description: In-person ownership verification. Creates one item_returns and updates item status RETURNED_TO_OWNER,
+        is_visible false atomically. Duplicate/concurrent returns 409. No identity photo required.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequest'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /officer/items/{item_id}/distribute:
+    post:
+      tags:
+      - Officer Handover & Returns (Roadmap - Fase 2) Handover & Returns (Roadmap - Fase 2)
+      summary: Distribute item under post policy
+      operationId: DistributeItemUnderPostPolicy
+      description: Only STORED; manually sets DISTRIBUTED and is_visible false atomically. No item_returns row.
+        No request body.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /uploads/intents:
+    post:
+      tags:
+      - Uploads R2 (Active - MVP) R2 (Active - MVP)
+      summary: Request R2 image upload intent
+      operationId: RequestR2ImageUploadIntent
+      description: Only STUDENT REPORT_PHOTO or OFFICER ITEM_PHOTO. POST_PHOTO is admin-only offline operation,
+        not public API. Max 5 MiB; JPEG, PNG, WebP. Presigned PUT URL expires in 5 minutes.
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadIntentRequest'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadIntentResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /uploads/{upload_id}/finalize:
+    post:
+      tags:
+      - Uploads R2 (Active - MVP) R2 (Active - MVP)
+      summary: Finalize verified R2 image upload
+      operationId: FinalizeVerifiedR2ImageUpload
+      description: Server verifies signed upload intent ownership, object existence, size, MIME and actual content.
+        Issues user-bound purpose-bound signed token valid 15 minutes; token can be consumed once through unique
+        storage_path constraints in DB.
+      security:
+      - bearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/UploadId'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadFinalizedResponse'
+        '400':
+          description: HTTP 400
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: HTTP 401
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: HTTP 403
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: HTTP 404
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: HTTP 422
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: HTTP 429
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: HTTP 500
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Verified JWT session token (HS256) issued on officer login; user role and assigned service post resolved server-side from Neon PostgreSQL.
+  parameters:
+    PostId:
+      name: post_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    ItemId:
+      name: item_id
+      in: path
+      required: true
+      schema: &id001
+        type: string
+        format: uuid
+    SubmissionId:
+      name: submission_id
+      in: path
+      required: true
+      schema: *id001
+    UploadId:
+      name: upload_id
+      in: path
+      required: true
+      schema: *id001
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 10
+        default: 10
+    Q:
+      name: q
+      in: query
+      schema:
+        type: string
+        maxLength: 120
+    Category:
+      name: category
+      in: query
+      schema:
+        type: string
+        maxLength: 80
+    FilterPostId:
+      name: post_id
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+    ItemSort:
+      name: sort
+      in: query
+      schema:
+        type: string
+        enum:
+        - received_at_desc
+        - received_at_asc
+        - item_name_asc
+        description: Sort stabil; item_id sebagai tie-breaker
+    SubmissionStatus:
+      name: status
+      in: query
+      schema:
+        $ref: '#/components/schemas/ReportStatus'
+    ItemStatusFilter:
+      name: status
+      in: query
+      schema:
+        $ref: '#/components/schemas/ItemStatus'
+  schemas:
+    UserRole:
+      type: string
+      enum:
+      - STUDENT
+      - OFFICER
+    ReportStatus:
+      type: string
+      enum:
+      - PENDING_RECEIPT
+      - RECEIVED
+      - REJECTED
+      - CANCELLED
+    ItemStatus:
+      type: string
+      enum:
+      - STORED
+      - RETURNED_TO_OWNER
+      - DISTRIBUTED
+    ServicePostPhoto:
+      type: object
+      additionalProperties: false
+      properties:
+        photo_id: *id001
+        position:
+          type: integer
+          minimum: 1
+          maximum: 3
+        is_cover:
+          type: boolean
+        url:
+          type: string
+          format: uri
+        expires_at: &id002
+          type: string
+          format: date-time
+      required:
+      - photo_id
+      - position
+      - is_cover
+      - url
+      - expires_at
+    ServicePostShort:
+      type: object
+      additionalProperties: false
+      properties:
+        post_id:
+          type: integer
+        name:
+          type: string
+      required:
+      - post_id
+      - name
+    ServicePostPublic:
+      type: object
+      additionalProperties: false
+      properties:
+        post_id:
+          type: integer
+        name:
+          type: string
+        location_description:
+          type: string
+          nullable: true
+        opening_hours:
+          type: string
+          nullable: true
+        directions:
+          type: string
+          nullable: true
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServicePostPhoto'
+          maxItems: 3
+      required:
+      - post_id
+      - name
+      - location_description
+      - opening_hours
+      - directions
+      - photos
+    ItemPhoto:
+      type: object
+      additionalProperties: false
+      properties:
+        photo_id: *id001
+        url:
+          type: string
+          format: uri
+        expires_at: *id002
+        is_primary:
+          type: boolean
+      required:
+      - photo_id
+      - url
+      - expires_at
+      - is_primary
+    FoundItemPublic:
+      type: object
+      additionalProperties: false
+      properties:
+        item_id: *id001
+        inventory_code: &id003
+          type: string
+        item_name: &id004
+          type: string
+        category: &id005
+          type: string
+        public_description: &id006
+          type: string
+        found_location: &id007
+          type: string
+          nullable: true
+        found_on: &id008
+          type: string
+          format: date
+          nullable: true
+        received_at: *id002
+        post: &id009
+          $ref: '#/components/schemas/ServicePostShort'
+        photos: &id010
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemPhoto'
+          minItems: 1
+          maxItems: 1
+      required:
+      - item_id
+      - inventory_code
+      - item_name
+      - category
+      - public_description
+      - found_location
+      - found_on
+      - received_at
+      - post
+      - photos
+    FoundSubmission:
+      type: object
+      additionalProperties: false
+      properties:
+        submission_id: *id001
+        report_code: &id011
+          type: string
+        target_post_id: &id012
+          type: integer
+        item_name: &id013
+          type: string
+        category: &id014
+          type: string
+        public_description: &id015
+          type: string
+        found_location: &id016
+          type: string
+        found_on: &id017
+          type: string
+          format: date
+        status: &id018
+          $ref: '#/components/schemas/ReportStatus'
+        submitted_at: *id002
+        report_photo_url: &id019
+          type: string
+          format: uri
+        report_photo_expires_at: *id002
+      required:
+      - submission_id
+      - report_code
+      - target_post_id
+      - item_name
+      - category
+      - public_description
+      - found_location
+      - found_on
+      - status
+      - submitted_at
+      - report_photo_url
+      - report_photo_expires_at
+    InventoryOfficer:
+      type: object
+      additionalProperties: false
+      properties:
+        item_id: *id001
+        inventory_code: *id003
+        item_name: *id004
+        category: *id005
+        public_description: *id006
+        found_location: *id007
+        found_on: *id008
+        received_at: *id002
+        post: *id009
+        photos: *id010
+        status: &id020
+          $ref: '#/components/schemas/ItemStatus'
+        is_visible: &id021
+          type: boolean
+        storage_post_id: &id022
+          type: integer
+        source_submission_id: &id023
+          type: string
+          format: uuid
+          nullable: true
+        private_verification_notes: &id024
+          type: string
+          nullable: true
+      required:
+      - item_id
+      - inventory_code
+      - item_name
+      - category
+      - public_description
+      - found_location
+      - found_on
+      - received_at
+      - post
+      - photos
+      - status
+      - is_visible
+      - storage_post_id
+      - source_submission_id
+      - private_verification_notes
+    Me:
+      type: object
+      additionalProperties: false
+      properties:
+        user_id: *id001
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        student_number:
+          type: string
+          nullable: true
+        role:
+          $ref: '#/components/schemas/UserRole'
+        assigned_post_id:
+          type: integer
+          nullable: true
+        nim_verification_status:
+          type: string
+          enum:
+          - NOT_VERIFIED
+      required:
+      - user_id
+      - full_name
+      - email
+      - student_number
+      - role
+      - assigned_post_id
+      - nim_verification_status
+    StatusHistory:
+      type: object
+      additionalProperties: false
+      properties:
+        history_id: *id001
+        from_status:
+          $ref: '#/components/schemas/ReportStatus'
+          nullable: true
+        to_status:
+          $ref: '#/components/schemas/ReportStatus'
+        reason:
+          type: string
+          nullable: true
+        changed_at: *id002
+      required:
+      - history_id
+      - from_status
+      - to_status
+      - reason
+      - changed_at
+    ApiError:
+      type: object
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+          required:
+          - code
+          - message
+          - request_id
+      required:
+      - error
+    PaginationMeta:
+      type: object
+      additionalProperties: false
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        total_pages:
+          type: integer
+          minimum: 0
+      required:
+      - page
+      - limit
+      - total
+      - total_pages
+    ReportWithHistory:
+      type: object
+      additionalProperties: false
+      properties:
+        submission_id: *id001
+        report_code: *id011
+        target_post_id: *id012
+        item_name: *id013
+        category: *id014
+        public_description: *id015
+        found_location: *id016
+        found_on: *id017
+        status: *id018
+        submitted_at: *id002
+        report_photo_url: *id019
+        report_photo_expires_at: *id002
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusHistory'
+      required:
+      - submission_id
+      - report_code
+      - target_post_id
+      - item_name
+      - category
+      - public_description
+      - found_location
+      - found_on
+      - status
+      - submitted_at
+      - report_photo_url
+      - report_photo_expires_at
+      - history
+    OverdueInventory:
+      type: object
+      additionalProperties: false
+      properties:
+        item_id: *id001
+        inventory_code: *id003
+        item_name: *id004
+        category: *id005
+        public_description: *id006
+        found_location: *id007
+        found_on: *id008
+        received_at: *id002
+        post: *id009
+        photos: *id010
+        status: *id020
+        is_visible: *id021
+        storage_post_id: *id022
+        source_submission_id: *id023
+        private_verification_notes: *id024
+        storage_limit_days:
+          type: integer
+          minimum: 1
+        storage_age_days:
+          type: integer
+          minimum: 0
+        overdue_days:
+          type: integer
+          minimum: 1
+      required:
+      - item_id
+      - inventory_code
+      - item_name
+      - category
+      - public_description
+      - found_location
+      - found_on
+      - received_at
+      - post
+      - photos
+      - status
+      - is_visible
+      - storage_post_id
+      - source_submission_id
+      - private_verification_notes
+      - storage_limit_days
+      - storage_age_days
+      - overdue_days
+    ReturnRecord:
+      type: object
+      additionalProperties: false
+      properties:
+        return_id: *id001
+        item_id: *id001
+        recipient_name:
+          type: string
+        verification_summary:
+          type: string
+        verification_confirmed_at: *id002
+        returned_at: *id002
+      required:
+      - return_id
+      - item_id
+      - recipient_name
+      - verification_summary
+      - verification_confirmed_at
+      - returned_at
+    UploadIntent:
+      type: object
+      additionalProperties: false
+      properties:
+        upload_id: *id001
+        put_url:
+          type: string
+          format: uri
+        expires_at: *id002
+        required_headers:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - upload_id
+      - put_url
+      - expires_at
+      - required_headers
+    UploadFinalized:
+      type: object
+      additionalProperties: false
+      properties:
+        upload_token:
+          type: string
+        purpose:
+          type: string
+          enum:
+          - REPORT_PHOTO
+          - ITEM_PHOTO
+        expires_at: *id002
+      required:
+      - upload_token
+      - purpose
+      - expires_at
+    BootstrapRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        full_name:
+          type: string
+          maxLength: 120
+          minLength: 1
+        student_number:
+          type: string
+          maxLength: 30
+          minLength: 1
+      required:
+      - full_name
+      - student_number
+    SubmissionCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        target_post_id:
+          type: integer
+        item_name:
+          type: string
+          maxLength: 150
+          minLength: 1
+        category:
+          type: string
+          maxLength: 80
+          minLength: 1
+        public_description: &id025
+          type: string
+          minLength: 1
+        found_location: *id025
+        found_on: *id017
+        report_photo_upload_token: *id025
+      required:
+      - target_post_id
+      - item_name
+      - category
+      - public_description
+      - found_location
+      - found_on
+      - report_photo_upload_token
+    ReasonRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 1
+      required:
+      - reason
+    ItemCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        item_name:
+          type: string
+          maxLength: 150
+          minLength: 1
+        category:
+          type: string
+          maxLength: 80
+          minLength: 1
+        public_description: *id025
+        private_verification_notes:
+          type: string
+          nullable: true
+        found_location:
+          type: string
+          nullable: true
+        found_on:
+          type: string
+          format: date
+          nullable: true
+        item_photo_upload_tokens:
+          type: array
+          items: *id025
+          minItems: 1
+          maxItems: 1
+      required:
+      - item_name
+      - category
+      - public_description
+      - item_photo_upload_tokens
+    ReceiveRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        public_description: *id025
+        private_verification_notes:
+          type: string
+          nullable: true
+        item_photo_upload_tokens:
+          type: array
+          items: *id025
+          minItems: 1
+          maxItems: 1
+      required:
+      - public_description
+      - item_photo_upload_tokens
+    VisibilityRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        is_visible:
+          type: boolean
+      required:
+      - is_visible
+    ReturnRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        recipient_name:
+          type: string
+          maxLength: 120
+          minLength: 1
+        verification_summary:
+          type: string
+          maxLength: 5000
+          minLength: 1
+      required:
+      - recipient_name
+      - verification_summary
+    UploadIntentRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        purpose:
+          type: string
+          enum:
+          - REPORT_PHOTO
+          - ITEM_PHOTO
+        content_type:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+          - image/webp
+        size_bytes:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+      required:
+      - purpose
+      - content_type
+      - size_bytes
+    MeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/Me'
+      required:
+      - data
+    PostResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/ServicePostPublic'
+      required:
+      - data
+    ItemResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/FoundItemPublic'
+      required:
+      - data
+    SubmissionResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/FoundSubmission'
+      required:
+      - data
+    SubmissionDetailResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/ReportWithHistory'
+      required:
+      - data
+    InventoryResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/InventoryOfficer'
+      required:
+      - data
+    OverdueResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/OverdueInventory'
+      required:
+      - data
+    ReturnResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/ReturnRecord'
+      required:
+      - data
+    UploadIntentResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/UploadIntent'
+      required:
+      - data
+    UploadFinalizedResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/UploadFinalized'
+      required:
+      - data
+    PostsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServicePostPublic'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+      - data
+      - meta
+    ItemsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FoundItemPublic'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+      - data
+      - meta
+    SubmissionsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FoundSubmission'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+      - data
+      - meta
+    InventoryListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryOfficer'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+      - data
+      - meta
+    OverdueListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OverdueInventory'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      required:
+      - data
+      - meta

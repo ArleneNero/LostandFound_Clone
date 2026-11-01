@@ -1,0 +1,3 @@
+# Gates and testing
+
+Read `assets/project-overlay/apps/api/.agent-internal/INTEGRATION_TEST_PLAN.md` and per-milestone `B-X.md` for exact task acceptance. B/A preflight must get permission; B/F gate needs real Neon migrations, public GET 200/404, verified Clerk OFFICER, actual R2 upload intent/finalize, POST /officer/items 201 persisted row, negative status cases, plus lint/typecheck/build/unit/integration/security. No mock passing real gate. Changes to frontend require B/K permission. Staging/pilot B/M need explicit campus and data owner approval, documented UAT and security controls. No automatic push, merge or deploy.

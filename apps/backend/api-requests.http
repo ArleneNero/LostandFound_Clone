@@ -6,7 +6,8 @@
 
 @baseUrl = http://localhost:3000
 # Masukkan kata sandi petugas pos di bawah ini untuk pengujian lokal:
-@officerPassword = kataSandiPetugasAnda
+@api = {{baseUrl}}/api/v1
+@officerPassword = admin321
 
 ### -------------------------------------------------------------------
 ### 1. HEALTH CHECK & STATUS SERVER

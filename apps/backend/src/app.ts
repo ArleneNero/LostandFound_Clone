@@ -36,10 +36,17 @@ export function buildApp(): FastifyInstance {
     }
   );
 
-  // CORS
+  // CORS (Allow Frontend, Swagger Editor, and Local Development)
   app.register(cors, {
-    origin: [env.FRONTEND_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: (origin, cb) => {
+      cb(null, true);
+    },
     credentials: true,
+  });
+
+  // Support Chrome Private Network Access (PNA)
+  app.addHook("onSend", async (_request, reply) => {
+    reply.header("Access-Control-Allow-Private-Network", "true");
   });
 
   // Uniform Error Envelope: { error: { code, message, request_id } }
@@ -58,14 +65,56 @@ export function buildApp(): FastifyInstance {
     });
   });
 
-  // Health check endpoint (Internal)
-  app.get("/health", async (request, reply) => {
-    return {
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      request_id: request.id,
-    };
+  // OpenAPI YAML contract endpoint
+  app.get("/openapi.yaml", async (_request, reply) => {
+    const yamlPath = path.resolve(process.cwd(), ".agent-internal/contracts/openapi-v1.0.yaml");
+    if (!fs.existsSync(yamlPath)) {
+      return reply.status(404).send({ error: "OpenAPI contract not found" });
+    }
+    reply.header("Content-Type", "text/yaml; charset=utf-8");
+    return reply.send(fs.createReadStream(yamlPath));
   });
+
+  // Native Local Swagger UI (No CORS, No Mixed Content, 100% Local!)
+  app.get("/docs", async (_request, reply) => {
+    reply.header("Content-Type", "text/html; charset=utf-8");
+    return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CampusFind API Documentation — Swagger UI</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; padding: 0; background: #fafafa; }
+    .topbar { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
+  <script>
+    window.onload = () => {
+      window.ui = SwaggerUIBundle({
+        url: '/openapi.yaml',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+      });
+    };
+  </script>
+</body>
+</html>`;
+  });
+
+  // Health check endpoint (Internal)
+  const healthHandler = async (request: any) => ({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    request_id: request.id,
+  });
+  app.get("/health", healthHandler);
+  app.get("/api/v1/health", healthHandler);
+
 
   // Storage endpoint: stream live from Cloudflare R2 bucket with local fallback
   app.get("/storage/*", async (request, reply) => {

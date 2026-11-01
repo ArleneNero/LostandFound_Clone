@@ -1,0 +1,1058 @@
+﻿[
+  {
+    "id": "F/A.1.0",
+    "title": "Audit repository monorepo",
+    "major": "F/A",
+    "sub": "F/A.1",
+    "acceptance": "Catat tree, git status dan pembagian path tanpa membuat repo kedua",
+    "figma": "00 Style Guide; seluruh role"
+  },
+  {
+    "id": "F/A.1.1",
+    "title": "Tetapkan batas kerja frontend",
+    "major": "F/A",
+    "sub": "F/A.1",
+    "acceptance": "Backend tidak diubah dalam task F/*",
+    "figma": "00 Style Guide; seluruh role"
+  },
+  {
+    "id": "F/A.1.2",
+    "title": "Audit clean code sebelum coding",
+    "major": "F/A",
+    "sub": "F/A.1",
+    "acceptance": "Ada catatan target ukuran dan anti-god-component",
+    "figma": "00 Style Guide; seluruh role"
+  },
+  {
+    "id": "F/A.1.3",
+    "title": "Audit Figma dan aturan prioritas",
+    "major": "F/A",
+    "sub": "F/A.1",
+    "acceptance": "Tuliskan node yang diverifikasi, bukan klaim pixel perfect fiktif",
+    "figma": "00 Style Guide; seluruh role"
+  },
+  {
+    "id": "F/A.1.4",
+    "title": "Verifikasi assets asli",
+    "major": "F/A",
+    "sub": "F/A.1",
+    "acceptance": "Semua file ZIP cocok SHA-256; tidak ada placeholder rekaan",
+    "figma": "00 Style Guide; seluruh role"
+  },
+  {
+    "id": "F/A.2.0",
+    "title": "Buat Vite React TypeScript baseline",
+    "major": "F/A",
+    "sub": "F/A.2",
+    "acceptance": "Scripts dev/build/typecheck lint tidak error jika runtime tersedia",
+    "figma": "00 style; Page05 Mobile/Desktop"
+  },
+  {
+    "id": "F/A.2.1",
+    "title": "Buat tokens CSS dari Figma",
+    "major": "F/A",
+    "sub": "F/A.2",
+    "acceptance": "Token dari file Figma yang diacu, tidak random UI style",
+    "figma": "00 style; Page05 Mobile/Desktop"
+  },
+  {
+    "id": "F/A.2.2",
+    "title": "Buat primitive UI",
+    "major": "F/A",
+    "sub": "F/A.2",
+    "acceptance": "Variants sesuai Figma plus keyboard focus dan error state",
+    "figma": "00 style; Page05 Mobile/Desktop"
+  },
+  {
+    "id": "F/A.2.3",
+    "title": "Buat layout responsif",
+    "major": "F/A",
+    "sub": "F/A.2",
+    "acceptance": "Tidak horizontal scroll pada 390/768/1440; bottom nav tidak menimpa",
+    "figma": "00 style; Page05 Mobile/Desktop"
+  },
+  {
+    "id": "F/A.2.4",
+    "title": "Buat routing dan navigation constants",
+    "major": "F/A",
+    "sub": "F/A.2",
+    "acceptance": "Setiap tombol/menu aktif punya route atau dinonaktifkan",
+    "figma": "00 style; Page05 Mobile/Desktop"
+  },
+  {
+    "id": "F/A.3.0",
+    "title": "Tentukan types DTO dan view-model",
+    "major": "F/A",
+    "sub": "F/A.3",
+    "acceptance": "Field/tanggal/status tidak diimprovisasi",
+    "figma": "Bebas frame; domain mengikuti ERD/API"
+  },
+  {
+    "id": "F/A.3.1",
+    "title": "Buat service interface async",
+    "major": "F/A",
+    "sub": "F/A.3",
+    "acceptance": "Page tidak mengimpor fetch/fixture langsung",
+    "figma": "Bebas frame; domain mengikuti ERD/API"
+  },
+  {
+    "id": "F/A.3.2",
+    "title": "Buat registry untuk adapter",
+    "major": "F/A",
+    "sub": "F/A.3",
+    "acceptance": "Tidak ada data API palsu saat mode http",
+    "figma": "Bebas frame; domain mengikuti ERD/API"
+  },
+  {
+    "id": "F/A.3.3",
+    "title": "Buat application store untuk demo",
+    "major": "F/A",
+    "sub": "F/A.3",
+    "acceptance": "Bukan localStorage/IndexedDB dan tidak pakai PII nyata",
+    "figma": "Bebas frame; domain mengikuti ERD/API"
+  },
+  {
+    "id": "F/A.3.4",
+    "title": "Buat test infrastruktur dan cek quality gates",
+    "major": "F/A",
+    "sub": "F/A.3",
+    "acceptance": "Laporkan PASS/FAIL/NOT RUN berdasar eksekusi",
+    "figma": "Bebas frame; domain mengikuti ERD/API"
+  },
+  {
+    "id": "F/B.1.0",
+    "title": "Buat navigasi Petugas sesuai Figma",
+    "major": "F/B",
+    "sub": "F/B.1",
+    "acceptance": "Semua nav benar pada viewport mobile/desktop",
+    "figma": "02.01/02.01a M/D; 324:138 & 324:141"
+  },
+  {
+    "id": "F/B.1.1",
+    "title": "Bangun dashboard sebagai komposisi kecil",
+    "major": "F/B",
+    "sub": "F/B.1",
+    "acceptance": "Jangan monolitik dan angka hardcode per halaman",
+    "figma": "02.01/02.01a M/D; 324:138 & 324:141"
+  },
+  {
+    "id": "F/B.1.2",
+    "title": "Tulis selector dashboard yang reaktif",
+    "major": "F/B",
+    "sub": "F/B.1",
+    "acceptance": "Metrik berubah setelah aksi mutasi mock",
+    "figma": "02.01/02.01a M/D; 324:138 & 324:141"
+  },
+  {
+    "id": "F/B.1.3",
+    "title": "Buat state loading, kosong, gagal pada dashboard",
+    "major": "F/B",
+    "sub": "F/B.1",
+    "acceptance": "Tidak ada CTA menembus halaman kosong",
+    "figma": "02.01/02.01a M/D; 324:138 & 324:141"
+  },
+  {
+    "id": "F/B.1.4",
+    "title": "QA visual frame dashboard",
+    "major": "F/B",
+    "sub": "F/B.1",
+    "acceptance": "Hanya lolos setelah user review dashboard",
+    "figma": "02.01/02.01a M/D; 324:138 & 324:141"
+  },
+  {
+    "id": "F/B.2.0",
+    "title": "Daftar inventaris milik pos aktif",
+    "major": "F/B",
+    "sub": "F/B.2",
+    "acceptance": "Officer tidak dapat memilih pos berbeda pada mode produksi",
+    "figma": "06.01/06.01a/06.02/06.02a"
+  },
+  {
+    "id": "F/B.2.1",
+    "title": "Detail inventaris internal",
+    "major": "F/B",
+    "sub": "F/B.2",
+    "acceptance": "Tidak membocorkan field privat ke katalog publik",
+    "figma": "06.01/06.01a/06.02/06.02a"
+  },
+  {
+    "id": "F/B.2.2",
+    "title": "Toggle visibilitas katalog",
+    "major": "F/B",
+    "sub": "F/B.2",
+    "acceptance": "Guest catalog selaras; hidden tidak muncul",
+    "figma": "06.01/06.01a/06.02/06.02a"
+  },
+  {
+    "id": "F/B.2.3",
+    "title": "Peringatan overdue tanpa auto-status",
+    "major": "F/B",
+    "sub": "F/B.2",
+    "acceptance": "Tidak otomatis DISTRIBUTED/RETURNED",
+    "figma": "06.01/06.01a/06.02/06.02a"
+  },
+  {
+    "id": "F/B.2.4",
+    "title": "QA inventaris mobile/desktop",
+    "major": "F/B",
+    "sub": "F/B.2",
+    "acceptance": "Bukti screenshot dan test skenario",
+    "figma": "06.01/06.01a/06.02/06.02a"
+  },
+  {
+    "id": "F/B.3.0",
+    "title": "Bangun pemilihan alur pencatatan",
+    "major": "F/B",
+    "sub": "F/B.3",
+    "acceptance": "Tidak membuat floating plus; route dari navigasi valid",
+    "figma": "02.M01, 02.02/a/b/c, 02.03; rule foto 324:144 dan WIB 324:150"
+  },
+  {
+    "id": "F/B.3.1",
+    "title": "Form catat barang persis desain",
+    "major": "F/B",
+    "sub": "F/B.3",
+    "acceptance": "State foto dipilih/belum adalah 1 halaman, bukan route baru",
+    "figma": "02.M01, 02.02/a/b/c, 02.03; rule foto 324:144 dan WIB 324:150"
+  },
+  {
+    "id": "F/B.3.2",
+    "title": "Pakai asset nyata untuk kontrol foto",
+    "major": "F/B",
+    "sub": "F/B.3",
+    "acceptance": "Preview/ganti/hapus/revoke URL; tidak buat nama aset",
+    "figma": "02.M01, 02.02/a/b/c, 02.03; rule foto 324:144 dan WIB 324:150"
+  },
+  {
+    "id": "F/B.3.3",
+    "title": "Tetapkan default waktu WIB tanpa field API palsu",
+    "major": "F/B",
+    "sub": "F/B.3",
+    "acceptance": "Jangan kirim received_at atau post_id bila tidak ada di OpenAPI",
+    "figma": "02.M01, 02.02/a/b/c, 02.03; rule foto 324:144 dan WIB 324:150"
+  },
+  {
+    "id": "F/B.3.4",
+    "title": "Create item in-memory atomik",
+    "major": "F/B",
+    "sub": "F/B.3",
+    "acceptance": "Tidak membuat found_submission palsu",
+    "figma": "02.M01, 02.02/a/b/c, 02.03; rule foto 324:144 dan WIB 324:150"
+  },
+  {
+    "id": "F/B.3.5",
+    "title": "QA form dan keberhasilan",
+    "major": "F/B",
+    "sub": "F/B.3",
+    "acceptance": "Belum ada upload backend pada tahap mock",
+    "figma": "02.M01, 02.02/a/b/c, 02.03; rule foto 324:144 dan WIB 324:150"
+  },
+  {
+    "id": "F/B.4.0",
+    "title": "Buat menu dua pilihan Laporan Petugas",
+    "major": "F/B",
+    "sub": "F/B.4",
+    "acceptance": "Sesuai aturan Figma section 324:141",
+    "figma": "05.01–05.06, 324:147"
+  },
+  {
+    "id": "F/B.4.1",
+    "title": "Bangun daftar/detail laporan untuk pos Petugas",
+    "major": "F/B",
+    "sub": "F/B.4",
+    "acceptance": "Pending report hanya data relevan assigned post",
+    "figma": "05.01–05.06, 324:147"
+  },
+  {
+    "id": "F/B.4.2",
+    "title": "Buat penerimaan fisik",
+    "major": "F/B",
+    "sub": "F/B.4",
+    "acceptance": "Tidak auto-receive sebelum konfirmasi",
+    "figma": "05.01–05.06, 324:147"
+  },
+  {
+    "id": "F/B.4.3",
+    "title": "Buat reject dengan alasan wajib",
+    "major": "F/B",
+    "sub": "F/B.4",
+    "acceptance": "Riwayat status diperbarui bersama status",
+    "figma": "05.01–05.06, 324:147"
+  },
+  {
+    "id": "F/B.4.4",
+    "title": "Uji race/invalid state mock",
+    "major": "F/B",
+    "sub": "F/B.4",
+    "acceptance": "Tidak ada 2 item tercipta untuk 1 submission",
+    "figma": "05.01–05.06, 324:147"
+  },
+  {
+    "id": "F/B.4.5",
+    "title": "QA visual 05.* responsive",
+    "major": "F/B",
+    "sub": "F/B.4",
+    "acceptance": "Bukti before/after dan user approval",
+    "figma": "05.01–05.06, 324:147"
+  },
+  {
+    "id": "F/B.5.0",
+    "title": "Bangun form pengembalian terverifikasi",
+    "major": "F/B",
+    "sub": "F/B.5",
+    "acceptance": "Tidak menyimpan KTP, NIK, KTM atau foto identitas",
+    "figma": "06.03/06.03a, 07.M/D"
+  },
+  {
+    "id": "F/B.5.1",
+    "title": "Bangun penyaluran sebagai aksi terpisah",
+    "major": "F/B",
+    "sub": "F/B.5",
+    "acceptance": "Status DISTRIBUTED dan is_visible=false",
+    "figma": "06.03/06.03a, 07.M/D"
+  },
+  {
+    "id": "F/B.5.2",
+    "title": "Cegah duplikasi proses fisik",
+    "major": "F/B",
+    "sub": "F/B.5",
+    "acceptance": "Status+return record atomik dalam mock store",
+    "figma": "06.03/06.03a, 07.M/D"
+  },
+  {
+    "id": "F/B.5.3",
+    "title": "Uji Petugas end-to-end in-memory",
+    "major": "F/B",
+    "sub": "F/B.5",
+    "acceptance": "Semua respons nyata dari mock, bukan klaim backend",
+    "figma": "06.03/06.03a, 07.M/D"
+  },
+  {
+    "id": "F/B.5.4",
+    "title": "Gate role Petugas menunggu user",
+    "major": "F/B",
+    "sub": "F/B.5",
+    "acceptance": "JANGAN mulai Guest sebelum user izinkan F/C",
+    "figma": "06.03/06.03a, 07.M/D"
+  },
+  {
+    "id": "F/C.1.0",
+    "title": "Bangun landing tiga pilihan akses",
+    "major": "F/C",
+    "sub": "F/C.1",
+    "acceptance": "Tidak buat role Guest di DB",
+    "figma": "00.01; 03.P01/a"
+  },
+  {
+    "id": "F/C.1.1",
+    "title": "Pasang ilustrasi landing dari ZIP asli",
+    "major": "F/C",
+    "sub": "F/C.1",
+    "acceptance": "Path dan crop cocok, tanpa gambar stok",
+    "figma": "00.01; 03.P01/a"
+  },
+  {
+    "id": "F/C.1.2",
+    "title": "Bangun home Guest",
+    "major": "F/C",
+    "sub": "F/C.1",
+    "acceptance": "Hero besar hanya di Landing desktop, tidak di guest home",
+    "figma": "00.01; 03.P01/a"
+  },
+  {
+    "id": "F/C.1.3",
+    "title": "Bangun shared layout publik",
+    "major": "F/C",
+    "sub": "F/C.1",
+    "acceptance": "Tidak duplicate feature logic untuk Student",
+    "figma": "00.01; 03.P01/a"
+  },
+  {
+    "id": "F/C.1.4",
+    "title": "QA landing/home responsif",
+    "major": "F/C",
+    "sub": "F/C.1",
+    "acceptance": "Bukan klaim exact tanpa screenshot comparison",
+    "figma": "00.01; 03.P01/a"
+  },
+  {
+    "id": "F/C.2.0",
+    "title": "Bangun CatalogPage bersama",
+    "major": "F/C",
+    "sub": "F/C.2",
+    "acceptance": "Satu CatalogPage, tidak copy role student",
+    "figma": "03.01/a, 07.M/D"
+  },
+  {
+    "id": "F/C.2.1",
+    "title": "Implement filter-sort-paginate pada mock",
+    "major": "F/C",
+    "sub": "F/C.2",
+    "acceptance": "Uji dataset 0/1/10/11/21, reset/clamp page",
+    "figma": "03.01/a, 07.M/D"
+  },
+  {
+    "id": "F/C.2.2",
+    "title": "Bangun filter UI sesuai Figma",
+    "major": "F/C",
+    "sub": "F/C.2",
+    "acceptance": "Control dapat diakses keyboard dan mobile",
+    "figma": "03.01/a, 07.M/D"
+  },
+  {
+    "id": "F/C.2.3",
+    "title": "Terapkan lazy-load thumbnail",
+    "major": "F/C",
+    "sub": "F/C.2",
+    "acceptance": "DOM maksimal 10 cards/page, no layout shift material",
+    "figma": "03.01/a, 07.M/D"
+  },
+  {
+    "id": "F/C.2.4",
+    "title": "QA perubahan lintas role",
+    "major": "F/C",
+    "sub": "F/C.2",
+    "acceptance": "Guest tak dapat melihat private status",
+    "figma": "03.01/a, 07.M/D"
+  },
+  {
+    "id": "F/C.3.0",
+    "title": "Bangun shared ItemDetailPage",
+    "major": "F/C",
+    "sub": "F/C.3",
+    "acceptance": "Tidak tampilkan private notes atau pelapor",
+    "figma": "03.02/03.02a"
+  },
+  {
+    "id": "F/C.3.1",
+    "title": "Implement 404 untuk hidden/non-STORED",
+    "major": "F/C",
+    "sub": "F/C.3",
+    "acceptance": "Tidak fallback ke officer inventory",
+    "figma": "03.02/03.02a"
+  },
+  {
+    "id": "F/C.3.2",
+    "title": "Bangun empty/loading/not-found/error states",
+    "major": "F/C",
+    "sub": "F/C.3",
+    "acceptance": "Tidak invent asset untuk gambar hilang",
+    "figma": "03.02/03.02a"
+  },
+  {
+    "id": "F/C.3.3",
+    "title": "Uji back/forward dan deep-links",
+    "major": "F/C",
+    "sub": "F/C.3",
+    "acceptance": "SPA fallback dipersiapkan deployment",
+    "figma": "03.02/03.02a"
+  },
+  {
+    "id": "F/C.4.0",
+    "title": "Bangun halaman daftar dan detail pos",
+    "major": "F/C",
+    "sub": "F/C.4",
+    "acceptance": "Tidak mengarang jam/lokasi riil",
+    "figma": "03.P03–03.P05"
+  },
+  {
+    "id": "F/C.4.1",
+    "title": "Bangun galeri foto pos",
+    "major": "F/C",
+    "sub": "F/C.4",
+    "acceptance": "Jika bytes galeri tidak tersedia, empty state jujur",
+    "figma": "03.P03–03.P05"
+  },
+  {
+    "id": "F/C.4.2",
+    "title": "Bangun pickup guide",
+    "major": "F/C",
+    "sub": "F/C.4",
+    "acceptance": "Tidak menambahkan booking/online claim",
+    "figma": "03.P03–03.P05"
+  },
+  {
+    "id": "F/C.4.3",
+    "title": "Uji Guest end-to-end mock",
+    "major": "F/C",
+    "sub": "F/C.4",
+    "acceptance": "Test visual M/D dan tidak ada dead-end",
+    "figma": "03.P03–03.P05"
+  },
+  {
+    "id": "F/C.4.4",
+    "title": "Gate role Guest menunggu user",
+    "major": "F/C",
+    "sub": "F/C.4",
+    "acceptance": "JANGAN mulai Mahasiswa sebelum user izinkan F/D",
+    "figma": "03.P03–03.P05"
+  },
+  {
+    "id": "F/D.1.0",
+    "title": "Buat login Mahasiswa sesuai desain",
+    "major": "F/D",
+    "sub": "F/D.1",
+    "acceptance": "Tidak menyebut mock sebagai keamanan produksi",
+    "figma": "01.01–01.04; 324:153"
+  },
+  {
+    "id": "F/D.1.1",
+    "title": "Buat registrasi onboarding sesuai Neon Auth v6.2",
+    "major": "F/D",
+    "sub": "F/D.1",
+    "acceptance": "Tidak ada pemilihan role OFFICER",
+    "figma": "01.01–01.04; 324:153"
+  },
+  {
+    "id": "F/D.1.2",
+    "title": "Buat OTP dan error states Figma",
+    "major": "F/D",
+    "sub": "F/D.1",
+    "acceptance": "Tidak membuat email/OTP sungguhan sendiri",
+    "figma": "01.01–01.04; 324:153"
+  },
+  {
+    "id": "F/D.1.3",
+    "title": "Buat guard tampilan role untuk UX",
+    "major": "F/D",
+    "sub": "F/D.1",
+    "acceptance": "Akses data sebenarnya tetap server-authoritative",
+    "figma": "01.01–01.04; 324:153"
+  },
+  {
+    "id": "F/D.1.4",
+    "title": "QA autentikasi visual M/D",
+    "major": "F/D",
+    "sub": "F/D.1",
+    "acceptance": "Bukti 390/1440 dan persetujuan",
+    "figma": "01.01–01.04; 324:153"
+  },
+  {
+    "id": "F/D.2.0",
+    "title": "Bangun recovery entry dan check email states",
+    "major": "F/D",
+    "sub": "F/D.2",
+    "acceptance": "UI jujur sebagai simulasi",
+    "figma": "01.05–01.08; 01.P01–P08; 04.P01"
+  },
+  {
+    "id": "F/D.2.1",
+    "title": "Bangun timer/resend state",
+    "major": "F/D",
+    "sub": "F/D.2",
+    "acceptance": "Kebijakan final ditegakkan oleh provider/backend bukan timer frontend",
+    "figma": "01.05–01.08; 01.P01–P08; 04.P01"
+  },
+  {
+    "id": "F/D.2.2",
+    "title": "Bangun reset password success/invalid",
+    "major": "F/D",
+    "sub": "F/D.2",
+    "acceptance": "Jangan simpan password dummy persisten",
+    "figma": "01.05–01.08; 01.P01–P08; 04.P01"
+  },
+  {
+    "id": "F/D.2.3",
+    "title": "Bangun profil Mahasiswa",
+    "major": "F/D",
+    "sub": "F/D.2",
+    "acceptance": "NIM self-declared dan tidak dibuktikan kampus",
+    "figma": "01.05–01.08; 01.P01–P08; 04.P01"
+  },
+  {
+    "id": "F/D.3.0",
+    "title": "Bangun form pelaporan barang ditemukan",
+    "major": "F/D",
+    "sub": "F/D.3",
+    "acceptance": "Tidak ada fitur melapor barang hilang",
+    "figma": "04.01/04.01a/04.02"
+  },
+  {
+    "id": "F/D.3.1",
+    "title": "Upload preview in-memory yang aman",
+    "major": "F/D",
+    "sub": "F/D.3",
+    "acceptance": "Revoke object URL dan ganti/hapus foto",
+    "figma": "04.01/04.01a/04.02"
+  },
+  {
+    "id": "F/D.3.2",
+    "title": "Tunjukkan kewajiban menyerahkan fisik",
+    "major": "F/D",
+    "sub": "F/D.3",
+    "acceptance": "Tidak membuat booking atau klaim online",
+    "figma": "04.01/04.01a/04.02"
+  },
+  {
+    "id": "F/D.3.3",
+    "title": "Submit laporan mock sekali",
+    "major": "F/D",
+    "sub": "F/D.3",
+    "acceptance": "Tidak ada duplikasi pada double-click",
+    "figma": "04.01/04.01a/04.02"
+  },
+  {
+    "id": "F/D.3.4",
+    "title": "QA form responsif dan invalid",
+    "major": "F/D",
+    "sub": "F/D.3",
+    "acceptance": "Foto di posisi seperti Figma",
+    "figma": "04.01/04.01a/04.02"
+  },
+  {
+    "id": "F/D.4.0",
+    "title": "Bangun daftar laporan milik pengguna",
+    "major": "F/D",
+    "sub": "F/D.4",
+    "acceptance": "Tidak pernah memperlihatkan laporan user lain",
+    "figma": "04.03–04.07"
+  },
+  {
+    "id": "F/D.4.1",
+    "title": "Bangun detail laporan dan timeline status",
+    "major": "F/D",
+    "sub": "F/D.4",
+    "acceptance": "Alasan penolakan/batal dan state terlihat",
+    "figma": "04.03–04.07"
+  },
+  {
+    "id": "F/D.4.2",
+    "title": "Bangun cancel dengan alasan wajib",
+    "major": "F/D",
+    "sub": "F/D.4",
+    "acceptance": "409 invalid transition dimodelkan, bukan sukses palsu",
+    "figma": "04.03–04.07"
+  },
+  {
+    "id": "F/D.4.3",
+    "title": "Uji lintas role Mahasiswa-Petugas",
+    "major": "F/D",
+    "sub": "F/D.4",
+    "acceptance": "History konsisten, reload reset",
+    "figma": "04.03–04.07"
+  },
+  {
+    "id": "F/D.5.0",
+    "title": "Uji nav mahasiswa ke katalog shared",
+    "major": "F/D",
+    "sub": "F/D.5",
+    "acceptance": "Guest public tidak perlu login",
+    "figma": "01.*,04.*,03 shared catalog"
+  },
+  {
+    "id": "F/D.5.1",
+    "title": "Uji offline/error/empty/disabled",
+    "major": "F/D",
+    "sub": "F/D.5",
+    "acceptance": "Error feedback aksesibel",
+    "figma": "01.*,04.*,03 shared catalog"
+  },
+  {
+    "id": "F/D.5.2",
+    "title": "Uji 390/768/1440 dan login flow",
+    "major": "F/D",
+    "sub": "F/D.5",
+    "acceptance": "Tidak memakai random gambar pengganti",
+    "figma": "01.*,04.*,03 shared catalog"
+  },
+  {
+    "id": "F/D.5.3",
+    "title": "Tutup milestone hanya setelah user approval",
+    "major": "F/D",
+    "sub": "F/D.5",
+    "acceptance": "Integrasi API berikutnya perlu izin F/E sendiri",
+    "figma": "01.*,04.*,03 shared catalog"
+  },
+  {
+    "id": "F/E.1.0",
+    "title": "Verifikasi SHA kontrak backend",
+    "major": "F/E",
+    "sub": "F/E.1",
+    "acceptance": "MISMATCH -> BLOCKED bukan isi sendiri",
+    "figma": "B/E dan OpenAPI snapshot canonical"
+  },
+  {
+    "id": "F/E.1.1",
+    "title": "Buat HTTP client dan DTO mapper tunggal",
+    "major": "F/E",
+    "sub": "F/E.1",
+    "acceptance": "Tidak fetch inline di JSX",
+    "figma": "B/E dan OpenAPI snapshot canonical"
+  },
+  {
+    "id": "F/E.1.2",
+    "title": "Konfigurasi environment mode explicit",
+    "major": "F/E",
+    "sub": "F/E.1",
+    "acceptance": "HTTP gagal tidak fallback silent ke mock",
+    "figma": "B/E dan OpenAPI snapshot canonical"
+  },
+  {
+    "id": "F/E.1.3",
+    "title": "Uji error normalization",
+    "major": "F/E",
+    "sub": "F/E.1",
+    "acceptance": "Request ID dapat ditampilkan aman tanpa token",
+    "figma": "B/E dan OpenAPI snapshot canonical"
+  },
+  {
+    "id": "F/E.2.0",
+    "title": "Hubungkan CatalogPage ke Fastify GET",
+    "major": "F/E",
+    "sub": "F/E.2",
+    "acceptance": "Frontend TIDAK slice/filter ulang satu page response",
+    "figma": "GET /api/v1/items, GET /api/v1/items/{item_id}"
+  },
+  {
+    "id": "F/E.2.1",
+    "title": "Hubungkan detail ke GET API",
+    "major": "F/E",
+    "sub": "F/E.2",
+    "acceptance": "Tidak fallback ke officer endpoint",
+    "figma": "GET /api/v1/items, GET /api/v1/items/{item_id}"
+  },
+  {
+    "id": "F/E.2.2",
+    "title": "Hubungkan pos GET ke API",
+    "major": "F/E",
+    "sub": "F/E.2",
+    "acceptance": "0–3 foto ditampilkan hanya bila URL benar ada",
+    "figma": "GET /api/v1/items, GET /api/v1/items/{item_id}"
+  },
+  {
+    "id": "F/E.2.3",
+    "title": "Uji empty/server pagination dan sort",
+    "major": "F/E",
+    "sub": "F/E.2",
+    "acceptance": "Prev/next disabled benar dan meta tidak dimanipulasi",
+    "figma": "GET /api/v1/items, GET /api/v1/items/{item_id}"
+  },
+  {
+    "id": "F/E.3.0",
+    "title": "Buktikan tiga endpoint Backend P7",
+    "major": "F/E",
+    "sub": "F/E.3",
+    "acceptance": "Jangan klaim POST backend jika belum auth/R2 siap",
+    "figma": "Backend B/E + frontend F/E"
+  },
+  {
+    "id": "F/E.3.1",
+    "title": "Buktikan React benar melakukan GET API",
+    "major": "F/E",
+    "sub": "F/E.3",
+    "acceptance": "Tidak diperbolehkan menggunakan mock lalu mengklaim nyata",
+    "figma": "Backend B/E + frontend F/E"
+  },
+  {
+    "id": "F/E.3.2",
+    "title": "Verifikasi CSP/CORS, retry GET dan 429",
+    "major": "F/E",
+    "sub": "F/E.3",
+    "acceptance": "Tidak bocorkan endpoint private di public",
+    "figma": "Backend B/E + frontend F/E"
+  },
+  {
+    "id": "F/E.3.3",
+    "title": "Tutup F/E dengan evidensi dan izin",
+    "major": "F/E",
+    "sub": "F/E.3",
+    "acceptance": "User approval sebelum F/F",
+    "figma": "Backend B/E + frontend F/E"
+  },
+  {
+    "id": "F/F.1.0",
+    "title": "Integrasi Neon Auth frontend sesuai SDK",
+    "major": "F/F",
+    "sub": "F/F.1",
+    "acceptance": "Jangan menjalankan OTP buatan sendiri bila provider berbeda",
+    "figma": "GET /me, POST /me/bootstrap"
+  },
+  {
+    "id": "F/F.1.1",
+    "title": "Implement bootstrap STUDENT",
+    "major": "F/F",
+    "sub": "F/F.1",
+    "acceptance": "NIM tidak diklaim akademik terverifikasi",
+    "figma": "GET /me, POST /me/bootstrap"
+  },
+  {
+    "id": "F/F.1.2",
+    "title": "Implement auth token transport aman",
+    "major": "F/F",
+    "sub": "F/F.1",
+    "acceptance": "Tidak menaruh secret/private token di repo/log",
+    "figma": "GET /me, POST /me/bootstrap"
+  },
+  {
+    "id": "F/F.1.3",
+    "title": "Validasi OFFICER provisioned only",
+    "major": "F/F",
+    "sub": "F/F.1",
+    "acceptance": "Tidak ada user switch ke OFFICER dari dropdown produksi",
+    "figma": "GET /me, POST /me/bootstrap"
+  },
+  {
+    "id": "F/F.2.0",
+    "title": "Implement intent PUT finalize tiga tahap",
+    "major": "F/F",
+    "sub": "F/F.2",
+    "acceptance": "Tidak mengirim storage key atau foto base64 ke JSON",
+    "figma": "POST /uploads/intents, finalize, /submissions"
+  },
+  {
+    "id": "F/F.2.1",
+    "title": "Implement create submission dengan upload_token",
+    "major": "F/F",
+    "sub": "F/F.2",
+    "acceptance": "Backend memastikan satu foto disimpan",
+    "figma": "POST /uploads/intents, finalize, /submissions"
+  },
+  {
+    "id": "F/F.2.2",
+    "title": "Implement list/detail/cancel laporan nyata",
+    "major": "F/F",
+    "sub": "F/F.2",
+    "acceptance": "Data hanya milik user sesuai backend",
+    "figma": "POST /uploads/intents, finalize, /submissions"
+  },
+  {
+    "id": "F/F.2.3",
+    "title": "Uji upload failure/expiry dan invalid state",
+    "major": "F/F",
+    "sub": "F/F.2",
+    "acceptance": "Tidak auto-retry POST ambigu",
+    "figma": "POST /uploads/intents, finalize, /submissions"
+  },
+  {
+    "id": "F/F.2.4",
+    "title": "Uji after refresh persistence",
+    "major": "F/F",
+    "sub": "F/F.2",
+    "acceptance": "Reload tidak reset data real",
+    "figma": "POST /uploads/intents, finalize, /submissions"
+  },
+  {
+    "id": "F/F.3.0",
+    "title": "Integrasi officer submissions queue",
+    "major": "F/F",
+    "sub": "F/F.3",
+    "acceptance": "Tidak ada post_id arbitrary",
+    "figma": "/officer/submissions, /officer/items dan inventory"
+  },
+  {
+    "id": "F/F.3.1",
+    "title": "Integrasi direct item registration",
+    "major": "F/F",
+    "sub": "F/F.3",
+    "acceptance": "Tidak mengirim field received_at/post_id tak sesuai kontrak",
+    "figma": "/officer/submissions, /officer/items dan inventory"
+  },
+  {
+    "id": "F/F.3.2",
+    "title": "Integrasi receive report with physical confirmation",
+    "major": "F/F",
+    "sub": "F/F.3",
+    "acceptance": "History, inventory, response server authoritative",
+    "figma": "/officer/submissions, /officer/items dan inventory"
+  },
+  {
+    "id": "F/F.3.3",
+    "title": "Integrasi reject dengan alasan wajib",
+    "major": "F/F",
+    "sub": "F/F.3",
+    "acceptance": "Alasan trim, role dan state verified backend",
+    "figma": "/officer/submissions, /officer/items dan inventory"
+  },
+  {
+    "id": "F/F.3.4",
+    "title": "Uji officer denied dan konflik race",
+    "major": "F/F",
+    "sub": "F/F.3",
+    "acceptance": "UI tak memalsukan sukses dan tidak mengulang POST",
+    "figma": "/officer/submissions, /officer/items dan inventory"
+  },
+  {
+    "id": "F/F.4.0",
+    "title": "Integrasi inventory list/detail/overdue",
+    "major": "F/F",
+    "sub": "F/F.4",
+    "acceptance": "Warning keterlambatan tidak mengubah status",
+    "figma": "/officer/inventory, /overdue, /visibility, /return, /distribute"
+  },
+  {
+    "id": "F/F.4.1",
+    "title": "Integrasi toggle visibility",
+    "major": "F/F",
+    "sub": "F/F.4",
+    "acceptance": "Saat hidden, public GET detail 404",
+    "figma": "/officer/inventory, /overdue, /visibility, /return, /distribute"
+  },
+  {
+    "id": "F/F.4.2",
+    "title": "Integrasi return owner verified",
+    "major": "F/F",
+    "sub": "F/F.4",
+    "acceptance": "No ID card photo; item status hidden",
+    "figma": "/officer/inventory, /overdue, /visibility, /return, /distribute"
+  },
+  {
+    "id": "F/F.4.3",
+    "title": "Integrasi distribute terpisah",
+    "major": "F/F",
+    "sub": "F/F.4",
+    "acceptance": "Status DISTRIBUTED dan bukan item_returns",
+    "figma": "/officer/inventory, /overdue, /visibility, /return, /distribute"
+  },
+  {
+    "id": "F/F.4.4",
+    "title": "Uji cross-role persistence",
+    "major": "F/F",
+    "sub": "F/F.4",
+    "acceptance": "Tidak ada memory store yang jadi sumber kebenaran produksi",
+    "figma": "/officer/inventory, /overdue, /visibility, /return, /distribute"
+  },
+  {
+    "id": "F/F.5.0",
+    "title": "Verifikasi semua endpoint yang dikonsumsi",
+    "major": "F/F",
+    "sub": "F/F.5",
+    "acceptance": "Tidak menambah endpoint baru diam-diam",
+    "figma": "22 endpoints API v1.0"
+  },
+  {
+    "id": "F/F.5.1",
+    "title": "Audit auth/role per endpoint",
+    "major": "F/F",
+    "sub": "F/F.5",
+    "acceptance": "Unauthorized/forbidden behavior benar",
+    "figma": "22 endpoints API v1.0"
+  },
+  {
+    "id": "F/F.5.2",
+    "title": "Audit photo real and asset local",
+    "major": "F/F",
+    "sub": "F/F.5",
+    "acceptance": "No broken links; no Figma hotlinked temporary assets",
+    "figma": "22 endpoints API v1.0"
+  },
+  {
+    "id": "F/F.5.3",
+    "title": "Tutup F/F dengan approval role-based E2E",
+    "major": "F/F",
+    "sub": "F/F.5",
+    "acceptance": "Baru lanjut finalisasi F/G dengan izin",
+    "figma": "22 endpoints API v1.0"
+  },
+  {
+    "id": "F/G.1.0",
+    "title": "Bandingkan semua screen Petugas",
+    "major": "F/G",
+    "sub": "F/G.1",
+    "acceptance": "Tanpa klaim pixel-perfect tanpa hasil perbandingan",
+    "figma": "Figma 00 style + Page05 M/D"
+  },
+  {
+    "id": "F/G.1.1",
+    "title": "Bandingkan semua screen Guest",
+    "major": "F/G",
+    "sub": "F/G.1",
+    "acceptance": "Cek 390/768/1440 dan touch targets",
+    "figma": "Figma 00 style + Page05 M/D"
+  },
+  {
+    "id": "F/G.1.2",
+    "title": "Bandingkan semua screen Mahasiswa",
+    "major": "F/G",
+    "sub": "F/G.1",
+    "acceptance": "Jangan menghilangkan state yang ada di Figma",
+    "figma": "Figma 00 style + Page05 M/D"
+  },
+  {
+    "id": "F/G.1.3",
+    "title": "Audit asset SHA dan URL 404",
+    "major": "F/G",
+    "sub": "F/G.1",
+    "acceptance": "Tidak ada nama file rekaan/hotlink asset sementara",
+    "figma": "Figma 00 style + Page05 M/D"
+  },
+  {
+    "id": "F/G.1.4",
+    "title": "Audit accessibility dan clean code",
+    "major": "F/G",
+    "sub": "F/G.1",
+    "acceptance": "Setiap deviasi approved",
+    "figma": "Figma 00 style + Page05 M/D"
+  },
+  {
+    "id": "F/G.2.0",
+    "title": "Verifikasi target hosting Cloudflare Pages",
+    "major": "F/G",
+    "sub": "F/G.2",
+    "acceptance": "Tidak klaim backend Workers support tanpa uji Fastify",
+    "figma": "Cloudflare Pages/Workers kandidat"
+  },
+  {
+    "id": "F/G.2.1",
+    "title": "Uji 429/503/network downtime UX",
+    "major": "F/G",
+    "sub": "F/G.2",
+    "acceptance": "Tidak spam request dari client",
+    "figma": "Cloudflare Pages/Workers kandidat"
+  },
+  {
+    "id": "F/G.2.2",
+    "title": "Uji staging 22 endpoint dan role boundaries",
+    "major": "F/G",
+    "sub": "F/G.2",
+    "acceptance": "Tidak pernah pakai real data PII di public screenshots",
+    "figma": "Cloudflare Pages/Workers kandidat"
+  },
+  {
+    "id": "F/G.2.3",
+    "title": "Uji bundle perf & quotas",
+    "major": "F/G",
+    "sub": "F/G.2",
+    "acceptance": "Laporkan metrik nyata, bukan estimasi PASS",
+    "figma": "Cloudflare Pages/Workers kandidat"
+  },
+  {
+    "id": "F/G.3.0",
+    "title": "Jalankan UAT walkthrough Petugas",
+    "major": "F/G",
+    "sub": "F/G.3",
+    "acceptance": "Simpan hasil beserta bug/blocked",
+    "figma": "Semua role + integrasi"
+  },
+  {
+    "id": "F/G.3.1",
+    "title": "Jalankan UAT walkthrough Guest",
+    "major": "F/G",
+    "sub": "F/G.3",
+    "acceptance": "Simpan hasil normal/empty/404",
+    "figma": "Semua role + integrasi"
+  },
+  {
+    "id": "F/G.3.2",
+    "title": "Jalankan UAT walkthrough Mahasiswa",
+    "major": "F/G",
+    "sub": "F/G.3",
+    "acceptance": "Simpan bukti login/provider benar",
+    "figma": "Semua role + integrasi"
+  },
+  {
+    "id": "F/G.3.3",
+    "title": "Audit Git dan dokumentasi",
+    "major": "F/G",
+    "sub": "F/G.3",
+    "acceptance": "No auto push/merge/deploy",
+    "figma": "Semua role + integrasi"
+  },
+  {
+    "id": "F/G.3.4",
+    "title": "Minta approval deployment publik",
+    "major": "F/G",
+    "sub": "F/G.3",
+    "acceptance": "Deploy hanya setelah izin user eksplisit",
+    "figma": "Semua role + integrasi"
+  }
+]

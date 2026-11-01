@@ -1,0 +1,3 @@
+# Contract and domain quick reference
+
+Read `assets/project-overlay/apps/api/.agent-internal/contracts/openapi-v1.0.yaml` (22 operations) and `erd-v6.2.dbml` (8 tables). `contracts/manifest.json` SHA-256 from ZIP source. `API_ROUTE_MATRIX.md` maps endpoints to milestones. All API paths `/api/v1`, uses snake_case and documented envelopes. Public only STORED visible; Clerk verified JWT on protected routes; DB role and assigned post; private photo R2. Inventory GET `/officer/inventory`, not GET `/officer/items`. Photo token single count (1..1) in actual YAML. Source BACKEND_MVP prose conflicts 1..5 — document drift. Operational first post Pos Pengajaran; no online lost-report/claim and no extra admin role.

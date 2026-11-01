@@ -1,0 +1,53 @@
+{
+  "source_zip": "Aset_Image_LostnFound(3).zip",
+  "files": [
+    {
+      "original_filename": "favicon.svg",
+      "relative_public_path": "favicon.svg",
+      "bytes": 1745,
+      "sha256": "000cc9c6e1256ee146d261f6732e37a032d487c86783e8dd1327f5e28ea39968",
+      "format": "SVG",
+      "size": "vector"
+    },
+    {
+      "original_filename": "Logo_LostnFound.png",
+      "relative_public_path": "assets/branding/Logo_LostnFound.png",
+      "bytes": 71953,
+      "sha256": "03001a3f8cc6e8b539033aa370ab5654016fc3ffdec8a062d77eddcf7e33eaa0",
+      "format": "PNG",
+      "size": "1024x1024"
+    },
+    {
+      "original_filename": "Icon_Mahasiswa.png",
+      "relative_public_path": "assets/illustrations/roles/Icon_Mahasiswa.png",
+      "bytes": 1581923,
+      "sha256": "aee7a237aa6653908fbdd2cb30a9f9f62976114b2b1ea51449bf9a0ba2e4502c",
+      "format": "PNG",
+      "size": "1254x1254"
+    },
+    {
+      "original_filename": "Icon_Petugas.png",
+      "relative_public_path": "assets/illustrations/roles/Icon_Petugas.png",
+      "bytes": 1560245,
+      "sha256": "14aca5b0baec4c7cf3e0f230fa30b09484e55c6429326ed2104068bc536b4d1f",
+      "format": "PNG",
+      "size": "1254x1254"
+    },
+    {
+      "original_filename": "Ikon Pesawat dan Gembok 3D.png",
+      "relative_public_path": "assets/illustrations/authentication/Ikon Pesawat dan Gembok 3D.png",
+      "bytes": 1300868,
+      "sha256": "d16ed1f3a207d27fb1d82e3087b250846c2cb5f8d0f051e9e7ebc35669a89241",
+      "format": "PNG",
+      "size": "1254x1254"
+    },
+    {
+      "original_filename": "Kotak Barang Hilang dan Ditemukan.png",
+      "relative_public_path": "assets/illustrations/landing/Kotak Barang Hilang dan Ditemukan.png",
+      "bytes": 1486559,
+      "sha256": "f027f5436830786a924d0ff8e47536eebfe575176ee5e5925f1af8d4aba90f90",
+      "format": "PNG",
+      "size": "1713x918"
+    }
+  ]
+}

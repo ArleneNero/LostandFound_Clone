@@ -1,0 +1,3 @@
+interface:
+  display_name: "UBL LostnFound Frontend"
+  short_description: "Frontend React, Figma, milestone, dan API Fastify yang sinkron"

@@ -1,0 +1,155 @@
+﻿// CAMPUSFIND / UBL LostnFound — ERD LOGIS v6.2 FINAL - AUTENTIKASI Neon Auth
+// Acuan: Figma Page 05, Frontend Blueprint dan Clean Code Standards (16 Oktober 2026),
+// serta ketetapan pemilik proyek pada 17 Oktober 2026.
+// RANCANGAN SISTEM FINAL (3 POS); implementasi awal hanya POS PENGAJARAN.
+// Diagram ini model data, bukan bukti implementasi backend atau normalisasi formal.
+// Tidak mencakup laporan kehilangan, klaim online, atau akun guest.
+// Basis: ERD v5, tanpa mengubah relasi atau menghapus entitas.
+// Perubahan v6: batas penyimpanan opsional per pos, visibilitas katalog per barang,
+// dan status DISTRIBUTED (penyaluran ditangani internal pos, tanpa transaksi tambahan).
+// KEPUTUSAN FINAL v6.1 (18 Oktober 2026): maksimum tiga foto per Pos Pelayanan,
+// melalui tabel service_post_photos.
+// KEPUTUSAN FINAL v6.2 (18 Oktober 2026): pemetaan Neon Auth -> users melalui
+// Neon Auth_user_id NOT NULL UNIQUE. Role OFFICER hanya diberikan melalui administrasi
+// backend; registrasi STUDENT menggunakan email Neon Auth terverifikasi + NIM yang
+// diisi sendiri (NIM belum diverifikasi ke sistem akademik resmi).
+// v6.2 juga menegaskan key foto R2 unik per tabel sebagai kontrol konsumsi upload.
+// Koreksi final: setiap barang inventaris wajib tepat 1 foto, sama seperti laporan mahasiswa.
+// v6.2 menggantikan v6.1 sebagai baseline implementasi. Tetap 8 tabel domain.
+
+Enum user_role {
+  STUDENT
+  OFFICER
+}
+Enum report_status {
+  PENDING_RECEIPT
+  RECEIVED
+  REJECTED
+  CANCELLED
+}
+Enum item_status {
+  STORED
+  RETURNED_TO_OWNER
+  DISTRIBUTED
+}
+
+Table users {
+  user_id uuid [pk]
+  Neon Auth_user_id varchar(255) [not null, unique, note: 'Subject identitas Neon Auth terverifikasi; bukan ID dari request browser; wajib 1:1 ke user_id UUID internal']
+  full_name varchar(120) [not null]
+  email varchar(180) [not null, unique]
+  student_number varchar(30) [unique, note: 'Wajib dan nonblank untuk STUDENT; NULL untuk OFFICER. Diisi sendiri, belum verifikasi akademik resmi']
+  role user_role [not null]
+  created_at timestamptz [not null]
+
+  Note: 'Akun STUDENT dibuat setelah email Neon Auth terverifikasi dan pengisian NIM; akun OFFICER dibuat/dipromosikan melalui administrasi backend tepercaya, tidak boleh dipilih di registrasi. users.user_id UUID internal, Neon Auth_user_id subject Neon Auth unik. Tidak ada role ADMIN dan tidak ada verifikasi NIM akademik otomatis. Guest tidak perlu akun. Password/OTP/sesi dikelola Neon Auth, tidak disimpan plaintext.'
+}
+
+Table service_posts {
+  post_id int [pk, increment]
+  name varchar(100) [not null, unique, note: 'Pengajaran, Perpustakaan, Lab Komputer']
+  officer_user_id uuid [not null, unique, ref: > users.user_id, note: '1 pos wajib memiliki 1 penanggung jawab OFFICER; 1 akun maksimal 1 pos']
+  location_description text [note: 'Lokasi detail dikonfirmasi pengelola, bukan dikarang']
+  opening_hours text [note: 'Jam pelayanan dikonfirmasi pengelola']
+  directions text [null]
+  storage_limit_days int [note: 'NULL = pos tidak memiliki batas penyimpanan; jika terisi harus > 0. Bukan tanggal kedaluwarsa dan tidak mengubah status otomatis']
+
+  Note: 'Setiap pos memiliki satu petugas penanggung jawab (1:1 dengan petugas terdaftar). Untuk ekspansi tetap satu tabel. Validasi pengguna harus OFFICER memerlukan kebijakan DB/backend.'
+}
+
+Table service_post_photos {
+  photo_id uuid [pk]
+  post_id int [not null, ref: > service_posts.post_id]
+  storage_path text [not null, unique, note: 'Key objek Cloudflare R2 unik; tidak mengekspos storage_path mentah']
+  position smallint [not null, note: '1, 2, atau 3; 1 adalah foto cover. Implementasikan CHECK position BETWEEN 1 AND 3 di SQL']
+  uploaded_at timestamptz [not null]
+
+  Note: 'FINAL v6.1: satu pos 0..3 foto; galeri target 2-3 foto. Tepat satu cover bila ada foto melalui posisi 1; urutan harus kontigu dimulai 1 dan divalidasi saat update. Tidak terkait foto laporan/inventaris.'
+  indexes {
+    (post_id, position) [unique]
+  }
+}
+
+Table found_submissions {
+  submission_id uuid [pk]
+  report_code varchar(30) [not null, unique, note: 'Contoh LPT-00024']
+  reporter_user_id uuid [not null, ref: > users.user_id, note: 'Pelapor harus role STUDENT']
+  target_post_id int [not null, ref: > service_posts.post_id, note: 'Fase 1 otomatis Pengajaran; setelah ekspansi mahasiswa memilih pos tujuan']
+  item_name varchar(150) [not null]
+  category varchar(80) [not null]
+  public_description text [not null]
+  found_location text [not null]
+  found_on date [not null]
+  report_photo_path text [not null, unique, note: 'WAJIB tepat satu foto laporan; key unik mencegah penggunaan ulang token upload']
+  status report_status [not null, default: 'PENDING_RECEIPT']
+  submitted_at timestamptz [not null]
+
+  Note: 'Laporan BELUM masuk katalog sebelum petugas mengonfirmasi penerimaan fisik. Petugas hanya dapat memproses laporan untuk target_post_id miliknya. REJECTED dan CANCELLED adalah status terminal; alasan wajib dalam status history.'
+  indexes {
+    (reporter_user_id, submitted_at)
+    (target_post_id, status, submitted_at)
+  }
+}
+
+Table submission_status_history {
+  history_id uuid [pk]
+  submission_id uuid [not null, ref: > found_submissions.submission_id]
+  changed_by_user_id uuid [not null, ref: > users.user_id]
+  from_status report_status [note: 'NULL hanya untuk event pembuatan laporan awal']
+  to_status report_status [not null]
+  reason text [note: 'Wajib nonblank jika to_status REJECTED atau CANCELLED']
+  changed_at timestamptz [not null]
+
+  Note: 'Catatan audit berurutan. Pembatalan hanya oleh pelapor dan penolakan hanya oleh petugas pos tujuan; perubahan status + history harus atomik.'
+  indexes {
+    (submission_id, changed_at)
+  }
+}
+
+Table found_items {
+  item_id uuid [pk]
+  inventory_code varchar(30) [not null, unique, note: 'Contoh INV-PG-0021; unik antarpos']
+  source_submission_id uuid [unique, ref: > found_submissions.submission_id, note: 'NULL bila petugas mencatat barang temuan langsung']
+  recorded_by_user_id uuid [not null, ref: > users.user_id, note: 'Wajib role OFFICER dari pos penyimpanan']
+  storage_post_id int [not null, ref: > service_posts.post_id, note: 'Jika dari laporan, harus sama dengan target_post_id laporan']
+  item_name varchar(150) [not null]
+  category varchar(80) [not null]
+  public_description text [not null]
+  private_verification_notes text [note: 'Ciri rahasia barang; akses petugas pos terkait saja']
+  found_location text [null]
+  found_on date [null]
+  received_at timestamptz [not null]
+  status item_status [not null, default: 'STORED']
+  is_visible boolean [not null, default: true, note: 'TRUE hanya memungkinkan tampil jika status STORED; FALSE = ditarik dari katalog tanpa mengubah status fisik barang']
+
+  Note: 'Barang fisik yang sudah berada di pos. Katalog publik hanya menampilkan status STORED DAN is_visible TRUE. Setelah batas penyimpanan terlampaui, petugas dapat menarik dari katalog secara manual. Saat disalurkan, set status DISTRIBUTED dan is_visible FALSE secara atomik; tidak masuk item_returns. Saat dikembalikan kepada pemilik, set status RETURNED_TO_OWNER dan is_visible FALSE. Jika source_submission_id terisi, laporan harus RECEIVED dan posnya sama.'
+  indexes {
+    (storage_post_id, status, received_at)
+    (status, received_at)
+  }
+}
+
+Table item_photos {
+  photo_id uuid [pk]
+  item_id uuid [not null, unique, ref: > found_items.item_id, note: 'WAJIB tepat satu foto per barang inventaris; UNIQUE mencegah foto tambahan']
+  storage_path text [not null, unique, note: 'Key foto inventaris unik untuk mencegah reuse token upload']
+  is_primary boolean [not null, default: true, note: 'Selalu TRUE karena hanya satu foto per inventaris; CHECK is_primary = TRUE di migration']
+  uploaded_at timestamptz [not null]
+
+  Note: 'Foto inventaris WAJIB tepat satu foto per item; item_id UNIQUE mencegah foto kedua, is_primary wajib TRUE. Pembuatan item dan satu foto harus atomik dalam transaksi.'
+  indexes {
+    (item_id, uploaded_at)
+  }
+}
+
+Table item_returns {
+  return_id uuid [pk]
+  item_id uuid [not null, unique, ref: > found_items.item_id, note: 'Satu barang maksimal satu pengembalian final ke pemilik terverifikasi']
+  returned_by_user_id uuid [not null, ref: > users.user_id, note: 'Petugas OFFICER yang bertugas pada storage_post_id barang']
+  recipient_name varchar(120) [not null, note: 'WAJIB; trim dan larang string hanya spasi']
+  verification_summary text [not null, note: 'Ringkasan bukti kepemilikan WAJIB; tidak memerlukan foto identitas']
+  verification_confirmed_at timestamptz [not null]
+  returned_at timestamptz [not null]
+
+  Note: 'Pengembalian langsung setelah verifikasi, bukan klaim online. Nama penerima dan ringkasan bukti wajib; proses harus atomik.'
+}
