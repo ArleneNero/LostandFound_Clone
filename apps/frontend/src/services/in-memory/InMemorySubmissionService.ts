@@ -124,4 +124,20 @@ export class InMemorySubmissionService implements ISubmissionService {
     sub.public_description = `[DITOLAK] Alasan: ${trimmed} | ${sub.public_description}`;
     return mapSubmissionDtoToDomain(sub);
   }
+
+  async cancelSubmission(id: string, reason: string): Promise<Submission> {
+    const sub = mockStore.getState().submissions.find((s) => s.submission_id === id);
+    if (!sub) throw new Error('Laporan tidak ditemukan');
+    if (sub.status !== 'PENDING_RECEIPT') {
+      throw new Error(`Laporan tidak dapat dibatalkan karena berstatus ${sub.status}`);
+    }
+    const trimmed = reason.trim();
+    if (!trimmed) {
+      throw new Error('Alasan pembatalan wajib diisi');
+    }
+
+    sub.status = 'CANCELLED';
+    sub.public_description = `[DIBATALKAN PELAPOR] Alasan: ${trimmed} | ${sub.public_description}`;
+    return mapSubmissionDtoToDomain(sub);
+  }
 }

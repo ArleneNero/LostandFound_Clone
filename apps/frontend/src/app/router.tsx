@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PublicLayout } from '@/components/layouts/PublicLayout';
 import { OfficerLayout } from '@/components/layouts/OfficerLayout';
+import { StudentLayout } from '@/components/layouts/StudentLayout';
+import { StudentRouteGuard } from '@/components/guards/StudentRouteGuard';
 import { LandingPage } from '@/pages/LandingPage';
 import { GuestHomePage } from '@/pages/GuestHomePage';
 import { CatalogPage } from '@/pages/CatalogPage';
@@ -8,6 +10,8 @@ import { ItemDetailPage } from '@/pages/ItemDetailPage';
 import { PostsPage } from '@/pages/PostsPage';
 import { GuidePage } from '@/pages/GuidePage';
 import { LoginPage } from '@/pages/LoginPage';
+import { RegisterPage } from '@/pages/RegisterPage';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { OfficerLoginPage } from '@/pages/officer/OfficerLoginPage';
 import { OfficerDashboardPage } from '@/pages/officer/OfficerDashboardPage';
 import { OfficerInventoryPage } from '@/pages/officer/OfficerInventoryPage';
@@ -16,6 +20,11 @@ import { OfficerReportsPage } from '@/pages/officer/OfficerReportsPage';
 import { OfficerAccountPage } from '@/pages/officer/OfficerAccountPage';
 import { OfficerItemDetailPage } from '@/pages/officer/OfficerItemDetailPage';
 import { OfficerReportDetailPage } from '@/pages/officer/OfficerReportDetailPage';
+import { StudentHomePage } from '@/pages/student/StudentHomePage';
+import { StudentReportFoundPage } from '@/pages/student/StudentReportFoundPage';
+import { StudentMyReportsPage } from '@/pages/student/StudentMyReportsPage';
+import { StudentReportDetailPage } from '@/pages/student/StudentReportDetailPage';
+import { StudentProfilePage } from '@/pages/student/StudentProfilePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { RoutePaths } from '@/constants/routes';
 
@@ -38,6 +47,8 @@ export const router = createBrowserRouter([
       { path: RoutePaths.POSTS, element: <PostsPage /> },
       { path: RoutePaths.GUIDE, element: <GuidePage /> },
       { path: RoutePaths.LOGIN, element: <LoginPage /> },
+      { path: RoutePaths.REGISTER, element: <RegisterPage /> },
+      { path: RoutePaths.FORGOT_PASSWORD, element: <ForgotPasswordPage /> },
     ],
   },
 
@@ -57,10 +68,23 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Student / Mahasiswa Routes (Belum dibuka pada tahap ini - Dialihkan ke Beranda Tamu)
+  // Student / Mahasiswa Routes (Milestone F/D)
   {
-    path: '/mahasiswa/*',
-    element: <Navigate to={RoutePaths.GUEST_HOME} replace />,
+    path: '/mahasiswa',
+    element: <StudentRouteGuard />,
+    children: [
+      {
+        element: <StudentLayout />,
+        children: [
+          { index: true, element: <Navigate to={RoutePaths.STUDENT_HOME} replace /> },
+          { path: 'beranda', element: <StudentHomePage /> },
+          { path: 'lapor-temuan', element: <StudentReportFoundPage /> },
+          { path: 'laporan-saya', element: <StudentMyReportsPage /> },
+          { path: 'laporan-saya/:id', element: <StudentReportDetailPage /> },
+          { path: 'profil', element: <StudentProfilePage /> },
+        ],
+      },
+    ],
   },
 
   // Fallback 404 Route

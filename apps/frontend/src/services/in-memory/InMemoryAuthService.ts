@@ -37,13 +37,18 @@ export class InMemoryAuthService implements IAuthService {
     return user;
   }
 
-  async loginAsStudent(email?: string): Promise<UserSession> {
+  async loginAsStudent(
+    email?: string,
+    name?: string,
+    studentNumber?: string
+  ): Promise<UserSession> {
+    const nim = studentNumber || (email?.match(/^(\d+)/)?.[1]) || '2411502194';
     const user: UserSession = {
-      id: 'student-01',
-      name: 'Nero Mahasiswa',
-      email: email || '2411502194@student.budiluhur.ac.id',
+      id: `student-${nim}`,
+      name: name || 'Nero Mahasiswa',
+      email: email || `${nim}@student.budiluhur.ac.id`,
       role: 'STUDENT',
-      studentNumber: '2411502194',
+      studentNumber: nim,
     };
 
     mockStore.getState().currentUser = {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, ArrowRight, RotateCcw, Package } from 'lucide-react';
+import { CheckCircle2, ArrowRight, RotateCcw } from 'lucide-react';
 import { FoundItem } from '@/types/domain';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
