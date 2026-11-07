@@ -4,6 +4,7 @@ import { User, LogOut, Building2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RoutePaths } from '@/constants/routes';
+import { registry } from '@/services/registry';
 
 export const OfficerAccountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export const OfficerAccountPage: React.FC = () => {
             size="sm"
             leftIcon={<LogOut className="w-4 h-4" />}
             onClick={async () => {
-              await services.auth.logout();
+              await registry.getServices().auth.logout();
               navigate(RoutePaths.OFFICER_LOGIN);
             }}
           >

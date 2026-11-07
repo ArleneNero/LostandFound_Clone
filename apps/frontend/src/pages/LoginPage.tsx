@@ -1,10 +1,10 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { RoutePaths } from '@/constants/routes';
+import { LoginForm } from '@/features/auth/components/LoginForm';
 
-/**
- * Halaman /masuk dialihkan langsung ke Landing Page (/) sebagai Single Gateway akses peran.
- */
 export const LoginPage: React.FC = () => {
-  return <Navigate to={RoutePaths.LANDING} replace />;
+  return (
+    <div className="py-8 sm:py-12 px-4 sm:px-6">
+      <LoginForm initialRole="OFFICER" />
+    </div>
+  );
 };

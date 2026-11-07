@@ -19,13 +19,12 @@ export const RoleSelectionSection: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Card 1: Mahasiswa (Segera Hadir) */}
+        {/* Card 1: Mahasiswa */}
         <RoleCard
           title="Mahasiswa"
-          description="Portal pelaporan online mahasiswa segera hadir"
+          description="Lapor barang temuan dan pantau riwayat laporan"
           iconSrc="/assets/illustrations/roles/Icon_Mahasiswa.png"
-          badge="Segera Hadir"
-          disabled={true}
+          onClick={() => navigate(RoutePaths.STUDENT_HOME)}
         />
 
         {/* Card 2: Petugas */}

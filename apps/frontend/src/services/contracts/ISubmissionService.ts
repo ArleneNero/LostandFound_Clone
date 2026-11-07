@@ -30,4 +30,5 @@ export interface ISubmissionService {
   createSubmission(input: CreateSubmissionInput): Promise<Submission>;
   receiveSubmission(id: string, input: ReceiveSubmissionInput): Promise<FoundItem>;
   rejectSubmission(id: string, reason: string): Promise<Submission>;
+  cancelSubmission(id: string, reason: string): Promise<Submission>;
 }

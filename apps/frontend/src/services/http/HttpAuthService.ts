@@ -75,8 +75,12 @@ export class HttpAuthService implements IAuthService {
     return session;
   }
 
-  async loginAsStudent(_email?: string): Promise<UserSession> {
-    throw new Error('Portal Mahasiswa belum dibuka pada tahap ini.');
+  async loginAsStudent(
+    _email?: string,
+    _name?: string,
+    _studentNumber?: string
+  ): Promise<UserSession> {
+    throw new Error('Portal Mahasiswa mode HTTP belum dibuka pada tahap ini.');
   }
 
   async logout(): Promise<void> {

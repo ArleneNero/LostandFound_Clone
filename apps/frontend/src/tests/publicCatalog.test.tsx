@@ -53,9 +53,8 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       const petugasImg = screen.getByAltText('Petugas') as HTMLImageElement;
       expect(petugasImg.src).toContain('/assets/illustrations/roles/Icon_Petugas.png');
 
-      // Mahasiswa Card (Segera Hadir)
+      // Mahasiswa Card (Aktif di Milestone F/D)
       expect(screen.getByText('Mahasiswa')).toBeDefined();
-      expect(screen.getByText('Segera Hadir')).toBeDefined();
       const mhsImg = screen.getByAltText('Mahasiswa') as HTMLImageElement;
       expect(mhsImg.src).toContain('/assets/illustrations/roles/Icon_Mahasiswa.png');
 
@@ -66,9 +65,9 @@ describe('Public & Guest Flows (F/C.1 - F/C.2.0)', () => {
       fireEvent.click(screen.getByText('Petugas'));
       expect(mockNavigate).toHaveBeenCalledWith('/petugas/login');
 
-      // Mahasiswa is disabled per scope agreement
+      // Mahasiswa navigates to student portal
       fireEvent.click(screen.getByText('Mahasiswa'));
-      expect(mockNavigate).not.toHaveBeenCalledWith('/mahasiswa/beranda');
+      expect(mockNavigate).toHaveBeenCalledWith('/mahasiswa/beranda');
 
       fireEvent.click(screen.getByText('Mode Tamu'));
       expect(mockNavigate).toHaveBeenCalledWith('/beranda');
