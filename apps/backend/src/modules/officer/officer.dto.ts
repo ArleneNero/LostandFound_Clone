@@ -57,3 +57,97 @@ export const itemCreateResponseSchema = z
     data: inventoryOfficerDtoSchema,
   })
   .strict();
+
+export const inventoryResponseSchema = itemCreateResponseSchema;
+
+export const inventoryListResponseSchema = z
+  .object({
+    data: z.array(inventoryOfficerDtoSchema),
+    meta: z.object({
+      page: z.number().int(),
+      limit: z.number().int(),
+      total: z.number().int(),
+      total_pages: z.number().int(),
+    }),
+  })
+  .strict();
+
+// B/I: Receive Request Schema
+export const receiveRequestSchema = z
+  .object({
+    public_description: z.string().trim().min(1, "Deskripsi publik tidak boleh kosong"),
+    private_verification_notes: z.string().trim().nullable().optional(),
+    item_photo_upload_tokens: z
+      .array(z.string().min(1))
+      .length(1, "Penerimaan barang mewajibkan tepat 1 token foto"),
+  })
+  .strict();
+export type ReceiveRequest = z.infer<typeof receiveRequestSchema>;
+
+// Reason Request Schema (for reject submission)
+export const reasonRequestSchema = z
+  .object({
+    reason: z.string().trim().min(1, "Alasan wajib diisi").max(2000),
+  })
+  .strict();
+export type ReasonRequest = z.infer<typeof reasonRequestSchema>;
+
+// B/G: Visibility Request Schema
+export const visibilityRequestSchema = z
+  .object({
+    is_visible: z.boolean(),
+  })
+  .strict();
+export type VisibilityRequest = z.infer<typeof visibilityRequestSchema>;
+
+// B/J: Return Request Schema
+export const returnRequestSchema = z
+  .object({
+    recipient_name: z.string().trim().min(1, "Nama penerima tidak boleh kosong").max(120),
+    verification_summary: z
+      .string()
+      .trim()
+      .min(1, "Ringkasan verifikasi kepemilikan tidak boleh kosong")
+      .max(5000),
+  })
+  .strict();
+export type ReturnRequest = z.infer<typeof returnRequestSchema>;
+
+export const returnRecordDtoSchema = z
+  .object({
+    return_id: z.string().uuid(),
+    item_id: z.string().uuid(),
+    recipient_name: z.string(),
+    verification_summary: z.string(),
+    verification_confirmed_at: z.string().datetime(),
+    returned_at: z.string().datetime(),
+  })
+  .strict();
+export type ReturnRecordDto = z.infer<typeof returnRecordDtoSchema>;
+
+export const returnResponseSchema = z
+  .object({
+    data: returnRecordDtoSchema,
+  })
+  .strict();
+
+// B/G: Overdue Inventory DTO Schema
+export const overdueInventoryDtoSchema = z
+  .object({
+    item_id: z.string().uuid(),
+    inventory_code: z.string(),
+    item_name: z.string(),
+    category: z.string(),
+    received_at: z.string().datetime(),
+    storage_limit_days: z.number().int().nullable(),
+    storage_age_days: z.number().int(),
+    overdue_days: z.number().int(),
+  })
+  .strict();
+export type OverdueInventoryDto = z.infer<typeof overdueInventoryDtoSchema>;
+
+export const overdueResponseSchema = z
+  .object({
+    data: z.array(overdueInventoryDtoSchema),
+  })
+  .strict();

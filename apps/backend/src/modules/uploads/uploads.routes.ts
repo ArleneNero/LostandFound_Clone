@@ -138,17 +138,20 @@ export const uploadsRoutes: FastifyPluginAsync = async (app) => {
   /**
    * Mock PUT endpoint for local testing and direct upload verification
    */
-  app.put("/mock-r2/:bucket/*", async (request, reply) => {
-    const rawKey = (request.params as any)["*"];
-    const contentType = request.headers["content-type"] as string;
-    const body = request.body as Buffer;
+  app.put<{ Params: { bucket: string; "*": string } }>(
+    "/mock-r2/:bucket/*",
+    async (request, reply) => {
+      const rawKey = request.params["*"];
+      const contentType = request.headers["content-type"] as string;
+      const body = request.body as Buffer;
 
-    await uploadsService.simulatePut(
-      rawKey,
-      Buffer.isBuffer(body) ? body : Buffer.from(body || ""),
-      contentType || "application/octet-stream"
-    );
+      await uploadsService.simulatePut(
+        rawKey,
+        Buffer.isBuffer(body) ? body : Buffer.from(body || ""),
+        contentType || "application/octet-stream"
+      );
 
-    return reply.status(200).send();
-  });
+      return reply.status(200).send();
+    }
+  );
 };

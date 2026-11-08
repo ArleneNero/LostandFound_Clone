@@ -69,8 +69,9 @@ export class R2StorageProvider implements StorageProvider {
         contentType: res.ContentType ?? "application/octet-stream",
         exists: true,
       };
-    } catch (err: any) {
-      if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) {
+    } catch (err: unknown) {
+      const error = err as { name?: string; $metadata?: { httpStatusCode?: number } };
+      if (error?.name === "NotFound" || error?.$metadata?.httpStatusCode === 404) {
         return { contentLength: 0, contentType: "", exists: false };
       }
       throw err;
@@ -101,7 +102,7 @@ export class R2StorageProvider implements StorageProvider {
 
   public async getObjectStream(
     key: string
-  ): Promise<{ body: any; contentType: string } | null> {
+  ): Promise<{ body: unknown; contentType: string } | null> {
     if (!this.s3Client) return null;
     try {
       const res = await this.s3Client.send(

@@ -1,53 +1,79 @@
-import { db } from "../../db/index.js";
-import { foundItems, itemPhotos } from "../../db/schema.js";
-import { generateInventoryCode } from "./inventory-code.util.js";
-import type { ItemCreateRequest } from "./officer.dto.js";
+import {
+  officerInventoryRepository,
+  CreateItemParams,
+  GetOfficerInventoryParams,
+} from "./officer-inventory.repository.js";
+import {
+  officerSubmissionsRepository,
+  ReceiveSubmissionParams,
+} from "./officer-submissions.repository.js";
+import { officerDispositionRepository } from "./officer-disposition.repository.js";
+import type { ReportStatus } from "../submissions/submissions.dto.js";
 
-export interface CreateItemParams {
-  request: ItemCreateRequest;
-  officerUserId: string;
-  storagePostId: number;
-  storagePath: string;
-}
+export { CreateItemParams, GetOfficerInventoryParams, ReceiveSubmissionParams };
+export { officerInventoryRepository, officerSubmissionsRepository, officerDispositionRepository };
 
+/**
+ * Facade repository combining specialized officer repositories
+ */
 export class OfficerRepository {
-  /**
-   * Executes atomic insertion of found item and its primary photo within a transaction
-   */
-  async insertItemWithPhoto(params: CreateItemParams) {
-    const { request, officerUserId, storagePostId, storagePath } = params;
+  insertItemWithPhoto(params: CreateItemParams) {
+    return officerInventoryRepository.insertItemWithPhoto(params);
+  }
 
-    return await db.transaction(async (tx) => {
-      const inventoryCode = await generateInventoryCode(tx);
+  getSubmissionsByPost(
+    postId: number,
+    params: { status?: ReportStatus; page?: number; limit?: number }
+  ) {
+    return officerSubmissionsRepository.getSubmissionsByPost(postId, params);
+  }
 
-      const [item] = await tx
-        .insert(foundItems)
-        .values({
-          inventoryCode,
-          recordedByUserId: officerUserId,
-          storagePostId,
-          itemName: request.item_name,
-          category: request.category,
-          publicDescription: request.public_description,
-          privateVerificationNotes: request.private_verification_notes ?? null,
-          foundLocation: request.found_location ?? null,
-          foundOn: request.found_on ?? null,
-          status: "STORED",
-          isVisible: true,
-        })
-        .returning();
+  receiveSubmission(params: ReceiveSubmissionParams) {
+    return officerSubmissionsRepository.receiveSubmission(params);
+  }
 
-      const [photo] = await tx
-        .insert(itemPhotos)
-        .values({
-          itemId: item.itemId,
-          storagePath,
-          isPrimary: true,
-        })
-        .returning();
+  rejectSubmission(
+    submissionId: string,
+    officerUserId: string,
+    storagePostId: number,
+    reason: string
+  ) {
+    return officerSubmissionsRepository.rejectSubmission(
+      submissionId,
+      officerUserId,
+      storagePostId,
+      reason
+    );
+  }
 
-      return { item, photo };
-    });
+  getInventoryByPost(params: GetOfficerInventoryParams) {
+    return officerInventoryRepository.getInventoryByPost(params);
+  }
+
+  getItemById(itemId: string, storagePostId: number) {
+    return officerInventoryRepository.getItemById(itemId, storagePostId);
+  }
+
+  updateItemVisibility(itemId: string, storagePostId: number, isVisible: boolean) {
+    return officerInventoryRepository.updateItemVisibility(itemId, storagePostId, isVisible);
+  }
+
+  returnItem(params: {
+    itemId: string;
+    officerUserId: string;
+    storagePostId: number;
+    recipientName: string;
+    verificationSummary: string;
+  }) {
+    return officerDispositionRepository.returnItem(params);
+  }
+
+  distributeItem(itemId: string, storagePostId: number) {
+    return officerDispositionRepository.distributeItem(itemId, storagePostId);
+  }
+
+  getOverdueItems(storagePostId: number) {
+    return officerInventoryRepository.getOverdueItems(storagePostId);
   }
 }
 

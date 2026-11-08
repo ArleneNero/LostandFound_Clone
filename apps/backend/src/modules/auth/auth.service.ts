@@ -128,6 +128,76 @@ export class AuthService {
       },
     };
   }
+
+  /**
+   * B/H.1.0: POST /me/bootstrap
+   * Creates a student profile after verified email authentication.
+   * Derives authUserId and email strictly from verified session.
+   * Returns 409 PROFILE_EXISTS if user already has an active student profile.
+   */
+  async bootstrapStudent(
+    authUserId: string,
+    email: string,
+    fullName: string,
+    studentNumber: string
+  ): Promise<
+    | { success: true; data: Me }
+    | { success: false; code: string; message: string; statusCode?: number }
+  > {
+    const existing = await db.query.users.findFirst({
+      where: eq(users.authUserId, authUserId),
+    });
+
+    if (existing && existing.studentNumber) {
+      return {
+        success: false,
+        code: "PROFILE_EXISTS",
+        message: "Profil mahasiswa sudah terdaftar",
+        statusCode: 409,
+      };
+    }
+
+    let user;
+    if (existing) {
+      const [updated] = await db
+        .update(users)
+        .set({
+          fullName,
+          studentNumber,
+          role: "STUDENT",
+        })
+        .where(eq(users.userId, existing.userId))
+        .returning();
+      user = updated;
+    } else {
+      const [created] = await db
+        .insert(users)
+        .values({
+          authUserId,
+          email,
+          fullName,
+          studentNumber,
+          role: "STUDENT",
+        })
+        .returning();
+      user = created;
+    }
+
+    const meData: Me = {
+      user_id: user.userId,
+      full_name: user.fullName,
+      email: user.email,
+      student_number: user.studentNumber,
+      role: user.role,
+      assigned_post_id: null,
+      nim_verification_status: "NOT_VERIFIED",
+    };
+
+    return {
+      success: true,
+      data: meData,
+    };
+  }
 }
 
 export const authService = new AuthService();

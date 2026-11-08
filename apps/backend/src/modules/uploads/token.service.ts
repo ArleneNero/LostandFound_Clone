@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { tokenSigner } from "./token.signer.js";
 import type { UploadPurpose } from "./uploads.dto.js";
+import { AppError } from "../../utils/errors.js";
 
 export interface UploadTokenPayload {
   tokenId: string;
@@ -43,40 +44,27 @@ export class UploadTokenService {
   ): { storagePath: string } {
     const payload = tokenSigner.verify<UploadTokenPayload>(uploadToken);
     if (!payload) {
-      const err = new Error("Upload token tidak valid atau tanda tangan rusak");
-      (err as any).statusCode = 422;
-      (err as any).code = "INVALID_TOKEN";
-      throw err;
+      throw new AppError("INVALID_TOKEN", "Upload token tidak valid atau tanda tangan rusak", 422);
     }
 
     if (payload.exp * 1000 < Date.now()) {
-      const err = new Error("Upload token telah kedaluwarsa (15 menit)");
-      (err as any).statusCode = 422;
-      (err as any).code = "TOKEN_EXPIRED";
-      throw err;
+      throw new AppError("TOKEN_EXPIRED", "Upload token telah kedaluwarsa (15 menit)", 422);
     }
 
     if (payload.purpose !== expectedPurpose) {
-      const err = new Error(
-        `Tujuan token tidak sesuai (diharapkan: ${expectedPurpose}, aktual: ${payload.purpose})`
+      throw new AppError(
+        "INVALID_PURPOSE",
+        `Tujuan token tidak sesuai (diharapkan: ${expectedPurpose}, aktual: ${payload.purpose})`,
+        422
       );
-      (err as any).statusCode = 422;
-      (err as any).code = "INVALID_PURPOSE";
-      throw err;
     }
 
     if (payload.userId !== expectedUserId) {
-      const err = new Error("Upload token bukan milik akun yang sedang login");
-      (err as any).statusCode = 403;
-      (err as any).code = "FORBIDDEN";
-      throw err;
+      throw new AppError("FORBIDDEN", "Upload token bukan milik akun yang sedang login", 403);
     }
 
     if (this.consumedTokens.has(payload.tokenId)) {
-      const err = new Error("Upload token sudah pernah digunakan (anti-replay)");
-      (err as any).statusCode = 409;
-      (err as any).code = "TOKEN_ALREADY_USED";
-      throw err;
+      throw new AppError("TOKEN_ALREADY_USED", "Upload token sudah pernah digunakan (anti-replay)", 409);
     }
 
     this.consumedTokens.add(payload.tokenId);

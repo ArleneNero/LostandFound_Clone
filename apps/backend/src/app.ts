@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance, FastifyError } from "fastify";
+import Fastify, { FastifyInstance, FastifyError, FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import { randomUUID } from "crypto";
 import fs from "fs";
@@ -9,6 +9,7 @@ import { itemsRoutes } from "./modules/items/items.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 import { uploadsRoutes } from "./modules/uploads/uploads.routes.js";
 import { officerRoutes } from "./modules/officer/officer.routes.js";
+import { submissionsRoutes } from "./modules/submissions/submissions.routes.js";
 import { r2Provider } from "./modules/uploads/storage/r2.provider.js";
 
 export function buildApp(): FastifyInstance {
@@ -107,7 +108,7 @@ export function buildApp(): FastifyInstance {
   });
 
   // Health check endpoint (Internal)
-  const healthHandler = async (request: any) => ({
+  const healthHandler = async (request: FastifyRequest) => ({
     status: "ok",
     timestamp: new Date().toISOString(),
     request_id: request.id,
@@ -117,8 +118,8 @@ export function buildApp(): FastifyInstance {
 
 
   // Storage endpoint: stream live from Cloudflare R2 bucket with local fallback
-  app.get("/storage/*", async (request, reply) => {
-    const rawKey = (request.params as any)["*"];
+  app.get<{ Params: { "*": string } }>("/storage/*", async (request, reply) => {
+    const rawKey = request.params["*"];
     if (!rawKey) return reply.status(404).send({ error: "Not Found" });
     const safeKey = rawKey.replace(/^(\.\.[\/\\])+/, "");
 
@@ -158,6 +159,7 @@ export function buildApp(): FastifyInstance {
   app.register(authRoutes, { prefix: "/api/v1" });
   app.register(uploadsRoutes, { prefix: "/api/v1" });
   app.register(officerRoutes, { prefix: "/api/v1" });
+  app.register(submissionsRoutes, { prefix: "/api/v1" });
 
   return app;
 }

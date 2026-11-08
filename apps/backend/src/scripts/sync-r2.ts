@@ -55,8 +55,9 @@ async function syncImagesToR2() {
       await s3.send(command);
       uploadedCount++;
       console.log(`✅ [R2 UPLOAD] Berhasil: ${r2Key} (${fileBuffer.length} bytes)`);
-    } catch (err: any) {
-      console.error(`❌ [R2 ERROR] Gagal mengunggah ${r2Key}:`, err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`❌ [R2 ERROR] Gagal mengunggah ${r2Key}:`, message);
     }
   }
 

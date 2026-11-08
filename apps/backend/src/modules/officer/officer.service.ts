@@ -1,74 +1,85 @@
-import { officerRepository } from "./officer.repository.js";
-import { uploadsService } from "../uploads/uploads.service.js";
-import { resolvePhotoUrl } from "../../utils/photoResolver.js";
-import type { ItemCreateRequest, InventoryOfficerDto } from "./officer.dto.js";
+import { officerInventoryService } from "./officer-inventory.service.js";
+import { officerSubmissionsService } from "./officer-submissions.service.js";
+import { officerDispositionService } from "./officer-disposition.service.js";
+import { mapToOfficerDto } from "./officer.mapper.js";
+import type {
+  ItemCreateRequest,
+  InventoryOfficerDto,
+  ReceiveRequest,
+  ReturnRequest,
+} from "./officer.dto.js";
 import type { OfficerContext } from "../auth/auth.types.js";
+import type { ReportStatus } from "../submissions/submissions.dto.js";
 
+export { officerInventoryService, officerSubmissionsService, officerDispositionService };
+
+/**
+ * Facade officer service delegating to specialized services
+ */
 export class OfficerService {
-  /**
-   * Registers a found item into officer inventory, consuming the photo upload token
-   */
-  async registerFoundItem(
-    context: OfficerContext,
-    request: ItemCreateRequest
-  ): Promise<InventoryOfficerDto> {
-    const [token] = request.item_photo_upload_tokens;
-
-    // Verify and consume single-use upload token bound to this officer
-    const { storagePath } = uploadsService.verifyAndConsumeUploadToken(
-      token,
-      "ITEM_PHOTO",
-      context.user.userId
-    );
-
-    // Atomically insert item and photo
-    const { item, photo } = await officerRepository.insertItemWithPhoto({
-      request,
-      officerUserId: context.user.userId,
-      storagePostId: context.postId,
-      storagePath,
-    });
-
-    return this.mapToOfficerDto(item, photo, context);
+  registerFoundItem(context: OfficerContext, request: ItemCreateRequest) {
+    return officerInventoryService.registerFoundItem(context, request);
   }
 
-  private mapToOfficerDto(
-    item: any,
-    photo: any,
+  getSubmissions(
+    context: OfficerContext,
+    params: { status?: ReportStatus; page?: number; limit?: number }
+  ) {
+    return officerSubmissionsService.getSubmissions(context, params);
+  }
+
+  receiveSubmission(
+    context: OfficerContext,
+    submissionId: string,
+    request: ReceiveRequest
+  ) {
+    return officerSubmissionsService.receiveSubmission(context, submissionId, request);
+  }
+
+  rejectSubmission(context: OfficerContext, submissionId: string, reason: string) {
+    return officerSubmissionsService.rejectSubmission(context, submissionId, reason);
+  }
+
+  getInventory(
+    context: OfficerContext,
+    params: {
+      status?: "STORED" | "RETURNED_TO_OWNER" | "DISTRIBUTED";
+      category?: string;
+      q?: string;
+      sort?: "received_at_asc" | "received_at_desc";
+      page?: number;
+      limit?: number;
+    }
+  ) {
+    return officerInventoryService.getInventory(context, params);
+  }
+
+  getItemDetail(context: OfficerContext, itemId: string) {
+    return officerInventoryService.getItemDetail(context, itemId);
+  }
+
+  updateVisibility(context: OfficerContext, itemId: string, isVisible: boolean) {
+    return officerInventoryService.updateVisibility(context, itemId, isVisible);
+  }
+
+  returnItem(context: OfficerContext, itemId: string, request: ReturnRequest) {
+    return officerDispositionService.returnItem(context, itemId, request);
+  }
+
+  distributeItem(context: OfficerContext, itemId: string) {
+    return officerDispositionService.distributeItem(context, itemId);
+  }
+
+  getOverdue(context: OfficerContext) {
+    return officerInventoryService.getOverdue(context);
+  }
+
+  mapToOfficerDto(
+    item: Parameters<typeof mapToOfficerDto>[0],
+    photo: Parameters<typeof mapToOfficerDto>[1],
     context: OfficerContext
   ): InventoryOfficerDto {
-    const resolved = resolvePhotoUrl(photo.storagePath);
-
-    return {
-      item_id: item.itemId,
-      inventory_code: item.inventoryCode,
-      item_name: item.itemName,
-      category: item.category,
-      public_description: item.publicDescription,
-      private_verification_notes: item.privateVerificationNotes,
-      found_location: item.foundLocation,
-      found_on: item.foundOn ? String(item.foundOn) : null,
-      received_at:
-        item.receivedAt instanceof Date
-          ? item.receivedAt.toISOString()
-          : new Date(item.receivedAt).toISOString(),
-      status: item.status,
-      is_visible: item.isVisible,
-      storage_post_id: item.storagePostId,
-      source_submission_id: item.sourceSubmissionId || null,
-      post: {
-        post_id: context.postId,
-        name: context.postName,
-      },
-      photos: [
-        {
-          photo_id: photo.photoId,
-          url: resolved.url,
-          expires_at: resolved.expires_at,
-          is_primary: true,
-        },
-      ],
-    };
+    return mapToOfficerDto(item, photo, context);
   }
 }
 

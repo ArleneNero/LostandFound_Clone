@@ -1,9 +1,71 @@
-import { FastifyInstance, FastifyPluginAsync } from "fastify";
+import { FastifyInstance, FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
 import { authenticate } from "../../middleware/auth.guard.js";
 import { authService } from "./auth.service.js";
-import { Me, officerLoginSchema } from "./auth.dto.js";
+import { Me, officerLoginSchema, bootstrapRequestSchema } from "./auth.dto.js";
 
 export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  /**
+   * B/H.1.0: POST /me/bootstrap
+   * Create student profile after verified session
+   */
+  fastify.post("/me/bootstrap", async (request, reply) => {
+    const authHeader = request.headers.authorization;
+    if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
+      return reply.status(401).send({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Token autentikasi tidak ditemukan atau format tidak valid",
+          request_id: request.id,
+        },
+      });
+    }
+
+    const token = authHeader.slice(7).trim();
+    const payload = authService.verifyToken(token);
+    if (!payload || !payload.sub) {
+      return reply.status(401).send({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Token autentikasi tidak valid atau sudah kedaluwarsa",
+          request_id: request.id,
+        },
+      });
+    }
+
+    const parseResult = bootstrapRequestSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          request_id: request.id,
+          details: parseResult.error.issues,
+        },
+      });
+    }
+
+    const email = payload.email || `${payload.sub}@student.budiluhur.ac.id`;
+    const result = await authService.bootstrapStudent(
+      payload.sub,
+      email,
+      parseResult.data.full_name,
+      parseResult.data.student_number
+    );
+
+    if (!result.success) {
+      return reply.status(result.statusCode || 400).send({
+        error: {
+          code: result.code,
+          message: result.message,
+          request_id: request.id,
+        },
+      });
+    }
+
+    return reply.status(201).send({
+      data: result.data,
+    });
+  });
   /**
    * B/D.2.0: GET /me
    * Get current verified profile for authenticated user.
@@ -40,7 +102,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =
    * Server-Side Officer Authentication & Bcrypt Verification
    * Zero-Trust: Backend is the sole validator of credentials and role.
    */
-  const handleOfficerLogin = async (request: any, reply: any) => {
+  const handleOfficerLogin = async (request: FastifyRequest, reply: FastifyReply) => {
     const parseResult = officerLoginSchema.safeParse(request.body);
     if (!parseResult.success) {
       return reply.status(400).send({

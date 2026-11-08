@@ -1,0 +1,151 @@
+﻿import type { FastifyPluginAsync } from "fastify";
+import { requireOfficer } from "../../../middleware/auth.guard.js";
+import {
+  itemCreateRequestSchema,
+  visibilityRequestSchema,
+} from "../officer.dto.js";
+import { officerInventoryService } from "../officer-inventory.service.js";
+import { z } from "zod";
+
+const itemIdParamSchema = z.object({
+  item_id: z.string().uuid("Format ID barang harus berupa UUID valid"),
+});
+
+const inventoryQuerySchema = z.object({
+  status: z.enum(["STORED", "RETURNED_TO_OWNER", "DISTRIBUTED"]).optional(),
+  category: z.string().optional(),
+  q: z.string().optional(),
+  sort: z.enum(["received_at_asc", "received_at_desc"]).default("received_at_desc"),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(10).default(10),
+});
+
+export const officerInventoryRoutes: FastifyPluginAsync = async (app) => {
+  /**
+   * B/F.1: POST /officer/items
+   */
+  app.post(
+    "/officer/items",
+    { preHandler: [requireOfficer] },
+    async (request, reply) => {
+      const parsed = itemCreateRequestSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(422).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Format payload registrasi barang tidak valid",
+            request_id: request.id,
+            details: parsed.error.issues,
+          },
+        });
+      }
+
+      const item = await officerInventoryService.registerFoundItem(
+        request.officerContext!,
+        parsed.data
+      );
+
+      return reply.status(201).send({ data: item });
+    }
+  );
+
+  /**
+   * B/G.1.0: GET /officer/inventory
+   */
+  app.get(
+    "/officer/inventory",
+    { preHandler: [requireOfficer] },
+    async (request, reply) => {
+      const parsedQuery = inventoryQuerySchema.safeParse(request.query);
+      const query = parsedQuery.success
+        ? parsedQuery.data
+        : { sort: "received_at_desc" as const, page: 1, limit: 10 };
+
+      const result = await officerInventoryService.getInventory(
+        request.officerContext!,
+        query
+      );
+
+      return reply.status(200).send(result);
+    }
+  );
+
+  /**
+   * B/G.2.0: GET /officer/inventory/overdue
+   */
+  app.get(
+    "/officer/inventory/overdue",
+    { preHandler: [requireOfficer] },
+    async (request, reply) => {
+      const overdueList = await officerInventoryService.getOverdue(request.officerContext!);
+      return reply.status(200).send({ data: overdueList });
+    }
+  );
+
+  /**
+   * B/G.1.1: GET /officer/items/:item_id
+   */
+  app.get(
+    "/officer/items/:item_id",
+    { preHandler: [requireOfficer] },
+    async (request, reply) => {
+      const paramParse = itemIdParamSchema.safeParse(request.params);
+      if (!paramParse.success) {
+        return reply.status(400).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Format ID barang tidak valid",
+            request_id: request.id,
+          },
+        });
+      }
+
+      const item = await officerInventoryService.getItemDetail(
+        request.officerContext!,
+        paramParse.data.item_id
+      );
+
+      return reply.status(200).send({ data: item });
+    }
+  );
+
+  /**
+   * B/G.1.2: PATCH /officer/items/:item_id/visibility
+   */
+  app.patch(
+    "/officer/items/:item_id/visibility",
+    { preHandler: [requireOfficer] },
+    async (request, reply) => {
+      const paramParse = itemIdParamSchema.safeParse(request.params);
+      if (!paramParse.success) {
+        return reply.status(400).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Format ID barang tidak valid",
+            request_id: request.id,
+          },
+        });
+      }
+
+      const bodyParse = visibilityRequestSchema.safeParse(request.body);
+      if (!bodyParse.success) {
+        return reply.status(400).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Format visibility tidak valid",
+            request_id: request.id,
+            details: bodyParse.error.issues,
+          },
+        });
+      }
+
+      const item = await officerInventoryService.updateVisibility(
+        request.officerContext!,
+        paramParse.data.item_id,
+        bodyParse.data.is_visible
+      );
+
+      return reply.status(200).send({ data: item });
+    }
+  );
+};

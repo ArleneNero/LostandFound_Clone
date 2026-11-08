@@ -1,7 +1,8 @@
 import { foundItems } from "../../db/schema.js";
 import { sql, eq } from "drizzle-orm";
+import type { DbTransaction } from "../../db/index.js";
 
-export async function generateInventoryCode(tx: any, year?: number): Promise<string> {
+export async function generateInventoryCode(tx: DbTransaction, year?: number): Promise<string> {
   const currentYear = year || new Date().getFullYear();
   const prefix = `INV-${currentYear}-`;
 

@@ -33,3 +33,12 @@ export const officerLoginResponseSchema = z.object({
   }),
 });
 export type OfficerLoginResponse = z.infer<typeof officerLoginResponseSchema>;
+
+// 5. Bootstrap Request Schema (B/H.1.0)
+export const bootstrapRequestSchema = z
+  .object({
+    full_name: z.string().trim().min(1, "Nama lengkap tidak boleh kosong").max(120),
+    student_number: z.string().trim().min(1, "NIM tidak boleh kosong").max(30),
+  })
+  .strict();
+export type BootstrapRequest = z.infer<typeof bootstrapRequestSchema>;
