@@ -25,10 +25,13 @@ export function resolvePhotoUrl(storagePath: string, ttlSeconds = 300): Resolved
     };
   }
 
-  // Safe fallback mock URL for local/testing
+  // Safe fallback mock URL for local/testing or Vercel deployment
   const cleanPath = storagePath.replace(/^\/+/, "");
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : `http://localhost:${env.PORT}`;
   return {
-    url: `http://localhost:${env.PORT}/storage/${cleanPath}?exp=${Math.floor(expiresAtDate.getTime() / 1000)}`,
+    url: `${baseUrl}/storage/${cleanPath}?exp=${Math.floor(expiresAtDate.getTime() / 1000)}`,
     expires_at,
   };
 }
