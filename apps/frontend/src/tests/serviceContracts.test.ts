@@ -23,6 +23,7 @@ describe('Service Contracts & Registry (F/A.3)', () => {
     const services = registry.getServices();
     expect(services.mode).toBe('http');
     expect(services.items).toBeDefined();
+    expect(services.submissions).toBeDefined();
     expect(services.upload).toBeDefined();
     expect(services.posts).toBeDefined();
   });
