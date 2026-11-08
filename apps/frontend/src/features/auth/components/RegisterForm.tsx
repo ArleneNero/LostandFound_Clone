@@ -29,8 +29,9 @@ export const RegisterForm: React.FC = () => {
       return;
     }
 
-    if (!email.includes('@')) {
-      setError('Format email kampus tidak valid.');
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail.endsWith('@student.budiluhur.ac.id')) {
+      setError('Wajib menggunakan email resmi mahasiswa Budi Luhur (@student.budiluhur.ac.id).');
       return;
     }
 
@@ -118,10 +119,13 @@ export const RegisterForm: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nim@student.budiluhur.ac.id"
+                placeholder="2411502194@student.budiluhur.ac.id"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-action)] focus:ring-2 focus:ring-[var(--lf-soft)] transition-all"
               />
             </div>
+            <p className="text-[11px] text-[var(--lf-muted)] mt-1">
+              Wajib menggunakan email resmi mahasiswa (@student.budiluhur.ac.id)
+            </p>
           </div>
 
           <div>

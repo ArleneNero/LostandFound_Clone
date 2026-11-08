@@ -29,6 +29,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ initialRole = 'OFFICER' })
     setErrorMessage(null);
 
     try {
+      if (activeRole === 'STUDENT' && email.trim()) {
+        const normalized = email.trim().toLowerCase();
+        if (!normalized.endsWith('@student.budiluhur.ac.id')) {
+          setErrorMessage('Akun mahasiswa wajib menggunakan email resmi (@student.budiluhur.ac.id).');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const authService = registry.getServices().auth;
       if (activeRole === 'OFFICER') {
         await authService.loginAsOfficer(

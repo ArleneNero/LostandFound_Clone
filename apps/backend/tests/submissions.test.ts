@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { buildApp } from "../src/app.js";
 import { authService } from "../src/modules/auth/auth.service.js";
 import { uploadsService } from "../src/modules/uploads/uploads.service.js";
@@ -153,6 +153,27 @@ describe("Milestone B/H — Student Bootstrap & Found Submissions", () => {
       expect(res.statusCode).toBe(409);
       const body = JSON.parse(res.body);
       expect(body.error.code).toBe("PROFILE_EXISTS");
+    });
+
+    it("returns 403 INVALID_STUDENT_DOMAIN when email domain is not @student.budiluhur.ac.id", async () => {
+      const nonStudentToken = authService.createToken({
+        sub: "test-bootstrap-gmail-user",
+        email: "random.user@gmail.com",
+      });
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/v1/me/bootstrap",
+        headers: { authorization: `Bearer ${nonStudentToken}` },
+        payload: {
+          full_name: "User Gmail",
+          student_number: "2211500888",
+        },
+      });
+
+      expect(res.statusCode).toBe(403);
+      const body = JSON.parse(res.body);
+      expect(body.error.code).toBe("INVALID_STUDENT_DOMAIN");
     });
   });
 

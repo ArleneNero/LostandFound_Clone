@@ -144,6 +144,16 @@ export class AuthService {
     | { success: true; data: Me }
     | { success: false; code: string; message: string; statusCode?: number }
   > {
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@student.budiluhur.ac.id")) {
+      return {
+        success: false,
+        code: "INVALID_STUDENT_DOMAIN",
+        message: "Hanya email resmi mahasiswa (@student.budiluhur.ac.id) yang diizinkan untuk akun mahasiswa",
+        statusCode: 403,
+      };
+    }
+
     const existing = await db.query.users.findFirst({
       where: eq(users.authUserId, authUserId),
     });
