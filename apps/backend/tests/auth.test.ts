@@ -326,4 +326,126 @@ describe("B/D.1 — Server-Side Auth, Identity Mapping & Scoped Policy", () => {
       expect(body.error.message).toContain("Kata sandi wajib diisi");
     });
   });
+
+  describe("B/H.1.3 & B/H.1.4: Student Registration and Login Endpoints", () => {
+    const testStudentRegEmail = `reg.mhs.${Date.now()}@student.budiluhur.ac.id`;
+    const testStudentRegNim = `NIM${Date.now().toString().slice(-8)}`;
+    const testStudentRegPassword = "Password123!";
+
+    afterAll(async () => {
+      await db.delete(users).where(eq(users.email, testStudentRegEmail));
+    });
+
+    it("should reject student register with non-student email domain (403)", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/student-register",
+        payload: {
+          full_name: "Bukan Mahasiswa",
+          email: "bukan.mhs@gmail.com",
+          password: "Password123!",
+          student_number: "2411509999",
+        },
+      });
+
+      expect(response.statusCode).toBe(403);
+      const body = response.json();
+      expect(body.error.code).toBe("INVALID_STUDENT_DOMAIN");
+    });
+
+    it("should successfully register a student with valid @student.budiluhur.ac.id (201)", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/student-register",
+        payload: {
+          full_name: "Mahasiswa Terdaftar",
+          email: testStudentRegEmail,
+          password: testStudentRegPassword,
+          student_number: testStudentRegNim,
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      const body = response.json();
+      expect(body.data.token).toBeDefined();
+      expect(body.data.user.email).toBe(testStudentRegEmail);
+      expect(body.data.user.role).toBe("STUDENT");
+      expect(body.data.user.student_number).toBe(testStudentRegNim);
+    });
+
+    it("should reject duplicate student registration with same email (409)", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/student-register",
+        payload: {
+          full_name: "Duplikat Mahasiswa",
+          email: testStudentRegEmail,
+          password: "Password123!",
+          student_number: "9999999999",
+        },
+      });
+
+      expect(response.statusCode).toBe(409);
+      const body = response.json();
+      expect(body.error.code).toBe("EMAIL_EXISTS");
+    });
+
+    it("should successfully login as student with valid credentials (200)", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/student-login",
+        payload: {
+          email: testStudentRegEmail,
+          password: testStudentRegPassword,
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body.data.token).toBeDefined();
+      expect(body.data.user.role).toBe("STUDENT");
+      expect(body.data.user.email).toBe(testStudentRegEmail);
+
+      // Verify that the issued token works on protected endpoint
+      const protectedRes = await app.inject({
+        method: "GET",
+        url: "/api/v1/test/protected",
+        headers: {
+          authorization: `Bearer ${body.data.token}`,
+        },
+      });
+      expect(protectedRes.statusCode).toBe(200);
+      expect(protectedRes.json().user.role).toBe("STUDENT");
+    });
+
+    it("should reject student login with wrong password (401)", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/student-login",
+        payload: {
+          email: testStudentRegEmail,
+          password: "WrongPassword999!",
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      const body = response.json();
+      expect(body.error.code).toBe("INVALID_CREDENTIALS");
+    });
+
+    it("should reject student login with non-student email domain (403)", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/student-login",
+        payload: {
+          email: "mhs@gmail.com",
+          password: "Password123!",
+        },
+      });
+
+      expect(response.statusCode).toBe(403);
+      const body = response.json();
+      expect(body.error.code).toBe("INVALID_STUDENT_DOMAIN");
+    });
+  });
 });

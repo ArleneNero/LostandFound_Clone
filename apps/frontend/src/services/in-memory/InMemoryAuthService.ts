@@ -1,4 +1,4 @@
-import { IAuthService } from '../contracts/IAuthService';
+import { IAuthService, RegisterStudentInput } from '../contracts/IAuthService';
 import { UserSession } from '@/types/domain';
 import { mockStore } from '@/data/mockStore';
 
@@ -61,6 +61,10 @@ export class InMemoryAuthService implements IAuthService {
     };
 
     return user;
+  }
+
+  async registerStudent(input: RegisterStudentInput): Promise<UserSession> {
+    return this.loginAsStudent(input.email, input.fullName, input.studentNumber);
   }
 
   async logout(): Promise<void> {

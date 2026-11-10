@@ -1,7 +1,13 @@
 import { FastifyInstance, FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
 import { authenticate } from "../../middleware/auth.guard.js";
 import { authService } from "./auth.service.js";
-import { Me, officerLoginSchema, bootstrapRequestSchema } from "./auth.dto.js";
+import {
+  Me,
+  officerLoginSchema,
+  bootstrapRequestSchema,
+  studentLoginSchema,
+  studentRegisterSchema,
+} from "./auth.dto.js";
 
 export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   /**
@@ -134,4 +140,82 @@ export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =
 
   fastify.post("/auth/officer-login", handleOfficerLogin);
   fastify.post("/officer/login", handleOfficerLogin);
+
+  /**
+   * B/H.1.3: POST /auth/student-login
+   * Server-Side Student Authentication & Bcrypt Verification
+   */
+  const handleStudentLogin = async (request: FastifyRequest, reply: FastifyReply) => {
+    const parseResult = studentLoginSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          request_id: request.id,
+        },
+      });
+    }
+
+    const { email, password } = parseResult.data;
+    const loginResult = await authService.studentLogin(email, password);
+
+    if (!loginResult.success) {
+      return reply.status(loginResult.statusCode || 401).send({
+        error: {
+          code: loginResult.code,
+          message: loginResult.message,
+          request_id: request.id,
+        },
+      });
+    }
+
+    return reply.status(200).send({
+      data: loginResult.data,
+    });
+  };
+
+  /**
+   * B/H.1.4: POST /auth/student-register
+   * Server-Side Student Registration
+   */
+  const handleStudentRegister = async (request: FastifyRequest, reply: FastifyReply) => {
+    const parseResult = studentRegisterSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          request_id: request.id,
+        },
+      });
+    }
+
+    const { full_name, email, password, student_number } = parseResult.data;
+    const registerResult = await authService.studentRegister(
+      full_name,
+      email,
+      password,
+      student_number
+    );
+
+    if (!registerResult.success) {
+      return reply.status(registerResult.statusCode || 400).send({
+        error: {
+          code: registerResult.code,
+          message: registerResult.message,
+          request_id: request.id,
+        },
+      });
+    }
+
+    return reply.status(201).send({
+      data: registerResult.data,
+    });
+  };
+
+  fastify.post("/auth/student-login", handleStudentLogin);
+  fastify.post("/student/login", handleStudentLogin);
+  fastify.post("/auth/student-register", handleStudentRegister);
+  fastify.post("/student/register", handleStudentRegister);
 };

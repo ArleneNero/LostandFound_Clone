@@ -1,4 +1,4 @@
-import { IAuthService } from '../contracts/IAuthService';
+import { IAuthService, RegisterStudentInput } from '../contracts/IAuthService';
 import { UserSession } from '@/types/domain';
 import { ApiDataResponse, OfficerLoginResponseDto, MeDto } from '@/types/api';
 import { apiClient, setAuthToken, getAuthToken } from './apiClient';
@@ -76,11 +76,83 @@ export class HttpAuthService implements IAuthService {
   }
 
   async loginAsStudent(
-    _email?: string,
-    _name?: string,
+    email?: string,
+    passwordOrName?: string,
     _studentNumber?: string
   ): Promise<UserSession> {
-    throw new Error('Portal Mahasiswa mode HTTP belum dibuka pada tahap ini.');
+    const res = await apiClient<ApiDataResponse<{ token: string; user: MeDto }>>(
+      '/auth/student-login',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          email: email || '',
+          password: passwordOrName || '',
+        }),
+      }
+    );
+
+    const { token, user } = res.data;
+    setAuthToken(token);
+
+    const session: UserSession = {
+      id: user.user_id,
+      name: user.full_name,
+      email: user.email,
+      role: user.role,
+      assignedPostId: user.assigned_post_id,
+      studentNumber: user.student_number,
+    };
+
+    // Sync local store
+    mockStore.getState().currentUser = {
+      userId: session.id,
+      fullName: session.name,
+      email: session.email,
+      role: session.role,
+      assignedPostId: session.assignedPostId ?? 1,
+      studentNumber: session.studentNumber ?? null,
+    };
+
+    return session;
+  }
+
+  async registerStudent(input: RegisterStudentInput): Promise<UserSession> {
+    const res = await apiClient<ApiDataResponse<{ token: string; user: MeDto }>>(
+      '/auth/student-register',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name: input.fullName,
+          email: input.email,
+          password: input.password,
+          student_number: input.studentNumber,
+        }),
+      }
+    );
+
+    const { token, user } = res.data;
+    setAuthToken(token);
+
+    const session: UserSession = {
+      id: user.user_id,
+      name: user.full_name,
+      email: user.email,
+      role: user.role,
+      assignedPostId: user.assigned_post_id,
+      studentNumber: user.student_number,
+    };
+
+    // Sync local store
+    mockStore.getState().currentUser = {
+      userId: session.id,
+      fullName: session.name,
+      email: session.email,
+      role: session.role,
+      assignedPostId: session.assignedPostId ?? 1,
+      studentNumber: session.studentNumber ?? null,
+    };
+
+    return session;
   }
 
   async logout(): Promise<void> {

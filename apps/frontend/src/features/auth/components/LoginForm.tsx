@@ -47,7 +47,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ initialRole = 'OFFICER' })
         navigate(RoutePaths.OFFICER_DASHBOARD);
       } else {
         await authService.loginAsStudent(
-          email || '2411502194@student.budiluhur.ac.id'
+          email || '2411502194@student.budiluhur.ac.id',
+          password
         );
         navigate(RoutePaths.STUDENT_HOME);
       }

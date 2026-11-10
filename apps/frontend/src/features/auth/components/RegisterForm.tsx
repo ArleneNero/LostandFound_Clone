@@ -43,7 +43,16 @@ export const RegisterForm: React.FC = () => {
     setIsOtpOpen(false);
     try {
       const authService = registry.getServices().auth;
-      await authService.loginAsStudent(email, fullName, nim);
+      if (authService.registerStudent) {
+        await authService.registerStudent({
+          fullName,
+          email,
+          password,
+          studentNumber: nim,
+        });
+      } else {
+        await authService.loginAsStudent(email, fullName, nim);
+      }
       navigate(RoutePaths.STUDENT_HOME);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Registrasi gagal';

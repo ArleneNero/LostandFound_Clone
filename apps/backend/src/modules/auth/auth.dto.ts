@@ -42,3 +42,19 @@ export const bootstrapRequestSchema = z
   })
   .strict();
 export type BootstrapRequest = z.infer<typeof bootstrapRequestSchema>;
+
+// 6. Student Login Request Schema
+export const studentLoginSchema = z.object({
+  email: z.string().trim().email("Format email tidak valid"),
+  password: z.string().min(1, "Kata sandi wajib diisi"),
+});
+export type StudentLoginRequest = z.infer<typeof studentLoginSchema>;
+
+// 7. Student Register Request Schema
+export const studentRegisterSchema = z.object({
+  full_name: z.string().trim().min(2, "Nama lengkap minimal 2 karakter").max(120),
+  email: z.string().trim().email("Format email tidak valid"),
+  password: z.string().min(8, "Kata sandi minimal 8 karakter"),
+  student_number: z.string().trim().min(5, "NIM minimal 5 karakter").max(30),
+});
+export type StudentRegisterRequest = z.infer<typeof studentRegisterSchema>;

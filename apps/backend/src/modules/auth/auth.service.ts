@@ -1,7 +1,8 @@
 import { db } from "../../db/index.js";
 import { users, servicePosts } from "../../db/schema.js";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { AuthUser, TokenPayload } from "./auth.types.js";
 import { jwtService } from "./jwt.service.js";
 import { Me } from "./auth.dto.js";
@@ -206,6 +207,169 @@ export class AuthService {
     return {
       success: true,
       data: meData,
+    };
+  }
+
+  /**
+   * Student Login: Zero-Trust Server-Side Credential & Domain Validation
+   * - Verifies email ends with @student.budiluhur.ac.id
+   * - Finds student by email strictly with role === 'STUDENT'
+   * - Compares password using bcrypt
+   * - Issues JWT token and returns verified student profile
+   */
+  async studentLogin(
+    email: string,
+    password: string
+  ): Promise<
+    | { success: true; data: { token: string; user: Me } }
+    | { success: false; code: string; message: string; statusCode?: number }
+  > {
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@student.budiluhur.ac.id")) {
+      return {
+        success: false,
+        code: "INVALID_STUDENT_DOMAIN",
+        message: "Hanya email resmi mahasiswa (@student.budiluhur.ac.id) yang diizinkan untuk akun mahasiswa",
+        statusCode: 403,
+      };
+    }
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, normalizedEmail),
+    });
+
+    if (!user || user.role !== "STUDENT" || !user.passwordHash) {
+      return {
+        success: false,
+        code: "INVALID_CREDENTIALS",
+        message: "Email atau kata sandi mahasiswa tidak valid",
+        statusCode: 401,
+      };
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return {
+        success: false,
+        code: "INVALID_CREDENTIALS",
+        message: "Email atau kata sandi mahasiswa tidak valid",
+        statusCode: 401,
+      };
+    }
+
+    const token = this.createToken({
+      sub: user.authUserId,
+      email: user.email,
+      name: user.fullName,
+    });
+
+    const studentProfile: Me = {
+      user_id: user.userId,
+      full_name: user.fullName,
+      email: user.email,
+      student_number: user.studentNumber,
+      role: user.role,
+      assigned_post_id: null,
+      nim_verification_status: "NOT_VERIFIED",
+    };
+
+    return {
+      success: true,
+      data: {
+        token,
+        user: studentProfile,
+      },
+    };
+  }
+
+  /**
+   * Student Register: Server-Side Registration with Domain & Duplicate Checks
+   * - Verifies email ends with @student.budiluhur.ac.id
+   * - Checks duplicate email or studentNumber
+   * - Hashes password using bcrypt
+   * - Creates user with role === 'STUDENT'
+   * - Issues JWT token and returns verified student profile
+   */
+  async studentRegister(
+    fullName: string,
+    email: string,
+    password: string,
+    studentNumber: string
+  ): Promise<
+    | { success: true; data: { token: string; user: Me } }
+    | { success: false; code: string; message: string; statusCode?: number }
+  > {
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    if (!normalizedEmail.endsWith("@student.budiluhur.ac.id")) {
+      return {
+        success: false,
+        code: "INVALID_STUDENT_DOMAIN",
+        message: "Hanya email resmi mahasiswa (@student.budiluhur.ac.id) yang diizinkan untuk akun mahasiswa",
+        statusCode: 403,
+      };
+    }
+
+    const existingEmail = await db.query.users.findFirst({
+      where: eq(users.email, normalizedEmail),
+    });
+    if (existingEmail) {
+      return {
+        success: false,
+        code: "EMAIL_EXISTS",
+        message: "Email mahasiswa sudah terdaftar",
+        statusCode: 409,
+      };
+    }
+
+    const existingNim = await db.query.users.findFirst({
+      where: eq(users.studentNumber, studentNumber.trim()),
+    });
+    if (existingNim) {
+      return {
+        success: false,
+        code: "STUDENT_NUMBER_EXISTS",
+        message: "NIM mahasiswa sudah terdaftar",
+        statusCode: 409,
+      };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const authUserId = `student-${crypto.randomUUID()}`;
+
+    const [created] = await db
+      .insert(users)
+      .values({
+        authUserId,
+        email: normalizedEmail,
+        fullName: fullName.trim(),
+        studentNumber: studentNumber.trim(),
+        passwordHash,
+        role: "STUDENT",
+      })
+      .returning();
+
+    const token = this.createToken({
+      sub: created.authUserId,
+      email: created.email,
+      name: created.fullName,
+    });
+
+    const studentProfile: Me = {
+      user_id: created.userId,
+      full_name: created.fullName,
+      email: created.email,
+      student_number: created.studentNumber,
+      role: created.role,
+      assigned_post_id: null,
+      nim_verification_status: "NOT_VERIFIED",
+    };
+
+    return {
+      success: true,
+      data: {
+        token,
+        user: studentProfile,
+      },
     };
   }
 }
