@@ -14,6 +14,7 @@ import {
   ItemCreateRequestDto,
 } from '@/types/api';
 import { apiClient, ApiError } from './apiClient';
+import { mockStore } from '@/data/mockStore';
 
 export class HttpItemService implements IItemService {
   /**
@@ -43,7 +44,33 @@ export class HttpItemService implements IItemService {
   }
 
   /**
-   * F/E.2.1: Hubungkan detail ke Fastify GET /api/v1/items/:id
+   * B/G.1.0: Hubungkan daftar inventaris petugas ke Fastify GET /api/v1/officer/inventory
+   */
+  async getOfficerItems(params?: GetOfficerItemsParams): Promise<PaginatedResult<FoundItem>> {
+    const qp = new URLSearchParams();
+    if (params?.page) qp.set('page', String(params.page));
+    qp.set('limit', String(params?.limit ? Math.min(params.limit, 10) : 10));
+    if (params?.search) qp.set('q', params.search);
+    if (params?.category && params.category !== 'ALL') qp.set('category', params.category);
+    if (params?.status) qp.set('status', params.status);
+    const sortVal = params?.sort === 'oldest' ? 'received_at_asc' : 'received_at_desc';
+    qp.set('sort', sortVal);
+
+    const qs = qp.toString();
+    const endpoint = `/officer/inventory${qs ? `?${qs}` : ''}`;
+    const res = await apiClient<ApiListResponse<InventoryOfficerDto>>(endpoint);
+
+    return {
+      items: res.data.map(mapItemDtoToDomain),
+      total: res.meta.total,
+      totalPages: res.meta.total_pages,
+      page: res.meta.page,
+      limit: res.meta.limit,
+    };
+  }
+
+  /**
+   * F/E.2.1: Hubungkan detail publik ke Fastify GET /api/v1/items/:id
    */
   async getPublicItemById(id: string): Promise<FoundItem | null> {
     try {
@@ -57,7 +84,26 @@ export class HttpItemService implements IItemService {
     }
   }
 
+  /**
+   * B/G.1.1: Hubungkan detail inventaris petugas ke Fastify GET /api/v1/officer/items/:id
+   */
+  async getOfficerItemById(id: string): Promise<FoundItem | null> {
+    try {
+      const res = await apiClient<ApiDataResponse<InventoryOfficerDto>>(`/officer/items/${id}`);
+      return mapItemDtoToDomain(res.data);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        return null;
+      }
+      throw err;
+    }
+  }
+
   async getItemById(id: string): Promise<FoundItem | null> {
+    const isOfficer = mockStore.getState().currentUser?.role === 'OFFICER';
+    if (isOfficer) {
+      return this.getOfficerItemById(id);
+    }
     return this.getPublicItemById(id);
   }
 
@@ -86,19 +132,58 @@ export class HttpItemService implements IItemService {
     return mapItemDtoToDomain(res.data);
   }
 
-  async getOfficerItems(params?: GetOfficerItemsParams): Promise<PaginatedResult<FoundItem>> {
-    return this.getItems(params);
+  /**
+   * B/G.1.2: Perbarui visibilitas item inventaris PATCH /api/v1/officer/items/:id/visibility
+   */
+  async updateVisibility(id: string, isVisible: boolean): Promise<FoundItem> {
+    const res = await apiClient<ApiDataResponse<InventoryOfficerDto>>(
+      `/officer/items/${id}/visibility`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ is_visible: isVisible }),
+      }
+    );
+
+    return mapItemDtoToDomain(res.data);
   }
 
-  async updateVisibility(_id: string, _isVisible: boolean): Promise<FoundItem> {
-    throw new Error('Operasi updateVisibility dijadwalkan pada Milestone B/G');
+  /**
+   * B/J.1.0: Serah terima pengembalian ke pemilik POST /api/v1/officer/items/:id/return
+   */
+  async returnItem(
+    id: string,
+    recipientName: string,
+    verificationSummary: string
+  ): Promise<FoundItem> {
+    await apiClient<ApiDataResponse<unknown>>(
+      `/officer/items/${id}/return`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          recipient_name: recipientName.trim(),
+          verification_summary: verificationSummary.trim(),
+        }),
+      }
+    );
+
+    const refreshed = await this.getOfficerItemById(id);
+    if (!refreshed) {
+      throw new Error('Barang inventaris tidak ditemukan setelah serah terima');
+    }
+    return refreshed;
   }
 
-  async returnItem(_id: string, _recipientName: string, _summary: string): Promise<FoundItem> {
-    throw new Error('Operasi returnItem dijadwalkan pada Milestone B/J');
-  }
+  /**
+   * B/J.1.2: Penyaluran barang kedaluwarsa POST /api/v1/officer/items/:id/distribute
+   */
+  async distributeItem(id: string, _notes: string): Promise<FoundItem> {
+    const res = await apiClient<ApiDataResponse<InventoryOfficerDto>>(
+      `/officer/items/${id}/distribute`,
+      {
+        method: 'POST',
+      }
+    );
 
-  async distributeItem(_id: string, _notes: string): Promise<FoundItem> {
-    throw new Error('Operasi distributeItem dijadwalkan pada Milestone B/J');
+    return mapItemDtoToDomain(res.data);
   }
 }
