@@ -1,3 +1,4 @@
+import Fastify from "fastify";
 import { buildApp } from "./app.js";
 import { env } from "./config/env.js";
 
@@ -13,17 +14,14 @@ async function start() {
   }
 }
 
+// Local server startup
 if (!process.env.VERCEL) {
   start();
 }
 
 /**
- * Serverless Request Handler for Vercel
- * Handles incoming HTTP requests by delegating to Fastify once it is ready.
+ * Export default Fastify instance for Vercel Fastify Framework integration.
  */
-export default async function handler(req: any, res: any) {
-  await app.ready();
-  app.server.emit("request", req, res);
-}
-
+export default app;
 export { app };
+

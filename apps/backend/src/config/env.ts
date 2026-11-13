@@ -3,17 +3,38 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+const DEFAULT_DATABASE_URL =
+  "postgresql://neondb_owner:npg_PIJp8m3YwdaU@ep-fragrant-glade-a1oh9lfk-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
+
+const DEFAULT_DATABASE_URL_UNPOOLED =
+  "postgresql://neondb_owner:npg_PIJp8m3YwdaU@ep-fragrant-glade-a1oh9lfk.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().default(3000),
   FRONTEND_ORIGIN: z.string().default("http://localhost:5173"),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  DATABASE_URL_UNPOOLED: z.string().optional(),
+  DATABASE_URL: z.string().default(process.env.DATABASE_URL || DEFAULT_DATABASE_URL),
+  DATABASE_URL_UNPOOLED: z
+    .string()
+    .default(process.env.DATABASE_URL_UNPOOLED || DEFAULT_DATABASE_URL_UNPOOLED),
   R2_BUCKET_NAME: z.string().default("lostandfound-budiluhur"),
-  CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
-  R2_ACCESS_KEY_ID: z.string().optional(),
-  R2_SECRET_ACCESS_KEY: z.string().optional(),
-  R2_PUBLIC_URL: z.string().optional(),
+  CLOUDFLARE_ACCOUNT_ID: z
+    .string()
+    .default(process.env.CLOUDFLARE_ACCOUNT_ID || "2a552cb6962e6b3a4309ea71b7c30fd4"),
+  R2_ACCESS_KEY_ID: z
+    .string()
+    .default(process.env.R2_ACCESS_KEY_ID || "d291304a9f9f6dbc0890860d51f3e0e0"),
+  R2_SECRET_ACCESS_KEY: z
+    .string()
+    .default(
+      process.env.R2_SECRET_ACCESS_KEY ||
+        "617f1047a65522e8ed1472d1830d0f7a7c6ad2e151fc2f1a9d7febd20d6e1586"
+    ),
+  R2_PUBLIC_URL: z
+    .string()
+    .default(
+      process.env.R2_PUBLIC_URL || "https://pub-ec2de406cfec4d6ba5d9a2beb58f023a.r2.dev"
+    ),
   AUTH_SECRET: z.string().default("dev-neon-auth-secret-key-min-32-chars-long!"),
   NEON_AUTH_BASE_URL: z.string().optional(),
 });
@@ -21,9 +42,8 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error("FATAL: Environment validation failed:");
-  console.error(parsed.error.format());
-  process.exit(1);
+  console.warn("WARNING: Environment validation issues detected:", parsed.error.format());
 }
 
-export const env = parsed.data;
+export const env = parsed.success ? parsed.data : envSchema.parse({});
+

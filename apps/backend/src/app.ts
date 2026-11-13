@@ -68,8 +68,12 @@ export function buildApp(): FastifyInstance {
 
   // OpenAPI YAML contract endpoint
   app.get("/openapi.yaml", async (_request, reply) => {
-    const yamlPath = path.resolve(process.cwd(), ".agent-internal/contracts/openapi-v1.0.yaml");
-    if (!fs.existsSync(yamlPath)) {
+    const possiblePaths = [
+      path.resolve(process.cwd(), ".agent-internal/contracts/openapi-v1.0.yaml"),
+      path.resolve(process.cwd(), "apps/backend/.agent-internal/contracts/openapi-v1.0.yaml"),
+    ];
+    const yamlPath = possiblePaths.find((p) => fs.existsSync(p));
+    if (!yamlPath) {
       return reply.status(404).send({ error: "OpenAPI contract not found" });
     }
     reply.header("Content-Type", "text/yaml; charset=utf-8");

@@ -32,8 +32,11 @@ export function getAuthToken(): string | null {
   }
 }
 
+const envApiUrl = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || '/api/v1'
+  import.meta.env.PROD && (!envApiUrl || envApiUrl.includes('localhost'))
+    ? '/api/v1'
+    : envApiUrl || '/api/v1'
 ).replace(/\/$/, '');
 
 export async function apiClient<T>(
