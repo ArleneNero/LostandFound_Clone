@@ -7,6 +7,8 @@ import {
   bootstrapRequestSchema,
   studentLoginSchema,
   studentRegisterSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.dto.js";
 
 export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
@@ -218,4 +220,62 @@ export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =
   fastify.post("/student/login", handleStudentLogin);
   fastify.post("/auth/student-register", handleStudentRegister);
   fastify.post("/student/register", handleStudentRegister);
+
+  /**
+   * POST /auth/forgot-password:
+   * Requests a password reset link sent to student email via Resend
+   */
+  fastify.post("/auth/forgot-password", async (request, reply) => {
+    const parseResult = forgotPasswordSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          request_id: request.id,
+        },
+      });
+    }
+
+    const origin = (request.headers.origin as string) || (request.headers.referer as string);
+    const result = await authService.requestPasswordReset(parseResult.data.email, origin);
+
+    return reply.status(200).send({
+      data: result,
+    });
+  });
+
+  /**
+   * POST /auth/reset-password:
+   * Resets password using verified token
+   */
+  fastify.post("/auth/reset-password", async (request, reply) => {
+    const parseResult = resetPasswordSchema.safeParse(request.body);
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          request_id: request.id,
+        },
+      });
+    }
+
+    const { token, new_password } = parseResult.data;
+    const result = await authService.resetPassword(token, new_password);
+
+    if (!result.success) {
+      return reply.status(result.statusCode || 400).send({
+        error: {
+          code: result.code || "BAD_REQUEST",
+          message: result.message,
+          request_id: request.id,
+        },
+      });
+    }
+
+    return reply.status(200).send({
+      data: result,
+    });
+  });
 };

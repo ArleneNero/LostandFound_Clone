@@ -6,6 +6,8 @@ import crypto from "crypto";
 import { AuthUser, TokenPayload } from "./auth.types.js";
 import { jwtService } from "./jwt.service.js";
 import { Me } from "./auth.dto.js";
+import { emailService } from "../../services/email.service.js";
+import { env } from "../../config/env.js";
 
 export class AuthService {
   /**
@@ -370,6 +372,85 @@ export class AuthService {
         token,
         user: studentProfile,
       },
+    };
+  }
+
+  /**
+   * Request Password Reset:
+   * Generates a 30-minute secure token and sends email via Resend
+   */
+  async requestPasswordReset(
+    email: string,
+    originUrl?: string
+  ): Promise<{ success: boolean; message: string }> {
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, normalizedEmail),
+    });
+
+    if (!user) {
+      // Return success to avoid email enumeration
+      return {
+        success: true,
+        message: "Jika email terdaftar, tautan pemulihan kata sandi telah dikirim.",
+      };
+    }
+
+    const resetToken = jwtService.createToken(
+      { sub: user.userId, email: user.email, name: "password_reset" },
+      1800 // 30 minutes
+    );
+
+    const baseUrl = originUrl || env.FRONTEND_ORIGIN || "https://lostandfound-budiluhur.web.id";
+    const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+    const resetUrl = `${cleanBaseUrl}/lupa-password?token=${resetToken}&email=${encodeURIComponent(
+      user.email
+    )}`;
+
+    await emailService.sendPasswordResetEmail(user.email, resetUrl, user.fullName);
+
+    return {
+      success: true,
+      message: "Tautan pemulihan kata sandi telah dikirim ke email mahasiswa Anda.",
+    };
+  }
+
+  /**
+   * Reset Password:
+   * Validates the 30-minute token and updates passwordHash with bcrypt
+   */
+  async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string; code?: string; statusCode?: number }> {
+    if (!newPassword || newPassword.length < 8) {
+      return {
+        success: false,
+        code: "INVALID_PASSWORD",
+        message: "Kata sandi baru minimal 8 karakter",
+        statusCode: 400,
+      };
+    }
+
+    const payload = jwtService.verifyToken(token);
+    if (!payload || payload.name !== "password_reset" || !payload.sub) {
+      return {
+        success: false,
+        code: "INVALID_TOKEN",
+        message: "Tautan pemulihan tidak valid atau sudah kedaluwarsa. Silakan ajukan ulang.",
+        statusCode: 400,
+      };
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await db
+      .update(users)
+      .set({ passwordHash })
+      .where(eq(users.userId, payload.sub));
+
+    return {
+      success: true,
+      message: "Kata sandi berhasil diperbarui. Silakan masuk kembali dengan kata sandi baru.",
     };
   }
 }

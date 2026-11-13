@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { RoutePaths } from '@/constants/routes';
 import { registry } from '@/services/registry';
-import { OtpVerificationModal } from './OtpVerificationModal';
 
 export const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,9 +16,9 @@ export const RegisterForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isOtpOpen, setIsOtpOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -39,12 +38,7 @@ export const RegisterForm: React.FC = () => {
       return;
     }
 
-    // Open OTP modal for simulation (F/D.1.1 & F/D.1.2)
-    setIsOtpOpen(true);
-  };
-
-  const handleVerifySuccess = async () => {
-    setIsOtpOpen(false);
+    setIsSubmitting(true);
     try {
       const authService = registry.getServices().auth;
       if (authService.registerStudent) {
@@ -59,8 +53,10 @@ export const RegisterForm: React.FC = () => {
       }
       navigate(RoutePaths.STUDENT_HOME);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Registrasi gagal';
+      const msg = err instanceof Error ? err.message : 'Registrasi akun mahasiswa gagal.';
       setError(msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,20 +170,14 @@ export const RegisterForm: React.FC = () => {
             type="submit"
             variant="primary"
             size="md"
+            disabled={isSubmitting}
             rightIcon={<ArrowRight className="w-4 h-4" />}
             className="w-full mt-2"
           >
-            Register &amp; Lanjut
+            {isSubmitting ? 'Mendaftarkan Akun...' : 'Daftar Akun Mahasiswa'}
           </Button>
         </form>
       </div>
-
-      <OtpVerificationModal
-        isOpen={isOtpOpen}
-        email={email || 'mahasiswa@student.budiluhur.ac.id'}
-        onClose={() => setIsOtpOpen(false)}
-        onVerifySuccess={handleVerifySuccess}
-      />
     </>
   );
 };

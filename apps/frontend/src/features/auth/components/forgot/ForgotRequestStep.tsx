@@ -5,12 +5,14 @@ interface ForgotRequestStepProps {
   email: string;
   onEmailChange: (val: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  isLoading?: boolean;
 }
 
 export const ForgotRequestStep: React.FC<ForgotRequestStepProps> = ({
   email,
   onEmailChange,
   onSubmit,
+  isLoading = false,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -23,6 +25,7 @@ export const ForgotRequestStep: React.FC<ForgotRequestStepProps> = ({
           <input
             type="email"
             required
+            disabled={isLoading}
             value={email}
             onChange={(e) => onEmailChange(e.target.value)}
             placeholder="nim@student.budiluhur.ac.id"
@@ -33,9 +36,10 @@ export const ForgotRequestStep: React.FC<ForgotRequestStepProps> = ({
 
       <button
         type="submit"
-        className="w-full py-2.5 px-4 rounded-xl bg-[var(--lf-action)] text-white font-semibold text-xs sm:text-sm hover:bg-[#094bb0] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2"
+        disabled={isLoading}
+        className="w-full py-2.5 px-4 rounded-xl bg-[var(--lf-action)] text-white font-semibold text-xs sm:text-sm hover:bg-[#094bb0] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60"
       >
-        <span>Kirim Tautan Pemulihan</span>
+        <span>{isLoading ? 'Mengirim Tautan...' : 'Kirim Tautan Pemulihan'}</span>
         <ArrowRight className="w-4 h-4" />
       </button>
     </form>

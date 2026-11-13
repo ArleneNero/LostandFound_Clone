@@ -1,20 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { KeyRound, AlertCircle } from 'lucide-react';
 import { RoutePaths } from '@/constants/routes';
+import { apiClient } from '@/services/http/apiClient';
 import { ForgotRequestStep } from './forgot/ForgotRequestStep';
 import { ForgotSentStep } from './forgot/ForgotSentStep';
 import { ForgotResetStep } from './forgot/ForgotResetStep';
 import { ForgotSuccessStep } from './forgot/ForgotSuccessStep';
 
 export const ForgotPasswordForm: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const tokenFromUrl = searchParams.get('token');
+  const emailFromUrl = searchParams.get('email');
+
   const [step, setStep] = useState<'REQUEST' | 'SENT' | 'RESET' | 'SUCCESS'>('REQUEST');
   const [email, setEmail] = useState('');
+  const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl);
+      if (emailFromUrl) setEmail(emailFromUrl);
+      setStep('RESET');
+    }
+  }, [tokenFromUrl, emailFromUrl]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -32,21 +47,37 @@ export const ForgotPasswordForm: React.FC = () => {
     return () => clearInterval(interval);
   }, [step, timer]);
 
-  const handleRequestReset = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.includes('@')) {
-      setError('Masukkan alamat email yang valid.');
+  const handleRequestReset = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes('@') || !cleanEmail.endsWith('@student.budiluhur.ac.id')) {
+      setError('Masukkan alamat email resmi mahasiswa Budi Luhur (@student.budiluhur.ac.id).');
       return;
     }
+
     setError(null);
-    setTimer(60);
-    setCanResend(false);
-    setStep('SENT');
+    setIsLoading(true);
+
+    try {
+      await apiClient('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email: cleanEmail }),
+      });
+      setStep('SENT');
+      setTimer(60);
+      setCanResend(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengirim tautan pemulihan kata sandi';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResetSubmit = (e: React.FormEvent) => {
+  const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
     if (newPassword.length < 8) {
       setError('Kata sandi baru minimal 8 karakter.');
       return;
@@ -55,7 +86,29 @@ export const ForgotPasswordForm: React.FC = () => {
       setError('Konfirmasi kata sandi baru tidak cocok.');
       return;
     }
-    setStep('SUCCESS');
+
+    const resetToken = token || tokenFromUrl;
+    if (!resetToken) {
+      setError('Token pemulihan tidak ditemukan. Silakan ajukan ulang tautan pemulihan.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await apiClient('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: resetToken,
+          new_password: newPassword,
+        }),
+      });
+      setStep('SUCCESS');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengatur ulang kata sandi';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -83,7 +136,12 @@ export const ForgotPasswordForm: React.FC = () => {
       )}
 
       {step === 'REQUEST' && (
-        <ForgotRequestStep email={email} onEmailChange={setEmail} onSubmit={handleRequestReset} />
+        <ForgotRequestStep
+          email={email}
+          onEmailChange={setEmail}
+          onSubmit={handleRequestReset}
+          isLoading={isLoading}
+        />
       )}
 
       {step === 'SENT' && (
@@ -91,10 +149,7 @@ export const ForgotPasswordForm: React.FC = () => {
           email={email}
           timer={timer}
           canResend={canResend}
-          onResend={() => {
-            setTimer(60);
-            setCanResend(false);
-          }}
+          onResend={() => handleRequestReset()}
           onContinueToReset={() => setStep('RESET')}
         />
       )}
@@ -106,6 +161,7 @@ export const ForgotPasswordForm: React.FC = () => {
           onNewPasswordChange={setNewPassword}
           onConfirmPasswordChange={setConfirmPassword}
           onSubmit={handleResetSubmit}
+          isLoading={isLoading}
         />
       )}
 

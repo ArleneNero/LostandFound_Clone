@@ -37,6 +37,15 @@ const envSchema = z.object({
     ),
   AUTH_SECRET: z.string().default("dev-neon-auth-secret-key-min-32-chars-long!"),
   NEON_AUTH_BASE_URL: z.string().optional(),
+  RESEND_API_KEY: z
+    .string()
+    .default(process.env.RESEND_API_KEY || ""),
+  RESEND_FROM_EMAIL: z
+    .string()
+    .default(
+      process.env.RESEND_FROM_EMAIL ||
+        "UBL LostnFound <noreply@lostandfound-budiluhur.web.id>"
+    ),
 });
 
 const parsed = envSchema.safeParse(process.env);

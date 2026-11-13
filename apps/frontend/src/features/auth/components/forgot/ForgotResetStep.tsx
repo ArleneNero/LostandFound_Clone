@@ -7,6 +7,7 @@ interface ForgotResetStepProps {
   onNewPasswordChange: (val: string) => void;
   onConfirmPasswordChange: (val: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  isLoading?: boolean;
 }
 
 export const ForgotResetStep: React.FC<ForgotResetStepProps> = ({
@@ -15,6 +16,7 @@ export const ForgotResetStep: React.FC<ForgotResetStepProps> = ({
   onNewPasswordChange,
   onConfirmPasswordChange,
   onSubmit,
+  isLoading = false,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -27,6 +29,7 @@ export const ForgotResetStep: React.FC<ForgotResetStepProps> = ({
           <input
             type="password"
             required
+            disabled={isLoading}
             value={newPassword}
             onChange={(e) => onNewPasswordChange(e.target.value)}
             placeholder="Minimal 8 karakter"
@@ -44,6 +47,7 @@ export const ForgotResetStep: React.FC<ForgotResetStepProps> = ({
           <input
             type="password"
             required
+            disabled={isLoading}
             value={confirmPassword}
             onChange={(e) => onConfirmPasswordChange(e.target.value)}
             placeholder="Ulangi kata sandi baru"
@@ -54,9 +58,10 @@ export const ForgotResetStep: React.FC<ForgotResetStepProps> = ({
 
       <button
         type="submit"
-        className="w-full py-2.5 px-4 rounded-xl bg-[var(--lf-action)] text-white font-semibold text-xs sm:text-sm hover:bg-[#094bb0] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2"
+        disabled={isLoading}
+        className="w-full py-2.5 px-4 rounded-xl bg-[var(--lf-action)] text-white font-semibold text-xs sm:text-sm hover:bg-[#094bb0] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60"
       >
-        <span>Simpan Kata Sandi Baru</span>
+        <span>{isLoading ? 'Menyimpan Kata Sandi...' : 'Simpan Kata Sandi Baru'}</span>
         <ArrowRight className="w-4 h-4" />
       </button>
     </form>

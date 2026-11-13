@@ -24,7 +24,7 @@ export const ForgotSentStep: React.FC<ForgotSentStepProps> = ({
         </span>
         <p className="text-xs text-[var(--lf-muted)] leading-relaxed">
           Kami telah mengirimkan tautan reset kata sandi ke <strong>{email}</strong>.
-          Tautan berlaku selama 15 menit.
+          Tautan berlaku selama 30 menit. Silakan periksa kotak masuk atau folder spam email Anda.
         </p>
       </div>
 

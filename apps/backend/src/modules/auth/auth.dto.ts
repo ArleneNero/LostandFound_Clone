@@ -58,3 +58,16 @@ export const studentRegisterSchema = z.object({
   student_number: z.string().trim().min(5, "NIM minimal 5 karakter").max(30),
 });
 export type StudentRegisterRequest = z.infer<typeof studentRegisterSchema>;
+
+// 8. Forgot Password Request Schema
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Format email tidak valid"),
+});
+export type ForgotPasswordRequest = z.infer<typeof forgotPasswordSchema>;
+
+// 9. Reset Password Request Schema
+export const resetPasswordSchema = z.object({
+  token: z.string().min(10, "Token pemulihan tidak valid"),
+  new_password: z.string().min(8, "Kata sandi baru minimal 8 karakter"),
+});
+export type ResetPasswordRequest = z.infer<typeof resetPasswordSchema>;
