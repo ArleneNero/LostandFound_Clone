@@ -11,12 +11,16 @@ export default defineConfig({
     react(),
   ],
   resolve: {
+    preserveSymlinks: true,
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
     port: 5173,
+    fs: {
+      allow: ['..'],
+    },
   },
   test: {
     globals: true,

@@ -106,9 +106,6 @@ export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({
           <p className="text-xs text-[var(--lf-muted)] mt-1 max-w-xs">
             Kode verifikasi 6 digit telah dikirimkan ke <span className="font-semibold text-[var(--lf-ink)]">{email}</span>.
           </p>
-          <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
-            Mode Simulasi Demo: Masukkan 6 angka sembarang
-          </span>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

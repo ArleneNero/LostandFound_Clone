@@ -17,4 +17,13 @@ if (!process.env.VERCEL) {
   start();
 }
 
-export default app;
+/**
+ * Serverless Request Handler for Vercel
+ * Handles incoming HTTP requests by delegating to Fastify once it is ready.
+ */
+export default async function handler(req: any, res: any) {
+  await app.ready();
+  app.server.emit("request", req, res);
+}
+
+export { app };

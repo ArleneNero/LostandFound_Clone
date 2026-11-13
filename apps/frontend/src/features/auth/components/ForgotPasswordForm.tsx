@@ -59,15 +59,15 @@ export const ForgotPasswordForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl border border-[var(--lf-border)] shadow-sm p-6 sm:p-8">
-      <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-full bg-[var(--lf-soft)] flex items-center justify-center text-[var(--lf-action)] mx-auto mb-3">
+    <div className="w-full flex flex-col gap-4">
+      <div className="text-center mb-2">
+        <div className="w-12 h-12 rounded-full bg-[#EFF8FF] flex items-center justify-center text-[#1677FF] mx-auto mb-3">
           <KeyRound className="w-6 h-6" />
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-[var(--lf-ink)]">
-          {step === 'SUCCESS' ? 'Kata Sandi Diperbarui' : 'Pemulihan Kata Sandi'}
-        </h2>
-        <p className="text-xs sm:text-sm text-[var(--lf-muted)] mt-1">
+        <h3 className="text-lg font-bold text-[#111827]">
+          {step === 'SUCCESS' ? 'Kata Sandi Diperbarui' : 'Pemulihan Akun Mahasiswa'}
+        </h3>
+        <p className="text-xs text-[#667085] mt-1">
           {step === 'REQUEST' && 'Masukkan email kampus untuk menerima instruksi pemulihan'}
           {step === 'SENT' && `Tautan pemulihan telah dikirim ke ${email}`}
           {step === 'RESET' && 'Buat kata sandi baru untuk akun mahasiswa Anda'}
@@ -76,7 +76,7 @@ export const ForgotPasswordForm: React.FC = () => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-xs text-red-700">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-xs text-red-700">
           <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
           <span>{error}</span>
         </div>
@@ -112,8 +112,8 @@ export const ForgotPasswordForm: React.FC = () => {
       {step === 'SUCCESS' && <ForgotSuccessStep />}
 
       {step !== 'SUCCESS' && (
-        <div className="mt-6 pt-5 border-t border-[var(--lf-border)] text-center">
-          <Link to={RoutePaths.LOGIN} className="text-xs text-[var(--lf-action)] font-semibold hover:underline">
+        <div className="mt-4 pt-4 border-t border-[#E4E7EC] text-center">
+          <Link to={RoutePaths.LOGIN} className="text-xs text-[#0B5ED7] font-semibold hover:underline">
             ← Kembali ke Halaman Masuk
           </Link>
         </div>

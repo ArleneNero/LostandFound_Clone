@@ -6,6 +6,8 @@ import {
   officerSeedData,
   servicePostSeedData,
   servicePostPhotoSeedData,
+  SEED_STUDENT_EMAIL,
+  studentSeedData,
 } from "./fixtures/officer.fixture.js";
 import { itemsToSeed } from "./fixtures/items.fixture.js";
 
@@ -27,6 +29,29 @@ async function seedOfficer() {
   }
 
   return officer!;
+}
+
+async function seedStudent() {
+  const existing = await db.query.users.findFirst({
+    where: eq(users.email, SEED_STUDENT_EMAIL),
+  });
+  let student = existing;
+  if (existing) {
+    if (!existing.passwordHash) {
+      await db
+        .update(users)
+        .set({ passwordHash: studentSeedData.passwordHash })
+        .where(eq(users.userId, existing.userId));
+      console.log(`🔑 Updated password hash for Student: ${existing.email}`);
+    }
+    console.log(`ℹ️ Student already exists: ${existing.email} (${existing.userId})`);
+  } else {
+    const [created] = await db.insert(users).values(studentSeedData).returning();
+    console.log(`✅ Created Student: ${created.email} (${created.userId})`);
+    student = created;
+  }
+
+  return student!;
 }
 
 async function seedServicePost(officerUserId: string) {
@@ -99,6 +124,7 @@ async function seedFoundItems(officerUserId: string, postId: number) {
 async function seed() {
   console.log("🌱 Running clean idempotent seed...");
   const officer = await seedOfficer();
+  const student = await seedStudent();
   const post = await seedServicePost(officer.userId);
   await seedFoundItems(officer.userId, post.postId);
   console.log("✨ Seed completed successfully with deterministic test items!");

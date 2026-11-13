@@ -1,11 +1,14 @@
 import React from 'react';
+import { StudentAuthLayout } from '@/features/auth/components/StudentAuthLayout';
 import { ForgotPasswordForm } from '@/features/auth/components/ForgotPasswordForm';
 
 export const ForgotPasswordPage: React.FC = () => {
   return (
-    <div className="py-8 sm:py-12 px-4 sm:px-6">
+    <StudentAuthLayout
+      title="Pemulihan Kata Sandi"
+      subtitle="Atur ulang kata sandi akun mahasiswa Anda."
+    >
       <ForgotPasswordForm />
-    </div>
+    </StudentAuthLayout>
   );
 };
-

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, Calendar, MapPin, PlusCircle } from 'lucide-react';
+import { Building2, Calendar, MapPin, PlusCircle, Sparkles } from 'lucide-react';
 import { ITEM_CATEGORIES } from '@/constants/categories';
 import { ReportPhotoUploader } from './ReportPhotoUploader';
 
@@ -46,136 +46,170 @@ export const ReportFoundForm: React.FC<ReportFoundFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-[var(--lf-border)] p-6 sm:p-8 space-y-6 shadow-sm">
-      <div className="p-4 bg-[var(--lf-soft)] rounded-2xl border border-[rgba(11,94,215,0.15)] flex items-start gap-3">
-        <Building2 className="w-5 h-5 text-[var(--lf-action)] shrink-0 mt-0.5" />
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl sm:rounded-3xl border border-[#E4E7EC] p-6 sm:p-8 space-y-6 shadow-xs">
+      {/* Target Pos Banner */}
+      <div className="p-4 bg-[#EFF8FF] rounded-2xl border border-[#B2DDFF] flex items-start gap-3">
+        <Building2 className="w-5 h-5 text-[#1570EF] shrink-0 mt-0.5" />
         <div className="text-xs">
-          <span className="font-bold text-[var(--lf-action)] block">
+          <span className="font-bold text-[#1570EF] block">
             Pos Tujuan: Pos Pengajaran UBL (Gedung Unit 4 Lt. 1)
           </span>
-          <span className="text-[var(--lf-muted)] mt-0.5 block">
-            Barang fisik wajib diserahkan ke pos ini setelah formulir dikirimkan.
+          <span className="text-[#475467] mt-0.5 block leading-relaxed">
+            Fisik barang wajib diserahkan ke pos ini setelah formulir dikirimkan untuk dicocokkan dan dicatat ke inventaris resmi.
           </span>
         </div>
       </div>
 
-      <ReportPhotoUploader selectedFile={photoFile} onPhotoSelected={setPhotoFile} />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="sm:col-span-2">
-          <label className="block text-xs font-semibold text-[var(--lf-ink)] mb-1.5">
-            Nama Barang Temuan <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            placeholder="Contoh: Kunci Motor Vario Merah / Dompet Cokelat"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-action)] focus:ring-2 focus:ring-[var(--lf-soft)] transition-all"
-          />
+      {/* Section 1: Informasi Barang */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 border-b border-[#F2F4F7] pb-2">
+          <Sparkles className="w-4 h-4 text-[#1570EF]" />
+          <h3 className="text-sm font-bold text-[#111827]">
+            Informasi Barang
+          </h3>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-[var(--lf-ink)] mb-1.5">
-            Kategori Barang <span className="text-red-500">*</span>
-          </label>
-          <select
-            required
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-action)] focus:ring-2 focus:ring-[var(--lf-soft)] transition-all bg-white"
-          >
-            <option value="">Pilih Kategori</option>
-            {ITEM_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-[var(--lf-ink)] mb-1.5">
-            Tanggal Ditemukan <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <Calendar className="w-4 h-4 text-[var(--lf-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              Nama Barang Temuan <span className="text-red-500">*</span>
+            </label>
             <input
-              type="date"
+              type="text"
               required
-              value={foundDate}
-              onChange={(e) => setFoundDate(e.target.value)}
-              className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-action)] focus:ring-2 focus:ring-[var(--lf-soft)] transition-all"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              placeholder="Contoh: Kunci Motor Vario Merah / Dompet Cokelat"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4E7EC] text-xs sm:text-sm text-[#111827] placeholder-[#98A2B3] focus:outline-none focus:border-[#1570EF] focus:ring-2 focus:ring-[#EFF8FF] transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              Kategori Barang <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4E7EC] text-xs sm:text-sm text-[#111827] focus:outline-none focus:border-[#1570EF] focus:ring-2 focus:ring-[#EFF8FF] transition-all bg-white"
+            >
+              <option value="">Pilih Kategori</option>
+              {ITEM_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              Tanggal Ditemukan <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <Calendar className="w-4 h-4 text-[#98A2B3] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="date"
+                required
+                value={foundDate}
+                onChange={(e) => setFoundDate(e.target.value)}
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E4E7EC] text-xs sm:text-sm text-[#111827] focus:outline-none focus:border-[#1570EF] focus:ring-2 focus:ring-[#EFF8FF] transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              Foto Barang Temuan (Opsional tapi Direkomendasikan)
+            </label>
+            <ReportPhotoUploader selectedFile={photoFile} onPhotoSelected={setPhotoFile} />
+            <p className="text-[11px] text-[#667085] mt-1.5">
+              Foto akan dikompresi otomatis sebelum diunggah agar hemat kuota.
+            </p>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              Deskripsi & Ciri-Ciri Barang
+            </label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Jelaskan warna, merk, stiker, gantungan, atau ciri fisik lain yang memudahkan identifikasi pemilik..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4E7EC] text-xs sm:text-sm text-[#111827] placeholder-[#98A2B3] focus:outline-none focus:border-[#1570EF] focus:ring-2 focus:ring-[#EFF8FF] transition-all resize-none"
             />
           </div>
         </div>
+      </div>
 
-        <div className="sm:col-span-2">
-          <label className="block text-xs font-semibold text-[var(--lf-ink)] mb-1.5">
+      {/* Section 2: Informasi Penemuan */}
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center gap-2 border-b border-[#F2F4F7] pb-2">
+          <MapPin className="w-4 h-4 text-[#1570EF]" />
+          <h3 className="text-sm font-bold text-[#111827]">
+            Lokasi Penemuan
+          </h3>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#111827] mb-1.5">
             Lokasi Tepat Penemuan <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <MapPin className="w-4 h-4 text-[var(--lf-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <MapPin className="w-4 h-4 text-[#98A2B3] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               required
               value={foundLocation}
               onChange={(e) => setFoundLocation(e.target.value)}
-              placeholder="Contoh: Meja Lab Komputer 3 / Kantin Depan Gedung 6"
-              className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-action)] focus:ring-2 focus:ring-[var(--lf-soft)] transition-all"
+              placeholder="Contoh: Meja Lab Komputer 3, Kantin Bawah Gedung Unit 6"
+              className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E4E7EC] text-xs sm:text-sm text-[#111827] placeholder-[#98A2B3] focus:outline-none focus:border-[#1570EF] focus:ring-2 focus:ring-[#EFF8FF] transition-all"
             />
           </div>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="block text-xs font-semibold text-[var(--lf-ink)] mb-1.5">
-            Deskripsi & Ciri-Ciri Barang
-          </label>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Jelaskan warna, merk, stiker, atau detail fisik lain yang memudahkan identifikasi pemilik"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm text-[var(--lf-ink)] focus:outline-none focus:border-[var(--lf-action)] focus:ring-2 focus:ring-[var(--lf-soft)] transition-all resize-none"
-          />
+          <p className="text-[11px] text-[#667085] mt-1">
+            Pos penyimpanan resmi ditetapkan ketika petugas menerima fisik barang.
+          </p>
         </div>
       </div>
 
-      <div className="p-4 bg-[var(--lf-canvas)] rounded-2xl border border-[var(--lf-border)]">
+      {/* Checkbox Persetujuan Penyerahan Fisik */}
+      <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0]">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
             required
             checked={agreedToPhysicalDrop}
             onChange={(e) => setAgreedToPhysicalDrop(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-[var(--lf-action)] border-[var(--lf-border)] focus:ring-[var(--lf-action)]"
+            className="mt-0.5 w-4 h-4 rounded text-[#1570EF] border-[#D0D5DD] focus:ring-[#1570EF]"
           />
-          <span className="text-xs text-[var(--lf-ink)] leading-relaxed">
+          <span className="text-xs text-[#344054] leading-relaxed">
             Saya menyatakan bahwa saya menemukan barang ini di area kampus Universitas Budi Luhur dan <strong>berkomitmen untuk segera menyerahkan fisik barang ke Ruang Pengajaran (Gedung Unit 4 Lt. 1)</strong>.
           </span>
         </label>
       </div>
 
-      <div className="flex justify-end gap-3 pt-2">
+      {/* Form Action Buttons */}
+      <div className="flex items-center justify-end gap-3 pt-2">
         <button
           type="button"
           onClick={onCancel}
-          className="px-5 py-2.5 rounded-xl border border-[var(--lf-border)] text-xs sm:text-sm font-semibold text-[var(--lf-muted)] hover:text-[var(--lf-ink)] hover:bg-[var(--lf-canvas)] transition-all"
+          className="px-5 py-2.5 rounded-xl border border-[#D0D5DD] text-xs sm:text-sm font-semibold text-[#475467] hover:text-[#111827] hover:bg-[#F9FAFB] transition-all cursor-pointer"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2.5 rounded-xl bg-[var(--lf-action)] text-white text-xs sm:text-sm font-semibold hover:bg-[#094bb0] active:scale-[0.99] transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-b from-[#3194FF] to-[#0873F8] text-white text-xs sm:text-sm font-semibold hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center gap-2 shadow-[0px_4px_12px_rgba(22,119,255,0.2)] cursor-pointer"
         >
           {isSubmitting ? (
             <span>Mengirim Laporan...</span>
           ) : (
             <>
               <PlusCircle className="w-4 h-4" />
-              <span>Kirim Laporan Temuan</span>
+              <span>Kirim Laporan</span>
             </>
           )}
         </button>
@@ -183,4 +217,3 @@ export const ReportFoundForm: React.FC<ReportFoundFormProps> = ({
     </form>
   );
 };
-

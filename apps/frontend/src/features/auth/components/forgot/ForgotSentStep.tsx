@@ -50,7 +50,7 @@ export const ForgotSentStep: React.FC<ForgotSentStepProps> = ({
         onClick={onContinueToReset}
         className="w-full py-2.5 px-4 rounded-xl bg-[var(--lf-soft)] text-[var(--lf-action)] font-semibold text-xs sm:text-sm hover:bg-[#dbeafe] transition-all"
       >
-        [Mode Demo] Buka Formulir Sandi Baru Langsung
+        Buka Formulir Kata Sandi Baru
       </button>
     </div>
   );
