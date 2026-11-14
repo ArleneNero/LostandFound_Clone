@@ -15,13 +15,22 @@ async function start() {
 }
 
 // Local server startup
-if (!process.env.VERCEL) {
+if (!process.env.VERCEL && process.env.NODE_ENV !== "production") {
   start();
 }
 
 /**
- * Export default Fastify instance for Vercel Fastify Framework integration.
+ * Serverless function entrypoint for Vercel deployment.
+ * Bridges incoming Vercel/Node.js HTTP request and response into Fastify.
+ * Also preserves Fastify instance properties for framework detection.
  */
-export default app;
+const handler = async function (req: any, res: any) {
+  await app.ready();
+  app.server.emit("request", req, res);
+};
+
+Object.assign(handler, app);
+
+export default handler;
 export { app };
 

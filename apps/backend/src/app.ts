@@ -119,6 +119,8 @@ export function buildApp(): FastifyInstance {
   });
   app.get("/health", healthHandler);
   app.get("/api/v1/health", healthHandler);
+  app.get("/api/health", healthHandler);
+  app.get("/api/v1", healthHandler);
 
 
   // Storage endpoint: stream live from Cloudflare R2 bucket with local fallback

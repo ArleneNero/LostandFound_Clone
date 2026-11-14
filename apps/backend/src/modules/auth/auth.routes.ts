@@ -148,33 +148,47 @@ export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =
    * Server-Side Student Authentication & Bcrypt Verification
    */
   const handleStudentLogin = async (request: FastifyRequest, reply: FastifyReply) => {
-    const parseResult = studentLoginSchema.safeParse(request.body);
-    if (!parseResult.success) {
-      return reply.status(400).send({
+    try {
+      const parseResult = studentLoginSchema.safeParse(request.body);
+      if (!parseResult.success) {
+        return reply.status(400).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: parseResult.error.issues[0]?.message || "Input tidak valid",
+            request_id: request.id,
+          },
+        });
+      }
+
+      const { email, password } = parseResult.data;
+      const loginResult = await authService.studentLogin(email, password);
+
+      if (!loginResult.success) {
+        return reply.status(loginResult.statusCode || 401).send({
+          error: {
+            code: loginResult.code,
+            message: loginResult.message,
+            request_id: request.id,
+          },
+        });
+      }
+
+      return reply.status(200).send({
+        data: loginResult.data,
+      });
+    } catch (err) {
+      request.log.error(err, "Unhandled error during student login");
+      return reply.status(500).send({
         error: {
-          code: "VALIDATION_ERROR",
-          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            err instanceof Error
+              ? err.message
+              : "Terjadi kesalahan internal saat masuk sebagai mahasiswa",
           request_id: request.id,
         },
       });
     }
-
-    const { email, password } = parseResult.data;
-    const loginResult = await authService.studentLogin(email, password);
-
-    if (!loginResult.success) {
-      return reply.status(loginResult.statusCode || 401).send({
-        error: {
-          code: loginResult.code,
-          message: loginResult.message,
-          request_id: request.id,
-        },
-      });
-    }
-
-    return reply.status(200).send({
-      data: loginResult.data,
-    });
   };
 
   /**
@@ -182,38 +196,52 @@ export const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =
    * Server-Side Student Registration
    */
   const handleStudentRegister = async (request: FastifyRequest, reply: FastifyReply) => {
-    const parseResult = studentRegisterSchema.safeParse(request.body);
-    if (!parseResult.success) {
-      return reply.status(400).send({
+    try {
+      const parseResult = studentRegisterSchema.safeParse(request.body);
+      if (!parseResult.success) {
+        return reply.status(400).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: parseResult.error.issues[0]?.message || "Input tidak valid",
+            request_id: request.id,
+          },
+        });
+      }
+
+      const { full_name, email, password, student_number } = parseResult.data;
+      const registerResult = await authService.studentRegister(
+        full_name,
+        email,
+        password,
+        student_number
+      );
+
+      if (!registerResult.success) {
+        return reply.status(registerResult.statusCode || 400).send({
+          error: {
+            code: registerResult.code,
+            message: registerResult.message,
+            request_id: request.id,
+          },
+        });
+      }
+
+      return reply.status(201).send({
+        data: registerResult.data,
+      });
+    } catch (err) {
+      request.log.error(err, "Unhandled error during student registration");
+      return reply.status(500).send({
         error: {
-          code: "VALIDATION_ERROR",
-          message: parseResult.error.issues[0]?.message || "Input tidak valid",
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            err instanceof Error
+              ? err.message
+              : "Terjadi kesalahan internal saat registrasi akun mahasiswa",
           request_id: request.id,
         },
       });
     }
-
-    const { full_name, email, password, student_number } = parseResult.data;
-    const registerResult = await authService.studentRegister(
-      full_name,
-      email,
-      password,
-      student_number
-    );
-
-    if (!registerResult.success) {
-      return reply.status(registerResult.statusCode || 400).send({
-        error: {
-          code: registerResult.code,
-          message: registerResult.message,
-          request_id: request.id,
-        },
-      });
-    }
-
-    return reply.status(201).send({
-      data: registerResult.data,
-    });
   };
 
   fastify.post("/auth/student-login", handleStudentLogin);
