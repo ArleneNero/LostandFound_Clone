@@ -1,4 +1,13 @@
 {
+  "name": "ubl-lostandfound-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --prefix apps/backend && npm run build --prefix apps/frontend"
+  },
   "dependencies": {
     "@neon/config": "^1.13.0",
     "@neon/env": "^2.1.0",
