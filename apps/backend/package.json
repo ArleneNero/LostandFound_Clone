@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && node -e \"import('fs').then(fs => { const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.main = 'index.js'; fs.writeFileSync('dist/package.json', JSON.stringify(pkg, null, 2)); })\"",
-    "start": "node dist/index.js",
+    "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/bundle.cjs",
+    "start": "node dist/bundle.cjs",
     "db:push": "tsx ./node_modules/drizzle-kit/bin.cjs push",
     "db:generate": "tsx ./node_modules/drizzle-kit/bin.cjs generate",
     "db:seed": "tsx src/db/seed.ts",
@@ -31,6 +31,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.13.1",
     "drizzle-kit": "^0.30.4",
+    "esbuild": "^0.25.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"

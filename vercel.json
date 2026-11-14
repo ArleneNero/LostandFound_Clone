@@ -4,7 +4,7 @@
     "backend": {
       "root": "apps/backend",
       "buildCommand": "npm run build",
-      "entrypoint": "dist/index.js"
+      "entrypoint": "dist/bundle.cjs"
     },
     "frontend": {
       "root": "apps/frontend",
