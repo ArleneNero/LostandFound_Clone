@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/bundle.cjs",
-    "start": "node dist/bundle.cjs",
+    "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=bundle.cjs",
+    "start": "node bundle.cjs",
     "db:push": "tsx ./node_modules/drizzle-kit/bin.cjs push",
     "db:generate": "tsx ./node_modules/drizzle-kit/bin.cjs generate",
     "db:seed": "tsx src/db/seed.ts",
