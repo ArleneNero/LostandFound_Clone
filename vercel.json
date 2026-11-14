@@ -3,8 +3,9 @@
   "services": {
     "backend": {
       "root": "apps/backend",
-      "framework": "fastify",
-      "entrypoint": "src/index.ts"
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist",
+      "entrypoint": "index.js"
     },
     "frontend": {
       "root": "apps/frontend",

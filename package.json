@@ -1,6 +1,7 @@
 {
   "name": "ubl-lostandfound-monorepo",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/backend",
     "apps/frontend"

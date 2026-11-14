@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && node -e \"import('fs').then(fs => { const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.main = 'index.js'; fs.writeFileSync('dist/package.json', JSON.stringify(pkg, null, 2)); })\"",
     "start": "node dist/index.js",
     "db:push": "tsx ./node_modules/drizzle-kit/bin.cjs push",
     "db:generate": "tsx ./node_modules/drizzle-kit/bin.cjs generate",

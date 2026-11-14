@@ -169,3 +169,15 @@ export function buildApp(): FastifyInstance {
 
   return app;
 }
+
+// Fallback serverless handler if Vercel targets app.js directly
+let defaultAppInstance: FastifyInstance | null = null;
+const appHandler = async function (req: any, res: any) {
+  if (!defaultAppInstance) {
+    defaultAppInstance = buildApp();
+  }
+  await defaultAppInstance.ready();
+  defaultAppInstance.server.emit("request", req, res);
+};
+
+export default appHandler;
