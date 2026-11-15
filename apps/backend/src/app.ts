@@ -28,6 +28,27 @@ export function buildApp(): FastifyInstance {
     requestIdHeader: "x-request-id",
   });
 
+  // Support resilient JSON parsing for Vercel serverless request bridges
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (req, body, done) => {
+      try {
+        if ((req as any).body && typeof (req as any).body === "object") {
+          return done(null, (req as any).body);
+        }
+        const json =
+          typeof body === "string" && body.trim().length > 0
+            ? JSON.parse(body)
+            : body || {};
+        done(null, json);
+      } catch (err: any) {
+        err.statusCode = 400;
+        done(err, undefined);
+      }
+    }
+  );
+
   // Support binary content types for direct image PUT simulation
   app.addContentTypeParser(
     ["image/jpeg", "image/png", "image/webp", "application/octet-stream"],

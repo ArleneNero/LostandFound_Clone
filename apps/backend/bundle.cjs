@@ -98761,6 +98761,22 @@ function buildApp() {
     requestIdHeader: "x-request-id"
   });
   app2.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (req, body, done) => {
+      try {
+        if (req.body && typeof req.body === "object") {
+          return done(null, req.body);
+        }
+        const json2 = typeof body === "string" && body.trim().length > 0 ? JSON.parse(body) : body || {};
+        done(null, json2);
+      } catch (err) {
+        err.statusCode = 400;
+        done(err, void 0);
+      }
+    }
+  );
+  app2.addContentTypeParser(
     ["image/jpeg", "image/png", "image/webp", "application/octet-stream"],
     { parseAs: "buffer" },
     (_req, body, done) => {
@@ -98890,7 +98906,7 @@ async function start() {
     process.exit(1);
   }
 }
-if (!process.env.VERCEL && process.env.NODE_ENV !== "production") {
+if (!process.env.VERCEL && process.env.NODE_ENV !== "production" && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   start();
 }
 var handler = async function(req, res) {
@@ -98940,3 +98956,4 @@ light-my-request/lib/form-data.js:
      *)
   *)
 */
+if (module.exports && module.exports.default) { module.exports = Object.assign(module.exports.default, module.exports); }

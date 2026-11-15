@@ -15,7 +15,11 @@ async function start() {
 }
 
 // Local server startup
-if (!process.env.VERCEL && process.env.NODE_ENV !== "production") {
+if (
+  !process.env.VERCEL &&
+  process.env.NODE_ENV !== "production" &&
+  !process.env.AWS_LAMBDA_FUNCTION_NAME
+) {
   start();
 }
 

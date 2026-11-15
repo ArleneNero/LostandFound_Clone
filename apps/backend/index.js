@@ -1,2 +1,4 @@
-export * from "./dist/index.js";
-export { default } from "./dist/index.js";
+import handler from "./bundle.cjs";
+
+export default handler;
+export const app = handler.app;

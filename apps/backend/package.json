@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "dist/index.js",
+  "main": "bundle.cjs",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=bundle.cjs",
+    "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --footer:js=\"if (module.exports && module.exports.default) { module.exports = Object.assign(module.exports.default, module.exports); }\" --outfile=bundle.cjs",
     "start": "node bundle.cjs",
     "db:push": "tsx ./node_modules/drizzle-kit/bin.cjs push",
     "db:generate": "tsx ./node_modules/drizzle-kit/bin.cjs generate",
