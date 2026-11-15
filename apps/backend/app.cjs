@@ -575,7 +575,7 @@ var require_time_tree = __commonJS({
        * @param {number} start
        * @returns {TimeTreeNode["id"]}
        */
-      [kAddNode](parent, label, start2) {
+      [kAddNode](parent, label, start) {
         const parentNode = this[kGetParent](parent);
         const isRoot = parentNode === null;
         if (isRoot) {
@@ -584,7 +584,7 @@ var require_time_tree = __commonJS({
             id: "root",
             label,
             nodes: [],
-            start: start2,
+            start,
             stop: null,
             diff: -1
           };
@@ -597,7 +597,7 @@ var require_time_tree = __commonJS({
           id: nodeId,
           label,
           nodes: [],
-          start: start2,
+          start,
           stop: null,
           diff: -1
         };
@@ -611,8 +611,8 @@ var require_time_tree = __commonJS({
        * @param {number|undefined} start
        * @returns {TimeTreeNode["id"]}
        */
-      start(parent, label, start2 = Date.now()) {
-        return this[kAddNode](parent, label, start2);
+      start(parent, label, start = Date.now()) {
+        return this[kAddNode](parent, label, start);
       }
       /**
        * @param {string} nodeId
@@ -12385,21 +12385,21 @@ var require_forwarded = __commonJS({
     function parse2(header, socketAddr) {
       const result = [socketAddr];
       let end = header.length;
-      let start2 = end;
+      let start = end;
       let char2;
       let i5;
       for (i5 = end - 1; i5 >= 0; --i5) {
         char2 = header[i5];
         if (char2 === " " || char2 === "	") {
-          start2 === end && (start2 = end = i5);
+          start === end && (start = end = i5);
         } else if (char2 === ",") {
-          start2 !== end && result.push(header.slice(start2, end));
-          start2 = end = i5;
+          start !== end && result.push(header.slice(start, end));
+          start = end = i5;
         } else {
-          start2 = i5;
+          start = i5;
         }
       }
-      start2 !== end && result.push(header.substring(start2, end));
+      start !== end && result.push(header.substring(start, end));
       return result;
     }
     module2.exports = forwarded;
@@ -23832,13 +23832,13 @@ var require_schemes2 = __commonJS({
       mailtoComponent.path = void 0;
       if (rawQuery) {
         let headers = null;
-        let start2 = 0;
-        while (start2 <= rawQuery.length) {
-          let end = rawQuery.indexOf("&", start2);
+        let start = 0;
+        while (start <= rawQuery.length) {
+          let end = rawQuery.indexOf("&", start);
           if (end === -1)
             end = rawQuery.length;
-          const token = rawQuery.slice(start2, end);
-          start2 = end + 1;
+          const token = rawQuery.slice(start, end);
+          start = end + 1;
           const eqIdx = token.indexOf("=");
           if (eqIdx !== token.lastIndexOf("=")) {
             mailtoComponent.error = mailtoComponent.error || "URI mailto has malformed header fields.";
@@ -32027,9 +32027,9 @@ var require_tokenizer = __commonJS({
     var digit = /\d/;
     var tokenizer = (regexpStr) => {
       let i5 = 0, c5;
-      let start2 = { type: types_1.types.ROOT, stack: [] };
-      let lastGroup = start2;
-      let last = start2.stack;
+      let start = { type: types_1.types.ROOT, stack: [] };
+      let lastGroup = start;
+      let last = start.stack;
       let groupStack = [];
       let referenceQueue = [];
       let groupCount = 0;
@@ -32239,7 +32239,7 @@ var require_tokenizer = __commonJS({
         throw new SyntaxError(`Invalid regular expression: /${regexpStr}/: Unterminated group`);
       }
       updateReferences(referenceQueue, groupCount);
-      return start2;
+      return start;
     };
     exports2.tokenizer = tokenizer;
     function updateReferences(referenceQueue, groupCount) {
@@ -36168,20 +36168,20 @@ function eqIndex(str, min, len) {
 function valueSlice(str, min, max) {
   if (min === max)
     return "";
-  let start2 = min;
+  let start = min;
   let end = max;
   do {
-    const code = str.charCodeAt(start2);
+    const code = str.charCodeAt(start);
     if (code !== 32 && code !== 9)
       break;
-  } while (++start2 < end);
-  while (end > start2) {
+  } while (++start < end);
+  while (end > start) {
     const code = str.charCodeAt(end - 1);
     if (code !== 32 && code !== 9)
       break;
     end--;
   }
-  return str.slice(start2, end);
+  return str.slice(start, end);
 }
 function decode(str) {
   if (str.indexOf("%") === -1)
@@ -36697,15 +36697,15 @@ var require_set_cookie = __commonJS({
       return { name: trimWsp(name), value: trimWsp(value) };
     }
     function trimWsp(str) {
-      var start2 = 0;
+      var start = 0;
       var end = str.length;
-      while (start2 < end && isWsp(str.charCodeAt(start2))) {
-        start2 += 1;
+      while (start < end && isWsp(str.charCodeAt(start))) {
+        start += 1;
       }
-      while (end > start2 && isWsp(str.charCodeAt(end - 1))) {
+      while (end > start && isWsp(str.charCodeAt(end - 1))) {
         end -= 1;
       }
-      return str.substring(start2, end);
+      return str.substring(start, end);
     }
     function isWsp(code) {
       return code === 32 || code === 9;
@@ -36772,7 +36772,7 @@ var require_set_cookie = __commonJS({
       }
       var cookiesStrings = [];
       var pos = 0;
-      var start2;
+      var start;
       var ch;
       var lastComma;
       var nextStart;
@@ -36788,7 +36788,7 @@ var require_set_cookie = __commonJS({
         return ch !== "=" && ch !== ";" && ch !== ",";
       }
       while (pos < cookiesString.length) {
-        start2 = pos;
+        start = pos;
         cookiesSeparatorFound = false;
         while (skipWhitespace()) {
           ch = cookiesString.charAt(pos);
@@ -36803,8 +36803,8 @@ var require_set_cookie = __commonJS({
             if (pos < cookiesString.length && cookiesString.charAt(pos) === "=") {
               cookiesSeparatorFound = true;
               pos = nextStart;
-              cookiesStrings.push(cookiesString.substring(start2, lastComma));
-              start2 = pos;
+              cookiesStrings.push(cookiesString.substring(start, lastComma));
+              start = pos;
             } else {
               pos = lastComma + 1;
             }
@@ -36813,7 +36813,7 @@ var require_set_cookie = __commonJS({
           }
         }
         if (!cookiesSeparatorFound || pos >= cookiesString.length) {
-          cookiesStrings.push(cookiesString.substring(start2, cookiesString.length));
+          cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
         }
       }
       return cookiesStrings;
@@ -45763,14 +45763,14 @@ var init_stringEquals = __esm({
 var substring;
 var init_substring = __esm({
   "node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/lib/substring.js"() {
-    substring = (input, start2, stop, reverse) => {
-      if (input == null || start2 >= stop || input.length < stop || /[^\u0000-\u007f]/.test(input)) {
+    substring = (input, start, stop, reverse) => {
+      if (input == null || start >= stop || input.length < stop || /[^\u0000-\u007f]/.test(input)) {
         return null;
       }
       if (!reverse) {
-        return input.substring(start2, stop);
+        return input.substring(start, stop);
       }
-      return input.substring(input.length - stop, input.length - start2);
+      return input.substring(input.length - stop, input.length - start);
     };
   }
 });
@@ -50920,8 +50920,8 @@ var init_JsonBytesStringAdapter = __esm({
       split(separator, limit) {
         return this.s().split(separator, limit);
       }
-      substring(start2, end) {
-        return this.s().substring(start2, end);
+      substring(start, end) {
+        return this.s().substring(start, end);
       }
       trim() {
         return this.s().trim();
@@ -95827,12 +95827,12 @@ function _crypt(b5, salt, rounds, callback, progressCallback) {
     if (progressCallback)
       progressCallback(i5 / rounds);
     if (i5 < rounds) {
-      var start2 = Date.now();
+      var start = Date.now();
       for (; i5 < rounds; ) {
         i5 = i5 + 1;
         _key(b5, P, S3);
         _key(salt, P, S3);
-        if (Date.now() - start2 > MAX_EXECUTION_TIME)
+        if (Date.now() - start > MAX_EXECUTION_TIME)
           break;
       }
     } else {
@@ -98897,18 +98897,6 @@ function buildApp() {
 
 // src/index.ts
 var app = buildApp();
-async function start() {
-  try {
-    await app.listen({ port: env.PORT, host: "0.0.0.0" });
-    console.log(`\u{1F680} UBL LostnFound Backend API running on port ${env.PORT}`);
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
-}
-if (!process.env.VERCEL && process.env.NODE_ENV !== "production" && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
-  start();
-}
 async function handler(req, res) {
   try {
     await app.ready();
