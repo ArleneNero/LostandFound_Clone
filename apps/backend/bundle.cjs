@@ -98898,6 +98898,21 @@ function buildApp() {
 // src/index.ts
 var app = buildApp();
 async function handler(req, res) {
+  if (req.url === "/api/v1/health" || req.url === "/health" || req.url?.endsWith("/health")) {
+    if (res && !res.headersSent) {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          status: "ok",
+          probe: "handler_reached",
+          url: req.url,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        })
+      );
+      return;
+    }
+  }
   try {
     await app.ready();
     app.server.emit("request", req, res);
