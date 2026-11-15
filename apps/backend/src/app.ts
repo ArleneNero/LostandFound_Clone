@@ -11,6 +11,7 @@ import { uploadsRoutes } from "./modules/uploads/uploads.routes.js";
 import { officerRoutes } from "./modules/officer/officer.routes.js";
 import { submissionsRoutes } from "./modules/submissions/submissions.routes.js";
 import { r2Provider } from "./modules/uploads/storage/r2.provider.js";
+import { OPENAPI_YAML_CONTRACT } from "./openapi.contract.js";
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({
@@ -89,16 +90,8 @@ export function buildApp(): FastifyInstance {
 
   // OpenAPI YAML contract endpoint
   app.get("/openapi.yaml", async (_request, reply) => {
-    const possiblePaths = [
-      path.resolve(process.cwd(), ".agent-internal/contracts/openapi-v1.0.yaml"),
-      path.resolve(process.cwd(), "apps/backend/.agent-internal/contracts/openapi-v1.0.yaml"),
-    ];
-    const yamlPath = possiblePaths.find((p) => fs.existsSync(p));
-    if (!yamlPath) {
-      return reply.status(404).send({ error: "OpenAPI contract not found" });
-    }
     reply.header("Content-Type", "text/yaml; charset=utf-8");
-    return reply.send(fs.createReadStream(yamlPath));
+    return reply.send(OPENAPI_YAML_CONTRACT);
   });
 
   // Native Local Swagger UI (No CORS, No Mixed Content, 100% Local!)
