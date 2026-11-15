@@ -2,9 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
     "backend": {
-      "root": "apps/backend",
-      "buildCommand": "npm run build",
-      "entrypoint": "index.js"
+      "root": "api",
+      "entrypoint": "index.cjs"
     },
     "frontend": {
       "root": "apps/frontend",
