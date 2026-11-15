@@ -138,6 +138,7 @@ export function buildApp(): FastifyInstance {
     timestamp: new Date().toISOString(),
     request_id: request.id,
   });
+  app.get("/", healthHandler);
   app.get("/health", healthHandler);
   app.get("/api/v1/health", healthHandler);
   app.get("/api/health", healthHandler);

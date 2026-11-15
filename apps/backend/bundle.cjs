@@ -98851,6 +98851,7 @@ function buildApp() {
     timestamp: (/* @__PURE__ */ new Date()).toISOString(),
     request_id: request.id
   });
+  app2.get("/", healthHandler);
   app2.get("/health", healthHandler);
   app2.get("/api/v1/health", healthHandler);
   app2.get("/api/health", healthHandler);
@@ -98915,7 +98916,27 @@ async function handler(req, res) {
   }
   try {
     await app.ready();
-    app.server.emit("request", req, res);
+    await new Promise((resolve, reject) => {
+      if (res.writableEnded || res.finished) {
+        return resolve();
+      }
+      const timer = setTimeout(() => {
+        resolve();
+      }, 15e3);
+      res.once("finish", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      res.once("close", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      res.once("error", (err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+      app.server.emit("request", req, res);
+    });
   } catch (err) {
     console.error("[SERVERLESS_HANDLER_ERROR]:", err);
     if (res && !res.headersSent) {

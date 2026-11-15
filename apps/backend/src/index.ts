@@ -26,7 +26,27 @@ export default async function handler(req: any, res: any) {
 
   try {
     await app.ready();
-    app.server.emit("request", req, res);
+    await new Promise<void>((resolve, reject) => {
+      if (res.writableEnded || res.finished) {
+        return resolve();
+      }
+      const timer = setTimeout(() => {
+        resolve();
+      }, 15000);
+      res.once("finish", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      res.once("close", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      res.once("error", (err: any) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+      app.server.emit("request", req, res);
+    });
   } catch (err: any) {
     console.error("[SERVERLESS_HANDLER_ERROR]:", err);
     if (res && !res.headersSent) {

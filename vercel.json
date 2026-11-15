@@ -4,13 +4,7 @@
     "backend": {
       "root": "apps/backend",
       "buildCommand": "npm run build",
-      "entrypoint": "index.cjs",
-      "rewrites": [
-        {
-          "source": "/(.*)",
-          "destination": "/"
-        }
-      ]
+      "entrypoint": "index.cjs"
     },
     "frontend": {
       "root": "apps/frontend",
@@ -27,29 +21,25 @@
     {
       "source": "/api/(.*)",
       "destination": {
-        "service": "backend",
-        "path": "/"
+        "service": "backend"
       }
     },
     {
       "source": "/storage/(.*)",
       "destination": {
-        "service": "backend",
-        "path": "/"
+        "service": "backend"
       }
     },
     {
       "source": "/docs",
       "destination": {
-        "service": "backend",
-        "path": "/"
+        "service": "backend"
       }
     },
     {
       "source": "/openapi.yaml",
       "destination": {
-        "service": "backend",
-        "path": "/"
+        "service": "backend"
       }
     },
     {
