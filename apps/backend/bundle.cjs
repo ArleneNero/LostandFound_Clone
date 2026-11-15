@@ -77090,7 +77090,7 @@ var require_dist_cjs17 = __commonJS({
 var src_exports = {};
 __export(src_exports, {
   app: () => app,
-  default: () => src_default
+  default: () => handler
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -98909,18 +98909,13 @@ async function start() {
 if (!process.env.VERCEL && process.env.NODE_ENV !== "production" && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   start();
 }
-var handler = async function(req, res) {
+async function handler(req, res) {
   try {
     await app.ready();
-    await new Promise((resolve, reject) => {
-      res.on("finish", resolve);
-      res.on("close", resolve);
-      res.on("error", reject);
-      app.server.emit("request", req, res);
-    });
+    app.server.emit("request", req, res);
   } catch (err) {
     console.error("[SERVERLESS_HANDLER_ERROR]:", err);
-    if (!res.headersSent) {
+    if (res && !res.headersSent) {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");
       res.end(
@@ -98933,9 +98928,7 @@ var handler = async function(req, res) {
       );
     }
   }
-};
-Object.assign(handler, app);
-var src_default = handler;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   app
@@ -98977,4 +98970,4 @@ light-my-request/lib/form-data.js:
      *)
   *)
 */
-if (module.exports && module.exports.default) { module.exports = Object.assign(module.exports.default, module.exports); }
+if (module.exports && module.exports.default) { const fn = module.exports.default; module.exports = fn; module.exports.default = fn; }

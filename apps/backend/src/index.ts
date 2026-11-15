@@ -26,20 +26,14 @@ if (
 /**
  * Serverless function entrypoint for Vercel deployment.
  * Bridges incoming Vercel/Node.js HTTP request and response into Fastify.
- * Awaits full response completion so the serverless execution does not terminate prematurely.
  */
-const handler = async function (req: any, res: any) {
+export default async function handler(req: any, res: any) {
   try {
     await app.ready();
-    await new Promise<void>((resolve, reject) => {
-      res.on("finish", resolve);
-      res.on("close", resolve);
-      res.on("error", reject);
-      app.server.emit("request", req, res);
-    });
+    app.server.emit("request", req, res);
   } catch (err: any) {
     console.error("[SERVERLESS_HANDLER_ERROR]:", err);
-    if (!res.headersSent) {
+    if (res && !res.headersSent) {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");
       res.end(
@@ -52,10 +46,7 @@ const handler = async function (req: any, res: any) {
       );
     }
   }
-};
+}
 
-Object.assign(handler, app);
-
-export default handler;
 export { app };
 
