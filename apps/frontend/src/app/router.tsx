@@ -49,6 +49,8 @@ export const router = createBrowserRouter([
       { path: RoutePaths.LOGIN, element: <LoginPage /> },
       { path: RoutePaths.REGISTER, element: <RegisterPage /> },
       { path: RoutePaths.FORGOT_PASSWORD, element: <ForgotPasswordPage /> },
+      { path: '/lupa-password', element: <ForgotPasswordPage /> },
+      { path: '/reset-password', element: <ForgotPasswordPage /> },
     ],
   },
 

@@ -96399,7 +96399,7 @@ var AuthService = class {
     );
     const baseUrl = originUrl || env.FRONTEND_ORIGIN || "https://lostandfound-budiluhur.web.id";
     const cleanBaseUrl = baseUrl.replace(/\/$/, "");
-    const resetUrl = `${cleanBaseUrl}/lupa-password?token=${resetToken}&email=${encodeURIComponent(
+    const resetUrl = `${cleanBaseUrl}/lupa-sandi?token=${resetToken}&email=${encodeURIComponent(
       user.email
     )}`;
     await emailService.sendPasswordResetEmail(user.email, resetUrl, user.fullName);
