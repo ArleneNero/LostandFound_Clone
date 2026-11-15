@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "app.cjs",
+  "main": "index.cjs",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --footer:js=\"if (module.exports && module.exports.default) { const fn = module.exports.default; module.exports = fn; module.exports.default = fn; }\" --outfile=app.cjs && node -e \"const fs = require('fs'); fs.copyFileSync('app.cjs', 'index.cjs'); fs.copyFileSync('app.cjs', 'bundle.cjs');\"",
