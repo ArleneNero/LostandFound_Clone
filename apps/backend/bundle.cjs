@@ -77095,11 +77095,11 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/app.ts
-var import_fastify = __toESM(require_fastify(), 1);
-var import_cors = __toESM(require_cors(), 1);
+var import_fastify = __toESM(require_fastify());
+var import_cors = __toESM(require_cors());
 var import_crypto8 = require("crypto");
-var import_fs = __toESM(require("fs"), 1);
-var import_path = __toESM(require("path"), 1);
+var import_fs = __toESM(require("fs"));
+var import_path = __toESM(require("path"));
 
 // node_modules/zod/v3/external.js
 var external_exports = {};
@@ -81143,7 +81143,7 @@ var coerce = {
 var NEVER = INVALID;
 
 // src/config/env.ts
-var dotenv = __toESM(require_main(), 1);
+var dotenv = __toESM(require_main());
 dotenv.config();
 var DEFAULT_DATABASE_URL = "postgresql://neondb_owner:npg_PIJp8m3YwdaU@ep-fragrant-glade-a1oh9lfk-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
 var DEFAULT_DATABASE_URL_UNPOOLED = "postgresql://neondb_owner:npg_PIJp8m3YwdaU@ep-fragrant-glade-a1oh9lfk.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
@@ -95957,10 +95957,10 @@ var bcryptjs_default = {
 };
 
 // src/modules/auth/auth.service.ts
-var import_crypto4 = __toESM(require("crypto"), 1);
+var import_crypto4 = __toESM(require("crypto"));
 
 // src/modules/auth/jwt.service.ts
-var import_crypto3 = __toESM(require("crypto"), 1);
+var import_crypto3 = __toESM(require("crypto"));
 var JwtService = class {
   /**
    * Helper to sign a deterministic JWT with HMAC-SHA256 (HS256).
@@ -96845,8 +96845,8 @@ var uploadIdParamSchema = external_exports.object({
 var import_crypto7 = require("crypto");
 
 // src/modules/uploads/storage/r2.provider.ts
-var import_client_s3 = __toESM(require_dist_cjs16(), 1);
-var import_s3_request_presigner = __toESM(require_dist_cjs17(), 1);
+var import_client_s3 = __toESM(require_dist_cjs16());
+var import_s3_request_presigner = __toESM(require_dist_cjs17());
 var R2StorageProvider = class {
   s3Client = null;
   isConfigured = false;

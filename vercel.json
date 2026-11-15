@@ -4,7 +4,7 @@
     "backend": {
       "root": "apps/backend",
       "buildCommand": "npm run build",
-      "entrypoint": "index.cjs"
+      "entrypoint": "index.js"
     },
     "frontend": {
       "root": "apps/frontend",
