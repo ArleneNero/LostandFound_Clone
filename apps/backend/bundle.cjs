@@ -98910,8 +98910,29 @@ if (!process.env.VERCEL && process.env.NODE_ENV !== "production" && !process.env
   start();
 }
 var handler = async function(req, res) {
-  await app.ready();
-  app.server.emit("request", req, res);
+  try {
+    await app.ready();
+    await new Promise((resolve, reject) => {
+      res.on("finish", resolve);
+      res.on("close", resolve);
+      res.on("error", reject);
+      app.server.emit("request", req, res);
+    });
+  } catch (err) {
+    console.error("[SERVERLESS_HANDLER_ERROR]:", err);
+    if (!res.headersSent) {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          error: {
+            code: "INTERNAL_SERVER_ERROR",
+            message: err?.message || "Internal serverless error"
+          }
+        })
+      );
+    }
+  }
 };
 Object.assign(handler, app);
 var src_default = handler;
