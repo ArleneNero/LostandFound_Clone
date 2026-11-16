@@ -25,11 +25,12 @@ export function resolvePhotoUrl(storagePath: string, ttlSeconds = 300): Resolved
     };
   }
 
-  // Safe fallback mock URL for local/testing or Vercel deployment
+  // Safe URL for local/testing or Vercel production deployment
   const cleanPath = storagePath.replace(/^\/+/, "");
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : `http://localhost:${env.PORT}`;
+  const isLocalDev = env.NODE_ENV === "development" && !process.env.VERCEL;
+  const baseUrl = isLocalDev
+    ? `http://localhost:${env.PORT}`
+    : (process.env.PUBLIC_APP_URL || "https://lostandfound-budiluhur.web.id");
   return {
     url: `${baseUrl}/storage/${cleanPath}?exp=${Math.floor(expiresAtDate.getTime() / 1000)}`,
     expires_at,

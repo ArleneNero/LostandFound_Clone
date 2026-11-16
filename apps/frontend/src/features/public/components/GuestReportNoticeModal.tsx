@@ -21,6 +21,11 @@ export const GuestReportNoticeModal: React.FC<GuestReportNoticeModalProps> = ({
     navigate(RoutePaths.POSTS);
   };
 
+  const handleGoToLogin = () => {
+    onClose();
+    navigate(RoutePaths.LOGIN);
+  };
+
   return (
     <div
       role="dialog"
@@ -43,30 +48,29 @@ export const GuestReportNoticeModal: React.FC<GuestReportNoticeModalProps> = ({
 
         <div className="flex flex-col gap-1.5">
           <h2 className="text-base font-bold text-[var(--lf-ink)]">
-            Layanan Pelaporan Belum Tersedia
+            Layanan Pelaporan Mahasiswa
           </h2>
           <p className="text-xs text-[var(--lf-muted)] leading-relaxed">
-            Mode Tamu (Guest) tidak dapat membuat laporan barang secara online.
-            Jika Anda menemukan barang di lingkungan kampus Universitas Budi Luhur,
-            mohon serahkan barang fisik secara langsung ke Petugas di Pos Pelayanan terdekat.
+            Untuk membuat laporan temuan online, silakan masuk menggunakan akun email resmi mahasiswa Budi Luhur.
+            Jika Anda bukan mahasiswa atau pengunjung umum, silakan bawa dan serahkan barang fisik secara langsung ke Petugas Pos Pengajaran.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
           <button
             type="button"
-            onClick={handleGoToPosts}
+            onClick={handleGoToLogin}
             className="w-full sm:flex-1 py-2.5 px-4 bg-[#1570EF] hover:bg-[#175CD3] text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
           >
-            <MapPin className="w-3.5 h-3.5" />
-            <span>Lihat Lokasi Pos</span>
+            <span>Masuk Mahasiswa</span>
           </button>
           <button
             type="button"
-            onClick={onClose}
-            className="w-full sm:w-auto py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#D0D5DD] text-[#344054] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            onClick={handleGoToPosts}
+            className="w-full sm:w-auto py-2.5 px-4 bg-white hover:bg-gray-50 border border-[#D0D5DD] text-[#344054] text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
-            Tutup
+            <MapPin className="w-3.5 h-3.5" />
+            <span>Lokasi Pos</span>
           </button>
         </div>
       </div>

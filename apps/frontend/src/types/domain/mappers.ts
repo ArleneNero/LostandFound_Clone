@@ -7,6 +7,16 @@ import {
 } from '../api';
 import { FoundItem, Submission, ServicePost, UserSession } from './index';
 
+export function cleanPhotoUrl(url?: string): string {
+  if (!url) return '';
+  // Strip any internal Vercel preview domain to avoid SSO authentication redirect
+  if (url.includes('.vercel.app/storage/')) {
+    const idx = url.indexOf('/storage/');
+    return url.substring(idx);
+  }
+  return url;
+}
+
 export function mapItemDtoToDomain(
   dto: FoundItemPublicDto | InventoryOfficerDto
 ): FoundItem {
@@ -23,7 +33,7 @@ export function mapItemDtoToDomain(
     receivedAt: dto.received_at,
     postId: dto.post.post_id,
     postName: dto.post.name,
-    photoUrl: dto.photos[0]?.url || '',
+    photoUrl: cleanPhotoUrl(dto.photos[0]?.url),
     status: isOfficer ? (dto as InventoryOfficerDto).status : 'STORED',
     isVisible: isOfficer ? (dto as InventoryOfficerDto).is_visible : true,
     privateNotes: isOfficer
@@ -44,7 +54,7 @@ export function mapSubmissionDtoToDomain(dto: FoundSubmissionDto): Submission {
     foundDate: dto.found_on,
     status: dto.status,
     submittedAt: dto.submitted_at,
-    photoUrl: dto.report_photo_url,
+    photoUrl: cleanPhotoUrl(dto.report_photo_url),
   };
 }
 
