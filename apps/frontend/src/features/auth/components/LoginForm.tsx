@@ -40,7 +40,7 @@ export const LoginForm: React.FC = () => {
         resolvedEmail,
         password || 'Nero Mahasiswa'
       );
-      navigate(RoutePaths.STUDENT_HOME);
+      navigate(RoutePaths.GUEST_HOME);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat masuk';
       setErrorMessage(msg);

@@ -82,7 +82,10 @@ export const PublicLayout: React.FC = () => {
 
   const isNavActive = (itemPath: string) => {
     if (itemPath === RoutePaths.GUEST_HOME) {
-      return location.pathname === RoutePaths.GUEST_HOME;
+      return (
+        location.pathname === RoutePaths.GUEST_HOME ||
+        location.pathname === RoutePaths.STUDENT_HOME
+      );
     }
     if (itemPath.startsWith('/')) {
       return location.pathname.startsWith(itemPath);

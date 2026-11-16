@@ -51,7 +51,7 @@ export const RegisterForm: React.FC = () => {
       } else {
         await authService.loginAsStudent(email, fullName, nim);
       }
-      navigate(RoutePaths.STUDENT_HOME);
+      navigate(RoutePaths.GUEST_HOME);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Registrasi akun mahasiswa gagal.';
       setError(msg);

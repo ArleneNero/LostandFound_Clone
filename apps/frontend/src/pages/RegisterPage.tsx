@@ -14,7 +14,7 @@ export const RegisterPage: React.FC = () => {
       try {
         const user = await registry.getServices().auth.getCurrentUser();
         if (isMounted && user && user.role === 'STUDENT') {
-          navigate(RoutePaths.STUDENT_HOME, { replace: true });
+          navigate(RoutePaths.GUEST_HOME, { replace: true });
         }
       } catch {
         // ignore

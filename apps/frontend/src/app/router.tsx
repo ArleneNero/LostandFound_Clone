@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PublicLayout } from '@/components/layouts/PublicLayout';
 import { OfficerLayout } from '@/components/layouts/OfficerLayout';
-import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { StudentRouteGuard } from '@/components/guards/StudentRouteGuard';
 import { LandingPage } from '@/pages/LandingPage';
 import { GuestHomePage } from '@/pages/GuestHomePage';
@@ -70,15 +69,15 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Student / Mahasiswa Routes (Milestone F/D)
+  // Student / Mahasiswa Routes (Unified Shell)
   {
     path: '/mahasiswa',
-    element: <StudentRouteGuard />,
+    element: <PublicLayout />,
     children: [
       {
-        element: <StudentLayout />,
+        element: <StudentRouteGuard />,
         children: [
-          { index: true, element: <Navigate to={RoutePaths.STUDENT_HOME} replace /> },
+          { index: true, element: <Navigate to="beranda" replace /> },
           { path: 'beranda', element: <StudentHomePage /> },
           { path: 'lapor-temuan', element: <StudentReportFoundPage /> },
           { path: 'laporan-saya', element: <StudentMyReportsPage /> },
